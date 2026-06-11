@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito | JOEL PIEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body>
+<div class="navbar-fixed">
+    <div class="top-bar">ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS</div>
+    <header class="header">
+        <div class="logo">JOEL PIEL</div>
+        <div class="header-right">
+            <form action="/buscar" method="GET" class="buscador-form">
+                <input type="text" name="q" placeholder="Buscar bolsos..." class="buscador" aria-label="Buscar productos">
+                <button type="submit" class="buscar-btn"><i class="fas fa-search"></i></button>
+            </form>
+            <div class="icons">
+                {% if usuario %}
+                    <span class="user-welcome">Hola, {{ usuario }}</span>
+                    {% if rol == "admin" %}
+                        <a href="/admin" title="Panel Admin"><i class="fas fa-tools"></i></a>
+                    {% endif %}
+                    <a href="/logout" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></a>
+                {% else %}
+                    <div class="user-menu">
+                        <span class="user-icon"><i class="far fa-user"></i></span>
+                        <div class="dropdown">
+                            <a href="/login">Iniciar sesión</a>
+                            <a href="/registro">Registrarse</a>
+                        </div>
+                    </div>
+                {% endif %}
+                <a href="javascript:void(0);" onclick="toggleCarrito()" title="Carrito" class="carrito-link" style="position:relative;text-decoration:none;">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="carrito-count">{{ cantidad_total_carrito }}</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <nav class="menu">
+        <a href="/">INICIO</a>
+        <a href="/mujer">MUJER</a>
+        <a href="/hombre">HOMBRE</a>
+        <a href="/lo-nuevo">LO NUEVO</a>
+        <a href="/contacto">CONTACTO</a>
+    </nav>
+</div>
+
+<section class="cart-page" style="max-width:900px;margin:40px auto;padding:0 20px;">
+    <h1 style="font-family:'Playfair Display',serif;font-size:28px;letter-spacing:1px;margin-bottom:30px;text-align:center;">MI BOLSA</h1>
+
+    {% if productos %}
+        {% for p in productos %}
+        <div class="cart-item-card" id="item-card-{{ p.id_producto }}" style="display:flex;align-items:center;gap:20px;padding:20px 0;border-bottom:1px solid #eee;">
+            {% if 'static/' in p.imagen_url %}
+                <img src="{{ p.imagen_url }}" style="width:100px;height:100px;object-fit:cover;" onerror="this.src='https://via.placeholder.com/100x100?text=Bolso'">
+            {% else %}
+                <img src="{{ url_for('static', filename='img/' + p.imagen_url) }}" style="width:100px;height:100px;object-fit:cover;" onerror="this.src='https://via.placeholder.com/100x100?text=Bolso'">
+            {% endif %}
+            <div style="flex:1;">
+                <h3 style="margin:0 0 8px;font-size:16px;font-weight:600;">{{ p.nombre }}</h3>
+                <div class="quantity-controls" style="display:flex;align-items:center;gap:10px;margin:10px 0;">
+                    <button type="button" onclick="alterarCantidad('{{ p.id_producto }}', 'restar')" style="background:#f4f4f4;border:1px solid #ddd;width:32px;height:32px;cursor:pointer;font-weight:bold;border-radius:3px;">-</button>
+                    <span id="cantidad-{{ p.id_producto }}" style="font-weight:600;min-width:24px;text-align:center;">{{ p.cantidad }}</span>
+                    <button type="button" onclick="alterarCantidad('{{ p.id_producto }}', 'sumar')" style="background:#f4f4f4;border:1px solid #ddd;width:32px;height:32px;cursor:pointer;font-weight:bold;border-radius:3px;">+</button>
+                </div>
+                <p style="margin:0;font-weight:700;" id="subtotal-{{ p.id_producto }}">${{ "{:,.0f}".format(p.subtotal) }}</p>
+            </div>
+            <a href="/carrito/eliminar/{{ p.id_producto }}" style="color:#999;font-size:18px;"><i class="fa-solid fa-trash-can"></i></a>
+        </div>
+        {% endfor %}
+
+        <div style="text-align:right;margin-top:30px;padding-top:20px;">
+            <p style="font-size:20px;font-weight:700;">TOTAL: <span id="cart-page-total">${{ "{:,.0f}".format(total) }}</span></p>
+            <a href="/carrito/checkout" class="btn-cart-checkout" style="display:inline-block;padding:14px 40px;background:#000;color:#fff;text-decoration:none;font-weight:700;letter-spacing:1.5px;font-size:13px;margin-top:15px;">PROCESAR PEDIDO</a>
+        </div>
+    {% else %}
+        <div style="text-align:center;padding:60px 20px;">
+            <i class="fa-solid fa-bag-shopping" style="font-size:3rem;color:#ccc;margin-bottom:20px;"></i>
+            <p style="color:#888;font-size:16px;">Tu bolsa está vacía.</p>
+            <a href="/" class="btn-cart-checkout" style="display:inline-block;padding:12px 30px;background:#000;color:#fff;text-decoration:none;font-weight:600;font-size:12px;letter-spacing:1.5px;margin-top:20px;">VER COLECCIÓN</a>
+        </div>
+    {% endif %}
+</section>
+
+<footer class="footer" style="margin-top:60px;">
+    <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
+</footer>
+
+{% include 'carrito_sidebar.html' %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

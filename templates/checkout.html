@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joel Piel | Datos de Envío</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
+</head>
+<body>
+
+<div class="navbar-fixed">
+    <div class="top-bar">ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS</div>
+    <header class="header">
+        <div class="logo" style="cursor: pointer;" onclick="window.location.href='/'">JOEL PIEL</div>
+        <div class="header-right">
+            <span class="user-welcome">Hola, {{ session.get('usuario') }}</span>
+        </div>
+    </header>
+</div>
+
+<div class="checkout-container">
+    <div class="checkout-box">
+        <a href="/" class="btn-back-store">
+            <i class="fa-solid fa-arrow-left-long"></i> VOLVER A LA TIENDA
+        </a>
+
+        <h2 class="checkout-title">DATOS DE ENVÍO</h2>
+        <form action="/carrito/finalizar" method="POST" autocomplete="off">
+            
+            <div class="form-group">
+                <label for="departamento_input">Departamento *</label>
+                <div class="autocomplete-wrapper">
+                    <input type="text" id="departamento_input" class="form-control" placeholder="Escribe tu departamento (Ej: Antioquia, Bogotá...)" required>
+                    <input type="hidden" name="departamento" id="departamento">
+                    <ul class="autocomplete-suggestions" id="suggestions-list"></ul>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="ciudad">Ciudad / Municipio *</label>
+                <input type="text" name="ciudad" id="ciudad" class="form-control" placeholder="Ej: Medellín" required>
+            </div>
+
+            <div class="form-group">
+                <label for="direccion">Dirección Completa *</label>
+                <input type="text" name="direccion" id="direccion" class="form-control" placeholder="Ej: Calle 10 # 43E - 20, Apto 402" required>
+            </div>
+
+            <div class="form-group">
+                <label for="telefono">Teléfono de Contacto *</label>
+                <input type="tel" name="telefono" id="telefono" class="form-control" placeholder="Ej: 3001234567" required>
+            </div>
+
+            <button type="submit" class="btn-checkout-submit">CONFIRMAR Y PAGAR</button>
+        </form>
+    </div>
+
+    <div class="checkout-box summary-bg">
+        <h2 class="checkout-title">TU BOLSA</h2>
+        
+        {% for p in productos %}
+        <div class="order-summary-item">
+            {% if 'static/' in p.imagen_url %}
+                <img src="{{ p.imagen_url }}" class="order-summary-img" onerror="this.src='https://via.placeholder.com/60x60?text=Bolso'">
+            {% else %}
+                <img src="{{ url_for('static', filename='img/' + p.imagen_url) }}" class="order-summary-img" onerror="this.src='https://via.placeholder.com/60x60?text=Bolso'">
+            {% endif %}
+            <div class="item-details">
+                <h4>{{ p.nombre }}</h4>
+                <p>Cant: {{ p.cantidad }}</p>
+            </div>
+            <strong class="item-price">${{ "{:,.0f}".format(p.subtotal) }}</strong>
+        </div>
+        {% endfor %}
+
+        <div class="checkout-total-line">
+            <span>TOTAL PRODUCTOS:</span>
+            <span>${{ "{:,.0f}".format(total) }}</span>
+        </div>
+
+        <div class="info-nota">
+            <i class="fa-solid fa-truck-ramp-box"></i> <strong>Información de Envío:</strong><br>
+            El valor total reflejado corresponde únicamente a tus artículos de JOEL PIEL. El costo del flete del paquete es <strong>contraentrega</strong> y será cancelado por ti directamente a la empresa transportadora al momento de recibirlo en tu dirección.
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const departamentos = [
+        "Amazonas", "Antioquia", "Arauca", "Atlántico", "Bogotá D.C.", 
+        "Bolívar", "Boyacá", "Caldas", "Caquetá", "Casanare", "Cauca", 
+        "Cesar", "Chocó", "Córdoba", "Cundinamarca", "Guainía", "Guaviare", 
+        "Huila", "La Guajira", "Magdalena", "Meta", "Nariño", "Norte de Santander", 
+        "Putumayo", "Quindío", "Risaralda", "San Andrés y Providencia", 
+        "Santander", "Sucre", "Tolima", "Valle del Cauca", "Vaupés", "Vichada"
+    ];
+
+    const input = document.getElementById("departamento_input");
+    const hiddenInput = document.getElementById("departamento");
+    const suggestionsList = document.getElementById("suggestions-list");
+
+    input.addEventListener("input", function() {
+        const val = this.value;
+        suggestionsList.innerHTML = "";
+        if (!val) {
+            suggestionsList.style.display = "none";
+            hiddenInput.value = "";
+            return;
+        }
+
+        const filtered = departamentos.filter(dept => 
+            dept.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .includes(val.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
+        );
+
+        if (filtered.length > 0) {
+            filtered.forEach(dept => {
+                const li = document.createElement("li");
+                li.textContent = dept;
+                li.addEventListener("click", function() {
+                    input.value = dept;
+                    hiddenInput.value = dept;
+                    suggestionsList.innerHTML = "";
+                    suggestionsList.style.display = "none";
+                });
+                suggestionsList.appendChild(li);
+            });
+            suggestionsList.style.display = "block";
+        } else {
+            suggestionsList.style.display = "none";
+        }
+    });
+
+    document.addEventListener("click", function(e) {
+        if (e.target !== input) {
+            suggestionsList.style.display = "none";
+        }
+    });
+});
+</script>
+
+</body>
+</html>
+</html>

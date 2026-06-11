@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolsos Hombre | JOEL PIEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body>
+
+<div class="navbar-fixed">
+    <div class="top-bar">
+        ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS
+    </div>
+    <header class="header">
+        <div class="logo" onclick="window.location.href='/'" style="cursor:pointer;">JOEL PIEL</div>
+        <div class="header-right">
+            <form action="/buscar" method="GET" class="buscador-form">
+                <input type="text" name="q" placeholder="Buscar bolsos..." class="buscador" aria-label="Buscar productos">
+                <button type="submit" class="buscar-btn"><i class="fas fa-search"></i></button>
+            </form>
+            <div class="icons">
+                {% if usuario %}
+                    <span class="user-welcome">Hola, {{ usuario }}</span>
+                    {% if rol == "admin" %}
+                        <a href="/admin" title="Panel Admin"><i class="fas fa-tools"></i></a>
+                    {% endif %}
+                    <a href="/logout" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></a>
+                {% else %}
+                    <div class="user-menu">
+                        <span class="user-icon"><i class="far fa-user"></i></span>
+                        <div class="dropdown">
+                            <a href="/login">Iniciar sesión</a>
+                            <a href="/registro">Registrarse</a>
+                        </div>
+                    </div>
+                {% endif %}
+                <a href="javascript:void(0);" onclick="toggleCarrito()" title="Carrito" class="carrito-link" style="position:relative;text-decoration:none;">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="carrito-count">{{ cantidad_total_carrito }}</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <nav class="menu">
+        <a href="/mujer">MUJER</a>
+        <a href="/hombre" style="border-bottom: 2px solid #000;">HOMBRE</a>
+        <a href="/contacto">CONTACTO</a>
+    </nav>
+</div>
+
+<!-- BANNER CATEGORÍA -->
+<div class="categoria-banner" style="background-image: linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.6)), url('/static/img/coleccion_hombre.jpg');">
+    <div class="categoria-banner-text">
+        <h2>Colección</h2>
+        <h1>Bolsos Hombre</h1>
+        <p>Maletines y accesorios de cuero para el hombre moderno</p>
+    </div>
+</div>
+
+<!-- VITRINA DE PRODUCTOS -->
+<section class="vitrina-productos">
+    <div class="section-header">
+        <h2>BOLSOS HOMBRE</h2>
+        <span style="font-size:13px;color:#666;">{{ productos|length }} producto{% if productos|length != 1 %}s{% endif %} disponible{% if productos|length != 1 %}s{% endif %}</span>
+    </div>
+
+    <div class="productos-grid">
+{% for producto in productos %}
+    <div class="producto-card">
+        <div class="producto-img-container">
+            <a href="/producto/{{ producto.id_producto }}">
+                {% if 'static/' in producto.imagen_url %}
+                    <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}" class="producto-img" onerror="this.src='https://via.placeholder.com/300x300?text=JOEL+PIEL'">
+                {% else %}
+                    <img src="{{ url_for('static', filename='img/' + producto.imagen_url) }}" alt="{{ producto.nombre }}" class="producto-img" onerror="this.src='https://via.placeholder.com/300x300?text=JOEL+PIEL'">
+                {% endif %}
+            </a>
+            <a href="javascript:void(0);" onclick="agregarAlCarritoAsync('{{ producto.id_producto }}')" class="quick-add">AÑADIR AL CARRITO</a>
+        </div>
+        <div class="producto-info">
+            <h3 class="producto-nombre">{{ producto.nombre }}</h3>
+            <p class="producto-precio">$ {{ "{:,.0f}".format(producto.precio) if producto.precio is number else producto.precio }}</p>
+        </div>
+    </div>
+{% else %}
+    <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#888;">
+        <i class="fas fa-box-open" style="font-size:3rem;margin-bottom:20px;display:block;color:#ccc;"></i>
+        <p style="font-size:16px;font-weight:500;">No hay bolsos disponibles por el momento.</p>
+        <a href="/" style="display:inline-block;margin-top:20px;padding:12px 30px;background:#000;color:#fff;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:2px;">VER TODO EL CATÁLOGO</a>
+    </div>
+{% endfor %}
+    </div>
+</section>
+
+<footer class="footer">
+    <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
+</footer>
+
+{% include 'carrito_sidebar.html' %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

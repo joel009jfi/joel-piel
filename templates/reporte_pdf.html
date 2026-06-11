@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1 { text-align: center; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #000; color: white; }
+        .total-box { margin-top: 30px; font-weight: bold; font-size: 20px; text-align: right; }
+    </style>
+</head>
+<body>
+    <h1>Reporte de Ventas - JOEL PIEL</h1>
+    <p>Generado el: {{ fecha_generado }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>ID Pedido</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in ventas %}
+            <tr>
+                <td>#{{ v.Id_pedido }}</td>
+                <td>{{ v.cliente }}</td>
+                <td>{{ v.fecha }}</td>
+                <td>{{ v.estado }}</td>
+                <td>$ {{ v.total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="total-box">Total General: $ {{ "{:,.0f}".format(gran_total) }}</div>
+</body>
+</html>

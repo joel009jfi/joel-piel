@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta | JOEL PIEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body class="auth-body">
+
+    <div class="auth-container">
+        
+        <h2 style="font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 30px;">Crear Cuenta</h2>
+
+        {% if mensaje %}
+        <div class="alerta" style="border-left: 4px solid #b19470; background-color: #faf6f0; color: #5c4d3c; padding: 12px; margin-bottom: 20px; text-align: left; font-size: 13px;">
+            {{ mensaje }}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            <input type="text" name="nombre" class="auth-input" placeholder="Nombre completo" required>
+            
+            <input type="email" name="email" class="auth-input" placeholder="Correo electrónico" required>
+            
+            <input type="password" name="password" class="auth-input" placeholder="Contraseña segura" required>
+
+            <button type="submit" class="btn-auth" style="margin-top: 15px;">Registrarse y Comenzar</button>
+        </form>
+
+        <p class="auth-switch" style="margin-top: 30px; font-size: 13px; color: #666;">
+            ¿Ya tienes un perfil creado? <br>
+            <a href="{{ url_for('login') }}" style="color: #000; font-weight: 600; text-decoration: underline; display: inline-block; margin-top: 5px;">Inicia sesión</a>
+        </p>
+
+    </div>
+
+</body>
+</html>

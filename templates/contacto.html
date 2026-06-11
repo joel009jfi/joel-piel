@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto | JOEL PIEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <style>
+        .contacto-wrapper {
+            max-width: 1000px;
+            margin: 60px auto 80px auto;
+            padding: 0 5%;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 60px;
+            align-items: start;
+        }
+        @media (max-width: 768px) {
+            .contacto-wrapper { grid-template-columns: 1fr; gap: 40px; }
+        }
+        .contacto-info h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+        .contacto-info p {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 35px;
+        }
+        .contacto-dato {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+        .contacto-dato i {
+            font-size: 18px;
+            color: #000;
+            margin-top: 2px;
+            width: 20px;
+            flex-shrink: 0;
+        }
+        .contacto-dato div strong {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #000;
+            margin-bottom: 3px;
+        }
+        .contacto-dato div span {
+            font-size: 13px;
+            color: #555;
+        }
+        .contacto-form-box {
+            background: #fafafa;
+            border: 1px solid #eee;
+            padding: 35px;
+        }
+        .contacto-form-box h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        .contacto-form-box .form-group {
+            margin-bottom: 18px;
+        }
+        .contacto-form-box label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .contacto-form-box input,
+        .contacto-form-box textarea,
+        .contacto-form-box select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+            background: #fff;
+            transition: border-color 0.2s;
+            resize: none;
+        }
+        .contacto-form-box input:focus,
+        .contacto-form-box textarea:focus,
+        .contacto-form-box select:focus {
+            border-color: #000;
+            outline: none;
+        }
+        .contacto-form-box textarea { height: 120px; }
+        .btn-enviar-contacto {
+            width: 100%;
+            padding: 14px;
+            background: #000;
+            color: #fff;
+            border: 1px solid #000;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+        .btn-enviar-contacto:hover { background: transparent; color: #000; }
+        .alert-contacto {
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            border-left: 3px solid #4a6b52;
+            background: #f0f5f1;
+            color: #2d4a35;
+        }
+        .alert-contacto.error {
+            border-color: #d9534f;
+            background: #fdf2f2;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar-fixed">
+    <div class="top-bar">
+        ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS
+    </div>
+    <header class="header">
+        <div class="logo" onclick="window.location.href='/'" style="cursor:pointer;">JOEL PIEL</div>
+        <div class="header-right">
+            <form action="/buscar" method="GET" class="buscador-form">
+                <input type="text" name="q" placeholder="Buscar bolsos..." class="buscador" aria-label="Buscar productos">
+                <button type="submit" class="buscar-btn"><i class="fas fa-search"></i></button>
+            </form>
+            <div class="icons">
+                {% if usuario %}
+                    <span class="user-welcome">Hola, {{ usuario }}</span>
+                    {% if rol == "admin" %}
+                        <a href="/admin" title="Panel Admin"><i class="fas fa-tools"></i></a>
+                    {% endif %}
+                    <a href="/logout" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></a>
+                {% else %}
+                    <div class="user-menu">
+                        <span class="user-icon"><i class="far fa-user"></i></span>
+                        <div class="dropdown">
+                            <a href="/login">Iniciar sesión</a>
+                            <a href="/registro">Registrarse</a>
+                        </div>
+                    </div>
+                {% endif %}
+                <a href="javascript:void(0);" onclick="toggleCarrito()" title="Carrito" class="carrito-link" style="position:relative;text-decoration:none;">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="carrito-count">{{ cantidad_total_carrito }}</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <nav class="menu">
+        <a href="/mujer">MUJER</a>
+        <a href="/hombre">HOMBRE</a>
+        <a href="/contacto" style="border-bottom: 2px solid #000;">CONTACTO</a>
+    </nav>
+</div>
+
+<div class="contacto-wrapper">
+    <!-- INFO LADO IZQUIERDO -->
+    <div class="contacto-info">
+        <h2>Hablemos de cuero y diseño</h2>
+        <p>¿Tienes preguntas sobre tu pedido, los materiales o nuestras colecciones? Escríbenos y con gusto te atendemos.</p>
+
+        <div class="contacto-dato">
+            <i class="fas fa-envelope"></i>
+            <div>
+                <strong>Correo</strong>
+                <span>joelpiel57@gmail.com</span>
+            </div>
+        </div>
+        <div class="contacto-dato">
+            <i class="fas fa-map-marker-alt"></i>
+            <div>
+                <strong>Taller Central</strong>
+                <span>Colombia — Envíos a todo el país</span>
+            </div>
+        </div>
+        <div class="contacto-dato">
+            <i class="fas fa-clock"></i>
+            <div>
+                <strong>Atención</strong>
+                <span>Lunes a Viernes · 8am – 6pm</span>
+            </div>
+        </div>
+        <div class="contacto-dato">
+            <i class="fab fa-whatsapp"></i>
+            <div>
+                <strong>WhatsApp</strong>
+                <span>+57 300 000 0000</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMULARIO LADO DERECHO -->
+    <div class="contacto-form-box">
+        <h3>Envíanos un mensaje</h3>
+
+        {% if mensaje %}
+            <div class="alert-contacto {{ 'error' if error else '' }}">
+                {{ mensaje }}
+            </div>
+        {% endif %}
+
+        <form method="POST" action="/contacto">
+            <div class="form-group">
+                <label>Nombre completo *</label>
+                <input type="text" name="nombre" placeholder="Tu nombre" required>
+            </div>
+            <div class="form-group">
+                <label>Correo electrónico *</label>
+                <input type="email" name="email" placeholder="tu@correo.com" required>
+            </div>
+            <div class="form-group">
+                <label>Asunto</label>
+                <select name="asunto">
+                    <option value="pedido">Pregunta sobre mi pedido</option>
+                    <option value="producto">Información de producto</option>
+                    <option value="envio">Información de envío</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Mensaje *</label>
+                <textarea name="mensaje" placeholder="Cuéntanos en qué podemos ayudarte..." required></textarea>
+            </div>
+            <button type="submit" class="btn-enviar-contacto">
+                <i class="fas fa-paper-plane" style="margin-right:8px;"></i> ENVIAR MENSAJE
+            </button>
+        </form>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
+</footer>
+
+{% include 'carrito_sidebar.html' %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

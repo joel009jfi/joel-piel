@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin | JOEL PIEL</title> 
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+
+    <header class="admin-header">
+        <a href="/" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+        <nav class="admin-nav">
+            <a href="/">Ver Tienda</a>
+            <a href="/logout" class="logout-btn"><i class="fa-solid fa-power-off"></i> Salir</a>
+        </nav>
+    </header>
+
+    <div class="admin-container">
+        <h1 class="admin-title">Panel de Control</h1>
+
+        <div class="admin-stats-summary">
+            <div class="stat-mini-card">
+                <span>Ventas Totales</span>
+                <h2>$ {{ "{:,.0f}".format(total_ventas) }}</h2>
+            </div>
+            <div class="stat-mini-card" style="border-left-color: #d9534f;">
+                <span>Pedidos Pendientes</span>
+                <h2>{{ pendientes }}</h2>
+            </div>
+            <div class="stat-mini-card" style="border-left-color: #5cb85c;">
+                <span>Envíos en Camino</span>
+                <h2>{{ pedidos|selectattr('estado', 'equalto', 'Enviado')|list|length }}</h2>
+            </div>
+        </div>
+
+        <div class="admin-grid">
+            <div class="admin-card">
+                <i class="fa-solid fa-box-open"></i>
+                <h3>Inventario</h3>
+                <p>Gestiona los bolsos y el stock actual.</p>
+                <a href="{{ url_for('ver_stock') }}" class="btn-panel">Administrar</a>
+            </div>
+
+            <div class="admin-card">
+                <i class="fa-solid fa-truck-fast"></i>
+                <h3>Logística</h3>
+                <p>Control de despachos y guías de envío.</p>
+                <a href="{{ url_for('ver_envios') }}" class="btn-panel">Ver Envíos</a>
+            </div>
+
+            <div class="admin-card">
+                <i class="fa-solid fa-chart-line"></i>
+                <h3>Ventas</h3>
+                <p>Historial de pedidos y facturación.</p>
+                <a href="{{ url_for('ver_ventas') }}" class="btn-panel">Reportes</a>
+            </div>
+
+            <div class="admin-card">
+                <i class="fa-solid fa-users-gear"></i>
+                <h3>Clientes</h3>
+                <p>Administra registros, roles y accesos.</p>
+                <a href="{{ url_for('ver_usuarios') }}" class="btn-panel">Gestionar</a>
+            </div>
+
+            <div class="admin-card">
+                <i class="fa-solid fa-ticket"></i>
+                <h3>Marketing</h3>
+                <p>Configura cupones y promociones.</p>
+                <a href="#" class="btn-panel">Cupones</a>
+            </div>
+        </div>
+
+        <div class="admin-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin:0;">Últimos Pedidos</h2>
+                <a href="{{ url_for('ver_ventas') }}" style="text-decoration: none; color: var(--negro); font-size: 12px; font-weight: 700;">VER TODO →</a>
+            </div>
+            
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pedido in pedidos %}
+                    <tr>
+                        <td>#{{ pedido.Id_pedido }}</td>
+                        <td style="font-size: 0.85em; color: #666;">
+                            {{ pedido.fecha.strftime('%d/%m %H:%M') if pedido.fecha else 'S/F' }}
+                        </td>
+                        <td>{{ pedido.cliente if pedido.cliente else 'Usuario ID: ' ~ pedido.Id_usuario }}</td>
+                        <td>$ {{ "{:,.0f}".format(pedido.total) }}</td>
+                        <td>
+                            <span class="status-pill status-{{ pedido.estado|lower }}">
+                                {{ pedido.estado }}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                {% if pedido.estado == 'Pendiente' %}
+                                    <a href="{{ url_for('actualizar_estado', id_pedido=pedido.Id_pedido, nuevo_estado='Enviado') }}" 
+                                       style="color: #28a745; font-weight: 700; text-decoration: none; font-size: 11px;">
+                                       <i class="fa-solid fa-check"></i> ENVIAR
+                                    </a>
+                                {% endif %}
+                                
+                                {% if pedido.estado == 'Cancelado' %}
+                                    <a href="{{ url_for('actualizar_estado', id_pedido=pedido.Id_pedido, nuevo_estado='Pendiente') }}" 
+                                       style="color: #28a745; font-weight: 700; text-decoration: none; font-size: 11px;">
+                                       <i class="fa-solid fa-rotate-left"></i> RE-ACTIVAR
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('actualizar_estado', id_pedido=pedido.Id_pedido, nuevo_estado='Cancelado') }}" 
+                                       style="color: #d9534f; text-decoration: none; font-size: 11px;">
+                                       <i class="fa-solid fa-xmark"></i> ANULAR
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #888; padding: 20px;">No hay pedidos registrados aún.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

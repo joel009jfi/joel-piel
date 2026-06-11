@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de envíos | JOEL PIEL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="admin-header">
+        <a href="/admin" class="admin-logo">JOEL PIEL <span class="admin-logo-sub">ADMIN</span></a>
+        <nav class="admin-nav">
+            <a href="/admin">Volver al Panel</a>
+            <a href="/logout" class="logout-btn">Salir</a>
+        </nav>
+    </header>
+
+    <div class="admin-container">
+        <h1 class="admin-title">Envíos y Logística</h1>
+        
+        <div class="admin-grid">
+            {% for e in envios %}
+            <div class="admin-card card-logistics">
+                <div class="card-logistics-content">
+                    <div class="card-logistics-header">
+                        <h3><i class="fas fa-box"></i> Pedido #{{ e.Id_pedido }}</h3>
+                        <span class="status-badge {{ 'bg-pago-pagado' if e.estado_pago == 'Pagado' else 'bg-pago-pendiente' }}">
+                            Pago: {{ e.estado_pago }}
+                        </span>
+                    </div>
+                    
+                    <p><strong>Cliente:</strong> {{ e.cliente }}</p>
+                    <p><strong>Fecha Venta:</strong> {{ e.fecha }}</p>
+                    <p><strong>Valor Total (Bolsos):</strong> ${{ "{:,.0f}".format(e.total) }}</p>
+                    
+                    <div class="shipping-info-block">
+                        <p><strong><i class="fas fa-map-marker-alt"></i> Destino:</strong> {{ e.direccion_envio }}</p>
+                        <p><strong><i class="fas fa-truck"></i> Transportadora:</strong> {{ e.transportadora }}</p>
+                        <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia }}</p>
+                        <p class="shipping-status-container">
+                            <strong>Estado Envío:</strong> 
+                            <span class="status-badge {{ 'bg-envio-preparando' if e.estado_envio == 'Por despachar' or e.estado_envio == 'Preparando' else 'bg-envio-enviado' if e.estado_envio == 'Enviado' else 'bg-envio-entregado' }}">
+                                {{ e.estado_envio }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="admin-logistics-form">
+                    {% if e.estado_envio == 'Por despachar' or e.estado_envio == 'Preparando' %}
+                    <form action="/admin/despachar_pedido/{{ e.Id_pedido }}" method="POST">
+                        <select name="transportadora" class="admin-logistics-select" required>
+                            <option value="" disabled selected>Seleccione Transportadora</option>
+                            <option value="Interrapidísimo">Interrapidísimo</option>
+                            <option value="Coordinadora">Coordinadora</option>
+                            <option value="Servientrega">Servientrega</option>
+                            <option value="Envía">Envía</option>
+                        </select>
+                        <input type="text" name="numero_guia" class="admin-logistics-input" placeholder="Número de Guía (Flete al Cobrar)" required>
+                        <button type="submit" class="btn-panel btn-full">
+                            DESPACHAR Y NOTIFICAR
+                        </button>
+                    </form>
+                    
+                    {% elif e.estado_envio == 'Enviado' %}
+                    <form action="/admin/entregar_pedido/{{ e.Id_pedido }}" method="POST">
+                        <button type="submit" class="btn-panel btn-full btn-dark">
+                            MARCAR COMO ENTREGADO
+                        </button>
+                    </form>
+                    
+                    {% else %}
+                    <button class="btn-panel btn-full btn-disabled" disabled>
+                        FLUJO FINALIZADO
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="no-records-message">
+                No hay envíos registrados en el sistema en este momento.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

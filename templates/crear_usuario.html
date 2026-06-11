@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Usuario | Panel Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body class="auth-body">
+
+    <div class="auth-container">
+        
+        <h2>Registrar Nuevo Usuario</h2>
+
+        <form method="POST">
+            <input type="text" name="nombre" class="auth-input" placeholder="Nombre completo" required>
+            
+            <input type="email" name="email" class="auth-input" placeholder="Correo electrónico" required>
+            
+            <input type="password" name="password" class="auth-input" placeholder="Contraseña de acceso" required>
+            
+            <select name="rol" class="auth-input" style="background: #fff; cursor: pointer; height: 48px;">
+                <option value="cliente">Cliente</option>
+                <option value="admin">Administrador</option>
+            </select>
+
+            <button type="submit" class="btn-auth">Crear Usuario y Enviar Bienvenida</button>
+        </form>
+
+        <p class="auth-switch" style="margin-top: 25px;">
+            <a href="{{ url_for('ver_usuarios') }}">← Volver a la Lista de Usuarios</a>
+        </p>
+
+    </div>
+
+</body>
+</html>

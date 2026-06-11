@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Producto | JOEL PIEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+
+    <header class="admin-header">
+        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+    </header>
+
+    <div class="admin-container form-max-width">
+        <div class="btn-back-container">
+            <a href="/admin/inventario" class="btn-back-admin">
+                <i class="fa-solid fa-arrow-left"></i> Volver al Inventario
+            </a>
+        </div>
+
+        <h1 class="admin-title">Agregar Nuevo Bolso</h1>
+
+        <div class="admin-card">
+            <form action="/admin/producto/nuevo" method="POST">
+
+                <div class="form-group">
+                    <label>Nombre del Bolso</label>
+                    <input type="text" name="nombre" placeholder="Ej: Bolso de Cuero Minimal" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select name="id_categoria" style="width:100%; padding:12px 15px; border:1px solid #ddd; border-radius:2px; font-family:'Montserrat',sans-serif; font-size:14px; box-sizing:border-box; cursor:pointer; background:#fff;">
+                        <option value="1">Mujer</option>
+                        <option value="2">Hombre</option>
+                        <option value="3">Unisex</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción (opcional)</label>
+                    <textarea name="descripcion" placeholder="Ej: Bolso de cuero genuino con cierre magnético..." 
+                        style="width:100%; padding:12px 15px; border:1px solid #ddd; border-radius:2px; font-family:'Montserrat',sans-serif; font-size:14px; box-sizing:border-box; resize:vertical; min-height:80px;"></textarea>
+                </div>
+
+                <div class="form-row-flex">
+                    <div class="form-group form-col-50">
+                        <label>Precio ($)</label>
+                        <input type="number" name="precio" placeholder="0" min="0" required>
+                    </div>
+                    <div class="form-group form-col-50">
+                        <label>Stock Inicial</label>
+                        <input type="number" name="stock" placeholder="0" min="0" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>URL de la Imagen</label>
+                    <input type="text" name="imagen_url" placeholder="Ej: bolso_negro.jpg" required>
+                    <small style="color:#999; font-size:11px; margin-top:5px; display:block;">
+                        <i class="fa-solid fa-circle-info"></i> Guarda la imagen en <code>static/img/productos/</code> y escribe solo el nombre del archivo.
+                    </small>
+                </div>
+
+                <button type="submit" class="btn-save">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar Producto
+                </button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

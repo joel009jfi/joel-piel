@@ -1,0 +1,220 @@
+/* ==========================================================================
+   Estilos Generales de la Pantalla de Checkout - JOEL PIEL (UNIFICADO)
+   ========================================================================== */
+
+.checkout-container {
+    max-width: 1100px;
+    margin: 160px auto 80px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 50px;
+}
+
+@media (max-width: 768px) {
+    .checkout-container {
+        grid-template-columns: 1fr;
+        margin-top: 140px;
+        gap: 30px;
+    }
+}
+
+.checkout-box {
+    background: #fff;
+    padding: 30px;
+    border: 1px solid #eee;
+    overflow: visible !important; /* Permite que el buscador dinámico flote sin cortarse */
+    position: relative;
+}
+
+.checkout-box.summary-bg {
+    background: #fafafa;
+}
+
+.checkout-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #111;
+    padding-bottom: 10px;
+}
+
+/* ==========================================================================
+   Formularios y Elementos de Entrada
+   ========================================================================== */
+
+.form-group {
+    margin-bottom: 20px;
+    position: relative; 
+}
+
+.form-group label {
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+    background-color: #fff;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #111;
+}
+
+/* ==========================================================================
+   Buscador Dinámico de Departamentos (Autocomplete)
+   ========================================================================== */
+
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #111111;
+    border-top: none;
+    z-index: 10000;
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.autocomplete-suggestions li {
+    padding: 12px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: #333333;
+}
+
+.autocomplete-suggestions li:hover {
+    background: #f4f4f4;
+    color: #000000;
+    font-weight: 500;
+}
+
+/* ==========================================================================
+   Resumen de Bolsa de Compra
+   ========================================================================== */
+
+.order-summary-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.order-summary-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border: 1px solid #eee;
+}
+
+.item-details {
+    flex-grow: 1;
+}
+
+.item-details h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.item-details p {
+    margin: 3px 0 0 0;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.item-price {
+    font-size: 0.95rem;
+}
+
+.checkout-total-line {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.info-nota {
+    background-color: #f9f9f9;
+    border-left: 3px solid #111;
+    padding: 15px;
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 20px;
+    line-height: 1.4;
+}
+
+/* ==========================================================================
+   Botones de Acción (Regresar y Pagar)
+   ========================================================================== */
+
+.btn-back-store {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #111111;
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+    transition: opacity 0.2s;
+}
+
+.btn-back-store:hover {
+    opacity: 0.7;
+}
+
+.btn-checkout-submit {
+    display: block;
+    width: 100%;
+    background: #111 !important;
+    color: #fff !important;
+    border: none;
+    padding: 15px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: background 0.3s, opacity 0.3s;
+    margin-top: 20px;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.btn-checkout-submit:hover {
+    background: #333 !important;
+    color: #fff !important;
+    opacity: 0.9;
+}

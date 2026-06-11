@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventario | JOEL PIEL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .btn-eliminar {
+            background-color: #f8f9fa;
+            color: #d9534f;
+            border: 1px solid #d9534f;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-eliminar:hover { background-color: #d9534f; color: white; }
+ 
+        .btn-editar {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-editar:hover { background-color: #333; color: white; }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+        <nav class="admin-nav">
+            <a href="/admin">Volver al Panel</a>
+            <a href="/logout" class="logout-btn">Salir</a>
+        </nav>
+    </header>
+ 
+    <div class="admin-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h1 class="admin-title" style="margin: 0;">Gestión de Inventario</h1>
+            <a href="/admin/producto/nuevo" class="btn-panel" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-plus"></i> NUEVO BOLSO
+            </a>
+        </div>
+        
+        <div class="admin-section">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in productos %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <img src="{{ p.imagen_url }}" class="product-img-mini" onerror="this.src='https://via.placeholder.com/50x50?text=Piel'">
+                                <strong>{{ p.nombre }}</strong>
+                            </div>
+                        </td>
+                        <td>${{ "{:,.0f}".format(p.precio) }}</td>
+                        <td>
+                            <div class="stock-control">
+                                <button class="btn-stock" onclick="cambiarStock({{ p.id_producto }}, -1)">-</button>
+                                <span id="stock-{{ p.id_producto }}" style="font-weight: 700; width: 30px; text-align: center;">{{ p.stock }}</span>
+                                <button class="btn-stock" onclick="cambiarStock({{ p.id_producto }}, 1)">+</button>
+                            </div>
+                        </td>
+                        <td>
+                            <span id="pill-{{ p.id_producto }}" class="status-pill {{ 'status-cancelado' if p.stock < 5 else 'status-enviado' }}">
+                                {{ 'Bajo Stock' if p.stock < 5 else 'Disponible' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <a href="/admin/producto/editar/{{ p.id_producto }}" class="btn-editar">
+                                    <i class="fa-solid fa-pen"></i> Editar
+                                </a>
+                                <a href="/admin/producto/eliminar/{{ p.id_producto }}" 
+                                   class="btn-eliminar" 
+                                   onclick="return confirm('¿Estás seguro de eliminar {{ p.nombre }}? Esta acción no se puede deshacer.');">
+                                   <i class="fa-solid fa-trash"></i> Eliminar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                            No hay productos registrados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+ 
+    <script>
+        function cambiarStock(id, cambio) {
+            const stockElement = document.getElementById(`stock-${id}`);
+            const pillElement = document.getElementById(`pill-${id}`);
+            let nuevoStock = parseInt(stockElement.innerText) + cambio;
+ 
+            if (nuevoStock < 0) return;
+ 
+            fetch('/admin/inventario/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, stock: nuevoStock })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    stockElement.innerText = nuevoStock;
+                    if (nuevoStock < 5) {
+                        pillElement.innerText = 'Bajo Stock';
+                        pillElement.className = 'status-pill status-cancelado';
+                    } else {
+                        pillElement.innerText = 'Disponible';
+                        pillElement.className = 'status-pill status-enviado';
+                    }
+                }
+            })
+            .catch(err => console.error('Error al actualizar:', err));
+        }
+    </script>
+</body>
+</html>

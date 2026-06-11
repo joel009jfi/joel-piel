@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Producto | JOEL PIEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+ 
+    <header class="admin-header">
+        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size:12px;font-weight:300;">ADMIN</span></a>
+    </header>
+ 
+    <div class="admin-container form-max-width">
+        <div class="btn-back-container">
+            <a href="/admin/inventario" class="btn-back-admin">
+                <i class="fa-solid fa-arrow-left"></i> Volver al Inventario
+            </a>
+        </div>
+ 
+        <h1 class="admin-title">Editar Bolso</h1>
+ 
+        <div class="admin-card">
+ 
+            <!-- VISTA PREVIA DE IMAGEN ACTUAL -->
+            <div style="text-align:center;margin-bottom:25px;">
+                <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:10px;">Imagen Actual</p>
+                <img id="preview-img" src="/static/img/{{ producto.imagen_url }}" 
+                     style="width:150px;height:150px;object-fit:cover;border:1px solid #eee;"
+                     onerror="this.src='https://via.placeholder.com/150x150?text=Sin+Imagen'">
+            </div>
+ 
+            <form action="/admin/producto/editar/{{ producto['Id_producto'] }}" method="POST">
+ 
+                <div class="form-group">
+                    <label>Nombre del Bolso</label>
+                    <input type="text" name="nombre" value="{{ producto.nombre }}" required>
+                </div>
+ 
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select name="id_categoria" style="width:100%;padding:12px 15px;border:1px solid #ddd;border-radius:2px;font-family:'Montserrat',sans-serif;font-size:14px;box-sizing:border-box;cursor:pointer;background:#fff;">
+                        <option value="1" {% if producto.Id_categoria == 1 %}selected{% endif %}>Mujer</option>
+                        <option value="2" {% if producto.Id_categoria == 2 %}selected{% endif %}>Hombre</option>
+                        <option value="3" {% if producto.Id_categoria == 3 %}selected{% endif %}>Unisex</option>
+                    </select>
+                </div>
+ 
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea name="descripcion" 
+                        style="width:100%;padding:12px 15px;border:1px solid #ddd;border-radius:2px;font-family:'Montserrat',sans-serif;font-size:14px;box-sizing:border-box;resize:vertical;min-height:80px;">{{ producto.descripcion or '' }}</textarea>
+                </div>
+ 
+                <div class="form-row-flex">
+                    <div class="form-group form-col-50">
+                        <label>Precio ($)</label>
+                        <input type="number" name="precio" value="{{ producto.precio }}" min="0" required>
+                    </div>
+                    <div class="form-group form-col-50">
+                        <label>Stock</label>
+                        <input type="number" name="stock" value="{{ producto.stock }}" min="0" required>
+                    </div>
+                </div>
+ 
+                <div class="form-group">
+                    <label>Nombre del archivo de imagen</label>
+                    <input type="text" name="imagen_url" id="input-imagen" value="{{ producto.imagen_url }}" 
+                           oninput="actualizarPreview(this.value)">
+                    <small style="color:#999;font-size:11px;margin-top:5px;display:block;">
+                        <i class="fa-solid fa-circle-info"></i> Escribe solo el nombre del archivo. Ej: <code>bolso_negro.jpg</code> — debe estar en <code>static/img/</code>
+                    </small>
+                </div>
+ 
+                <button type="submit" class="btn-save">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+                </button>
+ 
+            </form>
+        </div>
+    </div>
+ 
+<script>
+function actualizarPreview(valor) {
+    const img = document.getElementById('preview-img');
+    if (valor) {
+        img.src = `/static/img/${valor}`;
+        img.onerror = () => img.src = 'https://via.placeholder.com/150x150?text=Sin+Imagen';
+    }
+}
+</script>
+ 
+</body>
+</html>

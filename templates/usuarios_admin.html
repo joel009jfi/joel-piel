@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Usuarios | JOEL PIEL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="admin-header">
+        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+        <nav class="admin-nav">
+            <a href="/admin">Volver al Panel</a>
+            <a href="/logout" class="logout-btn">Salir</a>
+        </nav>
+    </header>
+
+    <div class="admin-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1 class="admin-title">Personas Registradas</h1>
+            <a href="{{ url_for('crear_usuario_admin') }}" style="background: #000; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 12px; font-weight: bold;">+ NUEVO USUARIO</a>
+        </div>
+
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td>#{{ usuario.Id_usuario }}</td>
+                    <td>{{ usuario.nombre }}</td>
+                    <td>{{ usuario.email }}</td>
+                    <td>
+                        <span class="status-pill" style="background: {% if usuario.rol == 'admin' %}#000; color: #fff{% else %}#eee{% endif %};">
+                            {{ usuario.rol|upper }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('editar_usuario', id_usuario=usuario.Id_usuario) }}" style="color: #000; margin-right: 15px;">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <a href="{{ url_for('eliminar_usuario', id_usuario=usuario.Id_usuario) }}" onclick="return confirm('¿Eliminar este usuario?')" style="color: #d9534f;">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

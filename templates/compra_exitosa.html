@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Pedido Confirmado! | JOEL PIEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body class="body-exito">
+
+    <div class="contenedor-exito">
+        <div class="icono-exito">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+        </div>
+
+        <h1>¡Tu pedido ha sido recibido!</h1>
+        <p>Gracias por tu compra en JOEL PIEL. Estamos preparando todo con el cuidado y la dedicación que merecen nuestras piezas de cuero.</p>
+
+        <div class="detalles-pedido">
+            <div class="linea-detalle">
+                <span>Estado del pago:</span>
+                <span class="tag-estado">Aprobado</span>
+            </div>
+            <div class="linea-detalle">
+                <span>Logística:</span>
+                <span>Preparando envío</span>
+            </div>
+            <div class="linea-detalle">
+                <span>Origen:</span>
+                <span>JOEL PIEL | Taller Central</span>
+            </div>
+        </div>
+
+        <a href="{{ url_for('inicio') }}" class="btn-regresar">Seguir explorando la colección</a>
+        
+        <div class="nota-pie">
+            Un correo de confirmación con los detalles del envío está en camino.
+        </div>
+    </div>
+
+</body>
+</html>

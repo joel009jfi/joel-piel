@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Ventas | JOEL PIEL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="admin-header">
+        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+        <nav class="admin-nav">
+            <a href="/admin">Volver al Panel</a>
+            <a href="/logout" class="logout-btn">Salir</a>
+        </nav>
+    </header>
+
+    <div class="admin-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1 class="admin-title">Historial de Ventas</h1>
+            <a href="{{ url_for('reporte_ventas_pdf') }}" style="background: #d9534f; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 12px; font-weight: bold; border-radius: 4px;">
+                <i class="fa-solid fa-file-pdf"></i> DESCARGAR REPORTE
+            </a>
+        </div>
+
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Factura</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venta in ventas %}
+                <tr>
+                    <td>#{{ venta.Id_pedido }}</td>
+                    <td>
+                        {% if venta.fecha is iterable or venta.fecha.strftime %}
+                            {{ venta.fecha.strftime('%d/%m/%Y %H:%M') }}
+                        {% else %}
+                            {{ venta.fecha }}
+                        {% endif %}
+                    </td>
+                    <td>{{ venta.cliente }}</td>
+                    <td>$ {{ "{:,.0f}".format(venta.total) }}</td>
+                    <td>
+                        <span class="status-pill status-{{ venta.estado|lower }}">
+                            {{ venta.estado|upper }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #888; padding: 20px;">Aún no se han realizado ventas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
