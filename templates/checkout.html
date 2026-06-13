@@ -56,7 +56,27 @@
                 <input type="tel" name="telefono" id="telefono" class="form-control" placeholder="Ej: 3001234567" required>
             </div>
 
-            <button type="submit" class="btn-checkout-submit">CONFIRMAR Y PAGAR</button>
+            <div class="form-group">
+                <label>Método de pago</label>
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:5px;">
+                    <label style="display:flex;align-items:center;gap:12px;padding:12px 15px;border:1px solid #ddd;cursor:pointer;font-size:14px;font-family:Montserrat,sans-serif;transition:border-color 0.2s;border-radius:2px;" onmouseover="this.style.borderColor='#000'" onmouseout="this.style.borderColor='#ddd'">
+                        <input type="radio" name="metodo_pago" value="Completo" onchange="actualizarResumen()" style="width:16px;height:16px;accent-color:#000;">
+                        <div>
+                            <strong>Pago en línea</strong><br>
+                            <span style="font-size:12px;color:#666;">Pagas los productos ahora. El envío lo pagas a la transportadora al recibir.</span>
+                        </div>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:12px;padding:12px 15px;border:1px solid #ddd;cursor:pointer;font-size:14px;font-family:Montserrat,sans-serif;transition:border-color 0.2s;border-radius:2px;" onmouseover="this.style.borderColor='#000'" onmouseout="this.style.borderColor='#ddd'">
+                        <input type="radio" name="metodo_pago" value="Contraentrega" checked onchange="actualizarResumen()" style="width:16px;height:16px;accent-color:#000;">
+                        <div>
+                            <strong>Contraentrega</strong><br>
+                            <span style="font-size:12px;color:#666;">Pagas todo a la transportadora al recibir (productos + envío)</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" style="display:block;width:100%;background:#000;color:#fff;border:none;padding:15px;font-family:Montserrat,sans-serif;font-weight:600;font-size:1rem;letter-spacing:2px;cursor:pointer;margin-top:20px;">CONFIRMAR Y PAGAR</button>
         </form>
     </div>
 
@@ -79,15 +99,33 @@
         {% endfor %}
 
         <div class="checkout-total-line">
-            <span>TOTAL PRODUCTOS:</span>
+            <span>PRODUCTOS:</span>
             <span>${{ "{:,.0f}".format(total) }}</span>
         </div>
 
-        <div class="info-nota">
-            <i class="fa-solid fa-truck-ramp-box"></i> <strong>Información de Envío:</strong><br>
-            El valor total reflejado corresponde únicamente a tus artículos de JOEL PIEL. El costo del flete del paquete es <strong>contraentrega</strong> y será cancelado por ti directamente a la empresa transportadora al momento de recibirlo en tu dirección.
+        <div class="checkout-total-line" style="border-top:1px solid #ddd;padding-top:10px;margin-top:5px;">
+            <span>TOTAL A PAGAR AHORA:</span>
+            <span id="total-ahora">${{ "{:,.0f}".format(total) }}</span>
         </div>
-    </div>
+
+        <div class="info-nota">
+            <i class="fa-solid fa-truck-ramp-box"></i> <strong>Envío:</strong><br>
+            El costo del envío es de <strong>$15,000 por kilo</strong> y se paga directamente a la transportadora al recibir el paquete, independientemente del método de pago elegido.
+        </div>
+
+<script>
+function actualizarResumen() {
+    var total = {{ total }};
+    var completo = document.querySelector('input[name="metodo_pago"]:checked').value === 'Completo';
+    document.getElementById('total-ahora').textContent = completo ? '$' + total.toLocaleString('es-CO') : '$0';
+}
+document.addEventListener("DOMContentLoaded", function() {
+    actualizarResumen();
+    document.querySelectorAll('input[name="metodo_pago"]').forEach(function(r) {
+        r.addEventListener('change', actualizarResumen);
+    });
+});
+</script>
 </div>
 
 <footer class="footer">

@@ -58,7 +58,7 @@
                             <option value="Envía">Envía</option>
                         </select>
                         <input type="text" name="numero_guia" class="admin-logistics-input" placeholder="Número de Guía (Flete al Cobrar)" required>
-                        <button type="submit" class="btn-panel btn-full">
+                        <button type="submit" style="display:block;width:100%;background:#000;color:#fff;border:none;padding:12px 20px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-radius:2px;">
                             DESPACHAR Y NOTIFICAR
                         </button>
                     </form>
@@ -66,13 +66,13 @@
                     {% elif e.estado_envio == 'Enviado' %}
                     <form action="/admin/entregar_pedido/{{ e.Id_pedido }}" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button type="submit" class="btn-panel btn-full btn-dark">
+                        <button type="submit" style="display:block;width:100%;background:#222;color:#fff;border:none;padding:12px 20px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-radius:2px;">
                             MARCAR COMO ENTREGADO
                         </button>
                     </form>
                     
                     {% else %}
-                    <button class="btn-panel btn-full btn-disabled" disabled>
+                    <button style="display:block;width:100%;background:#ccc;color:#fff;border:none;padding:12px 20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-radius:2px;pointer-events:none;cursor:not-allowed;" disabled>
                         FLUJO FINALIZADO
                     </button>
                     {% endif %}

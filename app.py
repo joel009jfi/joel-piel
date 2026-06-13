@@ -297,6 +297,7 @@ def eliminar_usuario(id_usuario):
     return redirect(url_for('ver_usuarios'))
 
 MESES_ES = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+COSTO_ENVIO = 15000
 
 # --- VER TODAS LAS VENTAS ---
 @app.route("/admin/ventas")
@@ -306,7 +307,7 @@ def ver_ventas():
     db = conectar()
     cursor = obtener_cursor(db, diccionario=True)
     cursor.execute("""
-        SELECT p.Id_pedido, p.total, p.estado, p.fecha, u.nombre as cliente 
+        SELECT p.Id_pedido, p.total, p.estado, p.metodo_pago, p.fecha, u.nombre as cliente 
         FROM pedidos p 
         JOIN usuarios u ON p.Id_usuario = u.Id_usuario 
         ORDER BY p.fecha DESC
@@ -659,6 +660,7 @@ def despachar_pedido(id_pedido):
                             <strong>Transportadora:</strong> {transportadora}<br>
                             <strong>Guía:</strong> {numero_guia}
                         </p>
+                        <p>El costo del envío (<strong>$15,000/kg</strong>) se paga directamente a la transportadora al recibir el paquete.</p>
                         <p>Puedes rastrear tu pedido en <a href="{request.host_url}rastrear">{request.host_url}rastrear</a>.</p>
                         <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
                         <p style="font-size:12px;color:#999;">JOEL PIEL · Envíos a todo Colombia</p>
@@ -821,7 +823,7 @@ def checkout():
         return redirect(url_for('inicio'))
         
     productos, total, cantidad = _datos_carrito()
-    return render_template("checkout.html", productos=productos, total=total, cantidad_total=cantidad)
+    return render_template("checkout.html", productos=productos, total=total, cantidad_total=cantidad, costo_envio=COSTO_ENVIO)
 
 # --- PROCESAMIENTO FINAL DEL PEDIDO Y LOGÍSTICA ---
 @app.route("/carrito/finalizar", methods=["POST"])
@@ -852,9 +854,10 @@ def finalizar_compra():
         ciudad = request.form.get("ciudad", "Por definir")
         direccion_cruda = request.form.get("direccion", "Por definir")
         telefono = request.form.get("telefono", "")
+        metodo_pago = request.form.get("metodo_pago", "Contraentrega")
         
         direccion_completa = f"{direccion_cruda}, {ciudad} - {departamento}. Tel: {telefono}"
-        
+
         total = 0
         items_a_procesar = []
         
@@ -874,9 +877,11 @@ def finalizar_compra():
                 })
         
         try:
+            estado_inicial = "Pagado" if metodo_pago == "Completo" else "Pendiente"
+
             cursor.execute(
-                "INSERT INTO pedidos (Id_usuario, total, estado, fecha) VALUES (%s, %s, 'Pendiente', NOW())",
-                (id_usuario, total)
+                "INSERT INTO pedidos (Id_usuario, total, estado, metodo_pago, fecha) VALUES (%s, %s, %s, %s, NOW())",
+                (id_usuario, total, estado_inicial, metodo_pago)
             )
             
             id_pedido_nuevo = cursor.lastrowid
@@ -907,7 +912,8 @@ def finalizar_compra():
                     <h1 style="font-family:'Playfair Display',serif;text-align:center;">JOEL PIEL</h1>
                     <p>Hola <strong>{session["usuario"]}</strong>,</p>
                     <p>Tu pedido <strong>#{id_pedido_nuevo}</strong> ha sido recibido y está siendo procesado.</p>
-                    <p style="color:#666;">Te notificaremos cuando sea despachado. Si pagas contraentrega, ten el efectivo listo al recibir.</p>
+                    <p><strong>Método de pago:</strong> {"Pago en línea" if metodo_pago == "Completo" else "Contraentrega"}</p>
+                    <p style="color:#666;">El envío (<strong>$15,000/kg</strong>) se paga directamente a la transportadora al recibir el paquete.</p>
                     <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
                     <p style="font-size:12px;color:#999;">JOEL PIEL · Envíos a todo Colombia</p>
                 </div>

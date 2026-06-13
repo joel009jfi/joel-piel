@@ -85,6 +85,7 @@
                             <th>Fecha</th>
                             <th>Cliente</th>
                             <th>Total</th>
+                            <th>Pago</th>
                             <th>Estado</th>
                             <th>Acción</th>
                         </tr>
@@ -102,6 +103,7 @@
                             </td>
                             <td>{{ venta.cliente }}</td>
                             <td>${{ "{:,.0f}".format(venta.total) }}</td>
+                            <td><span class="status-pill" style="background:#eee;font-size:10px;">{{ venta.metodo_pago or 'Contraentrega' }}</span></td>
                             <td>
                                 <span class="status-pill status-{{ venta.estado|lower }}">
                                     {{ venta.estado|upper }}
