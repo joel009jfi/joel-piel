@@ -9,6 +9,7 @@ from config import Config
 import bcrypt
 import io
 from xhtml2pdf import pisa
+import openpyxl
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -194,7 +195,7 @@ def admin_panel():
     if not db:
         return render_template("admin.html", pedidos=[], total_ventas=0, pendientes=0)
     cursor = obtener_cursor(db, diccionario=True)
-    
+
     cursor.execute("""
         SELECT p.Id_pedido, p.Id_usuario, p.total, p.estado, p.fecha, u.nombre as cliente 
         FROM pedidos p 
@@ -202,17 +203,24 @@ def admin_panel():
         ORDER BY p.fecha DESC LIMIT 5
     """)
     pedidos_db = cursor.fetchall()
-    
+
     cursor.execute("SELECT SUM(total) as gran_total FROM pedidos WHERE estado != 'Cancelado'")
     res_ventas = cursor.fetchone()
     total_ventas = res_ventas['gran_total'] if res_ventas and res_ventas['gran_total'] else 0
-    
+
     cursor.execute("SELECT COUNT(*) as pendientes FROM pedidos WHERE estado = 'Pendiente'")
     res_pendientes = cursor.fetchone()
     conteo_pendientes = res_pendientes['pendientes'] if res_pendientes else 0
-    
+
+    cursor.execute("SELECT id_producto, nombre, stock FROM productos WHERE stock <= 3 ORDER BY stock ASC LIMIT 5")
+    stock_bajo = cursor.fetchall()
+
+    cursor.execute("SELECT COUNT(*) as total FROM contactos WHERE leido = 0")
+    res_mensajes = cursor.fetchone()
+    mensajes_no_leidos = res_mensajes['total'] if res_mensajes else 0
+
     db.close()
-    return render_template("admin.html", pedidos=pedidos_db, total_ventas=total_ventas, pendientes=conteo_pendientes)
+    return render_template("admin.html", pedidos=pedidos_db, total_ventas=total_ventas, pendientes=conteo_pendientes, stock_bajo=stock_bajo, mensajes_no_leidos=mensajes_no_leidos)
 
 # --- CRUD USUARIOS: VER LISTA ---
 @app.route("/admin/usuarios")
@@ -343,6 +351,24 @@ def eliminar_venta(id_pedido):
             db.close()
     return redirect(url_for('ver_ventas'))
 
+@app.route("/admin/ventas/detalle/<int:id_pedido>")
+def detalle_venta(id_pedido):
+    if session.get("rol") != "admin":
+        return jsonify({"error": "No autorizado"}), 403
+    db = conectar()
+    if not db:
+        return jsonify({"error": "Error de conexión"}), 500
+    cursor = obtener_cursor(db, diccionario=True)
+    cursor.execute("""
+        SELECT dp.Id_producto, dp.cantidad, dp.precio_unitario, p.nombre, p.imagen_url
+        FROM detalle_pedido dp
+        JOIN productos p ON dp.Id_producto = p.id_producto
+        WHERE dp.Id_pedido = %s
+    """, (id_pedido,))
+    items = cursor.fetchall()
+    db.close()
+    return jsonify(items)
+
 # --- REPORTE PDF ---
 @app.route("/admin/ventas/pdf")
 def reporte_ventas_pdf():
@@ -393,6 +419,38 @@ def reporte_ventas_pdf():
         return response
     else:
         return "Hubo un error al generar el PDF", 500
+
+@app.route("/admin/ventas/excel")
+def reporte_ventas_excel():
+    if session.get("rol") != "admin":
+        return redirect(url_for('inicio'))
+    db = conectar()
+    if not db:
+        return "Error de conexión", 500
+    cursor = obtener_cursor(db, diccionario=True)
+    cursor.execute("""
+        SELECT p.Id_pedido, p.fecha, u.nombre as cliente, u.email, p.total, p.estado
+        FROM pedidos p
+        JOIN usuarios u ON p.Id_usuario = u.Id_usuario
+        ORDER BY p.fecha DESC
+    """)
+    ventas = cursor.fetchall()
+    db.close()
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Ventas"
+    ws.append(["ID Pedido", "Fecha", "Cliente", "Email", "Total", "Estado"])
+    for v in ventas:
+        ws.append([v["Id_pedido"], v["fecha"].strftime('%d/%m/%Y %H:%M') if hasattr(v["fecha"], 'strftime') else v["fecha"], v["cliente"], v["email"], float(v["total"]) if v["total"] else 0, v["estado"]])
+
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    response = make_response(output.read())
+    response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    response.headers['Content-Disposition'] = f'attachment; filename=ventas_joelpiel_{datetime.now().strftime("%Y%m%d")}.xlsx'
+    return response
 
 # --- GESTIÓN DE PEDIDOS: ACTUALIZAR ESTADO ---
 @app.route("/actualizar_estado/<int:id_pedido>/<nuevo_estado>")
@@ -1005,6 +1063,13 @@ def contacto():
 
         if nombre and email and texto:
             try:
+                db = conectar()
+                if db:
+                    cursor = db.cursor()
+                    cursor.execute("INSERT INTO contactos (nombre, email, asunto, mensaje) VALUES (%s,%s,%s,%s)", (nombre, email, asunto, texto))
+                    db.commit()
+                    db.close()
+
                 msg = Message(
                     subject=f"[JOEL PIEL - Contacto] {asunto.capitalize()} · {nombre}",
                     recipients=["joelpiel57@gmail.com"]
@@ -1029,6 +1094,20 @@ def contacto():
             error = True
 
     return render_template("contacto.html", usuario=usuario, rol=rol, mensaje=mensaje, error=error)
+
+
+@app.route("/admin/mensajes")
+def admin_mensajes():
+    if session.get("rol") != "admin":
+        return redirect(url_for('inicio'))
+    db = conectar()
+    if not db:
+        return render_template("mensajes_admin.html", mensajes=[])
+    cursor = obtener_cursor(db, diccionario=True)
+    cursor.execute("SELECT * FROM contactos ORDER BY fecha DESC")
+    mensajes = cursor.fetchall()
+    db.close()
+    return render_template("mensajes_admin.html", mensajes=mensajes)
 
 
 # ============================================================
@@ -1265,6 +1344,23 @@ def mis_pedidos():
         db.close()
 
     return render_template("mis_pedidos.html", usuario=usuario, rol=rol, pedidos=pedidos)
+
+
+@app.route("/cancelar-pedido/<int:id_pedido>", methods=["POST"])
+def cancelar_pedido_cliente(id_pedido):
+    if "usuario" not in session or not session.get("Id_usuario"):
+        return redirect(url_for('login'))
+    Id_usuario = session["Id_usuario"]
+    db = conectar()
+    if db:
+        cursor = db.cursor()
+        cursor.execute("SELECT estado FROM pedidos WHERE Id_pedido = %s AND Id_usuario = %s", (id_pedido, Id_usuario))
+        pedido = cursor.fetchone()
+        if pedido and pedido[0] in ("Pendiente",):
+            cursor.execute("UPDATE pedidos SET estado = 'Cancelado' WHERE Id_pedido = %s", (id_pedido,))
+            db.commit()
+        db.close()
+    return redirect(url_for('mis_pedidos'))
 
 
 # --- ERRORES PERSONALIZADOS ---

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mensajes de Contacto | JOEL PIEL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="admin-header">
+        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+        <nav class="admin-nav">
+            <a href="/admin">Volver al Panel</a>
+            <a href="/logout" class="logout-btn">Salir</a>
+        </nav>
+    </header>
+
+    <div class="admin-container">
+        <h1 class="admin-title">Mensajes de Contacto</h1>
+
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Asunto</th>
+                    <th>Mensaje</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in mensajes %}
+                <tr style="{{ 'background:#fef9e7;' if not m.leido }}">
+                    <td style="font-size:12px;color:#666;white-space:nowrap;">
+                        {% if m.fecha.strftime is defined %}{{ m.fecha.strftime('%d/%m/%Y %H:%M') }}{% else %}{{ m.fecha }}{% endif %}
+                    </td>
+                    <td><strong>{{ m.nombre }}</strong></td>
+                    <td>{{ m.email }}</td>
+                    <td><span class="status-pill" style="background:#eee;font-size:11px;">{{ m.asunto }}</span></td>
+                    <td style="max-width:350px;font-size:13px;color:#555;">{{ m.mensaje }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align:center;color:#888;padding:40px;">No hay mensajes recibidos.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

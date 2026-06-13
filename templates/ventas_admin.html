@@ -17,7 +17,31 @@
         .mes-actual .mes-header { background: #000; color: #fff; }
         .mes-actual .mes-header:hover { background: #222; }
         .mes-actual .mes-resumen { color: #ccc; }
+        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
+        .modal-box { background:#fff; padding:30px; max-width:500px; width:90%; border-radius:4px; max-height:80vh; overflow-y:auto; }
+        .modal-box h2 { margin-top:0; font-size:18px; }
+        .modal-close { float:right; cursor:pointer; font-size:22px; color:#888; }
+        .modal-table { width:100%; border-collapse:collapse; margin-top:15px; }
+        .modal-table th, .modal-table td { padding:10px 12px; text-align:left; border-bottom:1px solid #eee; font-size:13px; }
+        .modal-table th { background:#f8f8f8; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
     </style>
+    <script>
+        function verDetalle(id) {
+            fetch('/admin/ventas/detalle/' + id)
+                .then(r => r.json())
+                .then(data => {
+                    let html = '<table class="modal-table"><thead><tr><th>Producto</th><th>Cant</th><th>Precio U.</th><th>Subtotal</th></tr></thead><tbody>';
+                    data.forEach(item => {
+                        let sub = (item.cantidad * parseFloat(item.precio_unitario)).toLocaleString('es-CO');
+                        html += '<tr><td>' + item.nombre + '</td><td>' + item.cantidad + '</td><td>$' + parseFloat(item.precio_unitario).toLocaleString('es-CO') + '</td><td>$' + sub + '</td></tr>';
+                    });
+                    html += '</tbody></table>';
+                    document.getElementById('detalle-content').innerHTML = html;
+                    document.getElementById('detalle-modal').style.display = 'flex';
+                });
+        }
+        function cerrarDetalle() { document.getElementById('detalle-modal').style.display = 'none'; }
+    </script>
 </head>
 <body>
     <header class="admin-header">
@@ -32,7 +56,10 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h1 class="admin-title">Historial de Ventas</h1>
             <a href="{{ url_for('reporte_ventas_pdf') }}" style="background: #d9534f; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 12px; font-weight: bold; border-radius: 4px;">
-                <i class="fa-solid fa-file-pdf"></i> DESCARGAR REPORTE
+                <i class="fa-solid fa-file-pdf"></i> PDF
+            </a>
+            <a href="{{ url_for('reporte_ventas_excel') }}" style="background: #5cb85c; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 12px; font-weight: bold; border-radius: 4px;">
+                <i class="fa-solid fa-file-excel"></i> EXCEL
             </a>
         </div>
 
@@ -81,10 +108,13 @@
                                 </span>
                             </td>
                             <td>
-                                <form action="/admin/ventas/eliminar/{{ venta.Id_pedido }}" method="POST" onsubmit="return confirm('¿Eliminar el pedido #{{ venta.Id_pedido }}?');">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button type="submit" style="background:none;border:none;color:#d9534f;cursor:pointer;font-size:16px;" title="Eliminar pedido"><i class="fa-solid fa-trash"></i></button>
-                                </form>
+                                <div style="display:flex;gap:6px;align-items:center;">
+                                    <button onclick="verDetalle({{ venta.Id_pedido }})" style="background:none;border:none;color:#000;cursor:pointer;font-size:14px;" title="Ver detalle"><i class="fa-solid fa-eye"></i></button>
+                                    <form action="/admin/ventas/eliminar/{{ venta.Id_pedido }}" method="POST" onsubmit="return confirm('¿Eliminar el pedido #{{ venta.Id_pedido }}?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" style="background:none;border:none;color:#d9534f;cursor:pointer;font-size:16px;" title="Eliminar pedido"><i class="fa-solid fa-trash"></i></button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -97,6 +127,14 @@
             Aún no se han realizado ventas.
         </div>
         {% endfor %}
+    </div>
+
+    <div id="detalle-modal" class="modal-overlay" onclick="if(event.target===this)cerrarDetalle()">
+        <div class="modal-box">
+            <span class="modal-close" onclick="cerrarDetalle()">&times;</span>
+            <h2><i class="fa-solid fa-receipt"></i> Detalle del Pedido</h2>
+            <div id="detalle-content"></div>
+        </div>
     </div>
 </body>
 </html>
