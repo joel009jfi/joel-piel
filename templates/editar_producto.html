@@ -11,7 +11,7 @@
 <body>
  
     <header class="admin-header">
-        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size:12px;font-weight:300;">ADMIN</span></a>
+        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
     </header>
  
     <div class="admin-container form-max-width">
@@ -22,7 +22,13 @@
         </div>
  
         <h1 class="admin-title">Editar Bolso</h1>
- 
+
+        {% if error %}
+        <div class="alert" style="background:#fdf2f2;border:1px solid #d9534f;color:#721c24;padding:12px;margin-bottom:20px;border-radius:2px;font-size:13px;">
+            {{ error }}
+        </div>
+        {% endif %}
+
         <div class="admin-card">
  
             <!-- VISTA PREVIA DE IMAGEN ACTUAL -->
@@ -33,8 +39,9 @@
                      onerror="this.src='https://via.placeholder.com/150x150?text=Sin+Imagen'">
             </div>
  
-            <form action="/admin/producto/editar/{{ producto['Id_producto'] }}" method="POST">
- 
+            <form action="/admin/producto/editar/{{ producto['Id_producto'] }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
                 <div class="form-group">
                     <label>Nombre del Bolso</label>
                     <input type="text" name="nombre" value="{{ producto.nombre }}" required>
@@ -43,9 +50,9 @@
                 <div class="form-group">
                     <label>Categoría</label>
                     <select name="id_categoria" style="width:100%;padding:12px 15px;border:1px solid #ddd;border-radius:2px;font-family:'Montserrat',sans-serif;font-size:14px;box-sizing:border-box;cursor:pointer;background:#fff;">
-                        <option value="1" {% if producto.Id_categoria == 1 %}selected{% endif %}>Mujer</option>
-                        <option value="2" {% if producto.Id_categoria == 2 %}selected{% endif %}>Hombre</option>
-                        <option value="3" {% if producto.Id_categoria == 3 %}selected{% endif %}>Unisex</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.Id_categoria }}" {% if producto.Id_categoria == cat.Id_categoria %}selected{% endif %}>{{ cat.nombre_categoria }}</option>
+                        {% endfor %}
                     </select>
                 </div>
  
@@ -67,12 +74,13 @@
                 </div>
  
                 <div class="form-group">
-                    <label>Nombre del archivo de imagen</label>
-                    <input type="text" name="imagen_url" id="input-imagen" value="{{ producto.imagen_url }}" 
-                           oninput="actualizarPreview(this.value)">
+                    <label>Imagen (subir archivo nuevo)</label>
+                    <input type="file" name="imagen" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" style="width:100%;padding:8px;border:1px solid #ddd;" onchange="if(this.files.length>0)document.getElementById('input-imagen').required=false;">
                     <small style="color:#999;font-size:11px;margin-top:5px;display:block;">
-                        <i class="fa-solid fa-circle-info"></i> Escribe solo el nombre del archivo. Ej: <code>bolso_negro.jpg</code> — debe estar en <code>static/img/</code>
+                        <i class="fa-solid fa-circle-info"></i> O cambia el nombre del archivo manualmente:
                     </small>
+                    <input type="text" name="imagen_url" id="input-imagen" value="{{ producto.imagen_url }}"
+                           oninput="actualizarPreview(this.value)">
                 </div>
  
                 <button type="submit" class="btn-save">

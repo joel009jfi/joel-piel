@@ -19,9 +19,14 @@ function toggleCarrito() {
     if (overlay) overlay.classList.toggle('active');
 }
 
+// --- Add from product detail page ---
+function agregarDesdeDetalle(idProducto) {
+    agregarAlCarritoAsync(idProducto);
+}
+
 // --- Add product to cart (async) ---
 function agregarAlCarritoAsync(idProducto) {
-    fetch(`/carrito/agregar/${idProducto}`)
+    fetch(`/carrito/agregar/${idProducto}`, { method: 'POST' })
     .then(response => response.json())
     .then(data => {
         if (data.status === "success") {
@@ -58,7 +63,7 @@ function agregarAlCarritoAsync(idProducto) {
 // --- Increment/decrement quantity in cart sidebar ---
 function alterarCantidad(idProducto, accion) {
     const url = accion === 'sumar' ? `/carrito/agregar/${idProducto}` : `/carrito/restar/${idProducto}`;
-    fetch(url)
+    fetch(url, { method: 'POST' })
     .then(response => response.json())
     .then(data => {
         if (data.status === "success") {
@@ -95,3 +100,33 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleCarrito();
     }
 });
+
+// --- Remove product from cart (async) ---
+function eliminarDelCarritoAsync(idProducto) {
+    fetch(`/carrito/eliminar/${idProducto}`, { method: 'POST' })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            const contadorGlobal = document.querySelector(".carrito-count");
+            if (contadorGlobal) contadorGlobal.innerText = data.cantidad_total_carrito;
+
+            const tarjetaProducto = document.getElementById(`item-card-${idProducto}`);
+            if (tarjetaProducto) tarjetaProducto.remove();
+
+            if (data.cantidad_total_carrito === 0) {
+                location.reload();
+                return;
+            }
+
+            const txtTotal = document.getElementById("cart-total-value");
+            if (txtTotal) {
+                txtTotal.innerText = "$" + Number(data.total_carrito).toLocaleString('es-CO', { minimumFractionDigits: 0 });
+            }
+            const txtTotalPagina = document.getElementById("cart-page-total");
+            if (txtTotalPagina) {
+                txtTotalPagina.innerText = "$" + Number(data.total_carrito).toLocaleString('es-CO', { minimumFractionDigits: 0 });
+            }
+        }
+    })
+    .catch(error => console.error("Error al eliminar bolso:", error));
+}

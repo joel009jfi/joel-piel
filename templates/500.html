@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error del servidor | JOEL PIEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <style>
+        .error-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; padding: 40px; }
+        .error-page h1 { font-family: 'Playfair Display', serif; font-size: 120px; margin: 0; color: #b19470; line-height: 1; }
+        .error-page h2 { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 500; color: #333; margin: 10px 0 30px; }
+        .error-page p { color: #888; font-size: 14px; margin-bottom: 30px; }
+        .error-page a { background: #000; color: #fff; padding: 12px 30px; text-decoration: none; font-weight: 600; font-size: 12px; letter-spacing: 1px; transition: background 0.3s; }
+        .error-page a:hover { background: #333; }
+    </style>
+</head>
+<body>
+    <div class="navbar-fixed">
+        <div class="top-bar">ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS</div>
+        <header class="header">
+            <div class="logo" onclick="window.location.href='/'" style="cursor:pointer;">JOEL PIEL</div>
+        </header>
+    </div>
+    <div class="error-page">
+        <h1>500</h1>
+        <h2>Algo salió mal</h2>
+        <p>Hubo un error interno en el servidor. Estamos trabajando para solucionarlo.</p>
+        <a href="/">VOLVER A LA TIENDA</a>
+    </div>
+</body>
+</html>

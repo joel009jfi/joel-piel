@@ -30,6 +30,7 @@
 
         <h2 class="checkout-title">DATOS DE ENVÍO</h2>
         <form action="/carrito/finalizar" method="POST" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             
             <div class="form-group">
                 <label for="departamento_input">Departamento *</label>

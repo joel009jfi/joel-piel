@@ -8,7 +8,7 @@
 </head>
 <body>
     <header class="admin-header">
-        <a href="/admin" class="admin-logo">JOEL PIEL <span class="admin-logo-sub">ADMIN</span></a>
+        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
             <a href="/admin">Volver al Panel</a>
             <a href="/logout" class="logout-btn">Salir</a>
@@ -49,6 +49,7 @@
                 <div class="admin-logistics-form">
                     {% if e.estado_envio == 'Por despachar' or e.estado_envio == 'Preparando' %}
                     <form action="/admin/despachar_pedido/{{ e.Id_pedido }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <select name="transportadora" class="admin-logistics-select" required>
                             <option value="" disabled selected>Seleccione Transportadora</option>
                             <option value="Interrapidísimo">Interrapidísimo</option>
@@ -64,6 +65,7 @@
                     
                     {% elif e.estado_envio == 'Enviado' %}
                     <form action="/admin/entregar_pedido/{{ e.Id_pedido }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn-panel btn-full btn-dark">
                             MARCAR COMO ENTREGADO
                         </button>

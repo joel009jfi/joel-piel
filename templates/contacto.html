@@ -154,6 +154,7 @@
                     {% if rol == "admin" %}
                         <a href="/admin" title="Panel Admin"><i class="fas fa-tools"></i></a>
                     {% endif %}
+                    <a href="/mis-pedidos" title="Mis pedidos"><i class="fas fa-box"></i></a>
                     <a href="/logout" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></a>
                 {% else %}
                     <div class="user-menu">
@@ -175,13 +176,14 @@
         <a href="/mujer">MUJER</a>
         <a href="/hombre">HOMBRE</a>
         <a href="/contacto" style="border-bottom: 2px solid #000;">CONTACTO</a>
+        <a href="/rastrear">RASTREAR</a>
     </nav>
 </div>
 
 <div class="contacto-wrapper">
     <!-- INFO LADO IZQUIERDO -->
     <div class="contacto-info">
-        <h2>Hablemos de cuero y diseño</h2>
+        <h2>Hablemos de diseño y calidad</h2>
         <p>¿Tienes preguntas sobre tu pedido, los materiales o nuestras colecciones? Escríbenos y con gusto te atendemos.</p>
 
         <div class="contacto-dato">
@@ -225,6 +227,7 @@
         {% endif %}
 
         <form method="POST" action="/contacto">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
                 <label>Nombre completo *</label>
                 <input type="text" name="nombre" placeholder="Tu nombre" required>

@@ -212,6 +212,7 @@
                     {% if rol == "admin" %}
                         <a href="/admin" title="Panel Admin"><i class="fas fa-tools"></i></a>
                     {% endif %}
+                    <a href="/mis-pedidos" title="Mis pedidos"><i class="fas fa-box"></i></a>
                     <a href="/logout" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></a>
                 {% else %}
                     <div class="user-menu">
@@ -233,6 +234,7 @@
         <a href="/mujer">MUJER</a>
         <a href="/hombre">HOMBRE</a>
         <a href="/contacto">CONTACTO</a>
+        <a href="/rastrear">RASTREAR</a>
     </nav>
 </div>
 
@@ -240,10 +242,8 @@
 <div class="breadcrumb">
     <a href="/">Inicio</a>
     <span>›</span>
-    {% if producto.Id_categoria == 1 %}
-        <a href="/mujer">Mujer</a>
-    {% elif producto.Id_categoria == 2 %}
-        <a href="/hombre">Hombre</a>
+    {% if categorias and producto.Id_categoria in categorias %}
+        <a href="/{{ categorias[producto.Id_categoria].lower() }}">{{ categorias[producto.Id_categoria] }}</a>
     {% else %}
         <a href="/">Colección</a>
     {% endif %}
@@ -265,22 +265,18 @@
 
     <!-- INFO -->
     <div class="detalle-info">
-        <p class="detalle-categoria">
-            {% if producto.Id_categoria == 1 %}Bolso Mujer
-            {% elif producto.Id_categoria == 2 %}Bolso Hombre
-            {% else %}Unisex{% endif %}
-        </p>
+        <p class="detalle-categoria">{{ categorias.get(producto.Id_categoria, 'Bolso') }}</p>
 
         <h1 class="detalle-nombre">{{ producto.nombre }}</h1>
 
-        <p class="detalle-precio">$ {{ "{:,.0f}".format(producto.precio) }}</p>
+        <p class="detalle-precio">$ {{ "{:,.0f}".format(producto.precio) if producto.precio is number else '0' }}</p>
 
         <hr class="detalle-divider">
 
         {% if producto.descripcion %}
             <p class="detalle-descripcion">{{ producto.descripcion }}</p>
         {% else %}
-            <p class="detalle-descripcion">Bolso artesanal elaborado en cuero genuino en el taller central de JOEL PIEL. Cada pieza es única, trabajada a mano con materiales de alta calidad para garantizar durabilidad y estilo.</p>
+            <p class="detalle-descripcion">Bolso artesanal elaborado en el taller central de JOEL PIEL. Cada pieza es única, trabajada con materiales de alta calidad para garantizar durabilidad y estilo.</p>
         {% endif %}
 
         <hr class="detalle-divider">
@@ -313,7 +309,7 @@
             </div>
             <div class="garantia-item">
                 <i class="fas fa-shield-alt"></i>
-                <span>Cuero genuino garantizado</span>
+                <span>Calidad garantizada</span>
             </div>
             <div class="garantia-item">
                 <i class="fas fa-undo"></i>

@@ -25,6 +25,7 @@
                     {% if rol == "admin" %}
                         <a href="/admin" title="Panel Admin"><i class="fas fa-tools"></i></a>
                     {% endif %}
+                    <a href="/mis-pedidos" title="Mis pedidos"><i class="fas fa-box"></i></a>
                     <a href="/logout" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></a>
                 {% else %}
                     <div class="user-menu">
@@ -48,6 +49,7 @@
         <a href="/hombre">HOMBRE</a>
         <a href="/lo-nuevo">LO NUEVO</a>
         <a href="/contacto">CONTACTO</a>
+        <a href="/rastrear">RASTREAR</a>
     </nav>
 </div>
 
@@ -57,11 +59,13 @@
     {% if productos %}
         {% for p in productos %}
         <div class="cart-item-card" id="item-card-{{ p.id_producto }}" style="display:flex;align-items:center;gap:20px;padding:20px 0;border-bottom:1px solid #eee;">
+            <a href="/producto/{{ p.id_producto }}" style="flex-shrink:0;">
             {% if 'static/' in p.imagen_url %}
                 <img src="{{ p.imagen_url }}" style="width:100px;height:100px;object-fit:cover;" onerror="this.src='https://via.placeholder.com/100x100?text=Bolso'">
             {% else %}
                 <img src="{{ url_for('static', filename='img/' + p.imagen_url) }}" style="width:100px;height:100px;object-fit:cover;" onerror="this.src='https://via.placeholder.com/100x100?text=Bolso'">
             {% endif %}
+            </a>
             <div style="flex:1;">
                 <h3 style="margin:0 0 8px;font-size:16px;font-weight:600;">{{ p.nombre }}</h3>
                 <div class="quantity-controls" style="display:flex;align-items:center;gap:10px;margin:10px 0;">
@@ -71,7 +75,7 @@
                 </div>
                 <p style="margin:0;font-weight:700;" id="subtotal-{{ p.id_producto }}">${{ "{:,.0f}".format(p.subtotal) }}</p>
             </div>
-            <a href="/carrito/eliminar/{{ p.id_producto }}" style="color:#999;font-size:18px;"><i class="fa-solid fa-trash-can"></i></a>
+            <a href="javascript:void(0);" onclick="eliminarDelCarritoAsync('{{ p.id_producto }}')" style="color:#999;font-size:18px;"><i class="fa-solid fa-trash-can"></i></a>
         </div>
         {% endfor %}
 

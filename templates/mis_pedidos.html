@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Pedidos | JOEL PIEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <style>
+        .pedidos-wrapper { max-width: 800px; margin: 50px auto 80px; padding: 0 5%; }
+        .pedidos-wrapper h2 { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 30px; }
+        .pedido-card { border: 1px solid #eee; padding: 20px; margin-bottom: 15px; border-radius: 4px; }
+        .pedido-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .pedido-header h3 { margin: 0; font-size: 16px; font-weight: 700; }
+        .pedido-header .fecha { color: #888; font-size: 13px; }
+        .pedido-detalle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; color: #555; }
+        .pedido-detalle strong { color: #333; }
+        .status-badge { display: inline-block; padding: 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px; border-radius: 2px; }
+        .bg-pendiente { background: #fff3cd; color: #856404; }
+        .bg-pagado { background: #d4edda; color: #155724; }
+        .bg-enviado { background: #d4edda; color: #155724; }
+        .bg-entregado { background: #cce5ff; color: #004085; }
+        .bg-cancelado { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+<div class="navbar-fixed">
+    <div class="top-bar">ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS</div>
+    <header class="header">
+        <div class="logo" onclick="window.location.href='/'" style="cursor:pointer;">JOEL PIEL</div>
+        <div class="header-right">
+            <form action="/buscar" method="GET" class="buscador-form">
+                <input type="text" name="q" placeholder="Buscar bolsos..." class="buscador">
+                <button type="submit" class="buscar-btn"><i class="fas fa-search"></i></button>
+            </form>
+            <div class="icons">
+                <span class="user-welcome">Hola, {{ usuario }}</span>
+                {% if rol == "admin" %}
+                    <a href="/admin" title="Panel Admin"><i class="fas fa-tools"></i></a>
+                {% endif %}
+                <a href="/logout" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></a>
+                <a href="javascript:void(0);" onclick="toggleCarrito()" title="Carrito" class="carrito-link" style="position:relative;text-decoration:none;">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="carrito-count">{{ cantidad_total_carrito }}</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <nav class="menu">
+        <a href="/">INICIO</a>
+        <a href="/mujer">MUJER</a>
+        <a href="/hombre">HOMBRE</a>
+        <a href="/lo-nuevo">LO NUEVO</a>
+        <a href="/rastrear">RASTREAR</a>
+        <a href="/mis-pedidos" style="border-bottom: 2px solid #000;">MIS PEDIDOS</a>
+    </nav>
+</div>
+
+<div class="pedidos-wrapper">
+    <h2>Mis Pedidos</h2>
+
+    {% if pedidos %}
+        {% for p in pedidos %}
+        <div class="pedido-card">
+            <div class="pedido-header">
+                <h3>Pedido #{{ p.Id_pedido }}</h3>
+                <span class="fecha">{% if p.fecha.strftime is defined %}{{ p.fecha.strftime('%d/%m/%Y') }}{% else %}{{ p.fecha }}{% endif %}</span>
+            </div>
+            <div class="pedido-detalle">
+                <div><strong>Total:</strong> ${{ "{:,.0f}".format(p.total) }}</div>
+                <div>
+                    <strong>Pago:</strong>
+                    <span class="status-badge {{ 'bg-pagado' if p.estado == 'Pagado' else 'bg-pendiente' if p.estado == 'Pendiente' else 'bg-cancelado' }}">{{ p.estado }}</span>
+                </div>
+                <div>
+                    <strong>Envío:</strong>
+                    <span class="status-badge {{ 'bg-entregado' if p.estado_envio == 'Entregado' else 'bg-enviado' if p.estado_envio == 'Enviado' else 'bg-pendiente' }}">{{ p.estado_envio or 'Pendiente' }}</span>
+                </div>
+                {% if p.transportadora and p.numero_guia and p.estado_envio == 'Enviado' %}
+                <div><strong>Guía:</strong> {{ p.transportadora }} · {{ p.numero_guia }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div style="text-align:center;padding:60px 20px;border:1px solid #eee;border-radius:4px;">
+            <i class="fa-solid fa-box-open" style="font-size:3rem;color:#ccc;margin-bottom:20px;"></i>
+            <p style="color:#888;font-size:16px;">Aún no has realizado ningún pedido.</p>
+            <a href="/" class="btn-cart-checkout" style="display:inline-block;padding:12px 30px;background:#000;color:#fff;text-decoration:none;font-weight:600;font-size:12px;letter-spacing:1.5px;margin-top:20px;">VER COLECCIÓN</a>
+        </div>
+    {% endif %}
+</div>
+
+<footer class="footer">
+    <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
+</footer>
+
+{% include 'carrito_sidebar.html' %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

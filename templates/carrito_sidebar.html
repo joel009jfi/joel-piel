@@ -7,11 +7,13 @@
         {% if session.get('carrito') and productos_carrito %}
             {% for p in productos_carrito %}
             <div class="cart-item-card" id="item-card-{{ p.id_producto }}" style="display:flex;align-items:center;margin-bottom:15px;border-bottom:1px solid #eee;padding-bottom:15px;gap:12px;">
+                <a href="/producto/{{ p.id_producto }}" style="flex-shrink:0;">
                 {% if 'static/' in p.imagen_url %}
-                    <img src="{{ p.imagen_url }}" class="prod-mini-img" onerror="this.src='https://via.placeholder.com/60x60?text=Bolso'">
+                    <img src="{{ p.imagen_url }}" class="prod-mini-img" onerror="this.src='https://via.placeholder.com/60x60?text=Bolso'" style="cursor:pointer;">
                 {% else %}
-                    <img src="{{ url_for('static', filename='img/' + p.imagen_url) }}" class="prod-mini-img" onerror="this.src='https://via.placeholder.com/60x60?text=Bolso'">
+                    <img src="{{ url_for('static', filename='img/' + p.imagen_url) }}" class="prod-mini-img" onerror="this.src='https://via.placeholder.com/60x60?text=Bolso'" style="cursor:pointer;">
                 {% endif %}
+                </a>
                 <div class="cart-item-details" style="flex:1;">
                     <h4 style="margin:0;font-size:14px;font-family:'Montserrat',sans-serif;font-weight:600;">{{ p.nombre }}</h4>
                     <div class="quantity-controls" style="display:flex;align-items:center;margin:8px 0;gap:8px;">
@@ -21,7 +23,7 @@
                     </div>
                     <p class="cart-item-price" id="subtotal-{{ p.id_producto }}" style="margin:0;font-weight:700;color:#000;font-size:13px;">${{ "{:,.0f}".format(p.subtotal) }}</p>
                 </div>
-                <a href="/carrito/eliminar/{{ p.id_producto }}" class="cart-item-remove" style="color:#999;margin-left:auto;">
+                <a href="javascript:void(0);" onclick="eliminarDelCarritoAsync('{{ p.id_producto }}')" class="cart-item-remove" style="color:#999;margin-left:auto;">
                     <i class="fa-solid fa-trash-can"></i>
                 </a>
             </div>

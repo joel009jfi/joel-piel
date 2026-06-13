@@ -20,6 +20,7 @@
         {% endif %}
 
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="text" name="nombre" class="auth-input" placeholder="Nombre completo" required>
             
             <input type="email" name="email" class="auth-input" placeholder="Correo electrónico" required>

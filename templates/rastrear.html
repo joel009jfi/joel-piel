@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastrear Pedido | JOEL PIEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <style>
+        .rastrear-wrapper { max-width: 600px; margin: 60px auto 80px; padding: 0 5%; }
+        .rastrear-wrapper h2 { font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 10px; }
+        .rastrear-wrapper p { color: #888; font-size: 14px; margin-bottom: 30px; }
+        .rastrear-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
+        .rastrear-form input { padding: 14px; border: 1px solid #ddd; font-size: 14px; font-family: 'Montserrat', sans-serif; }
+        .rastrear-form button { padding: 14px; background: #000; color: #fff; border: none; font-weight: 700; font-size: 12px; letter-spacing: 2px; cursor: pointer; }
+        .rastrear-form button:hover { background: #333; }
+        .rastrear-result { background: #fafafa; border: 1px solid #eee; padding: 30px; }
+        .rastrear-result h3 { font-family: 'Playfair Display', serif; margin-bottom: 20px; }
+        .rastrear-result .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+        .rastrear-result .row strong { color: #333; }
+        .rastrear-error { background: #fdf2f2; border: 1px solid #d9534f; color: #721c24; padding: 15px; margin-bottom: 20px; font-size: 13px; }
+        .status-badge { display: inline-block; padding: 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+        .bg-pendiente { background: #fff3cd; color: #856404; }
+        .bg-pagado { background: #d4edda; color: #155724; }
+        .bg-enviado { background: #d4edda; color: #155724; }
+        .bg-entregado { background: #cce5ff; color: #004085; }
+    </style>
+</head>
+<body>
+<div class="navbar-fixed">
+    <div class="top-bar">ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS</div>
+    <header class="header">
+        <div class="logo" onclick="window.location.href='/'" style="cursor:pointer;">JOEL PIEL</div>
+        <div class="header-right">
+            <form action="/buscar" method="GET" class="buscador-form">
+                <input type="text" name="q" placeholder="Buscar bolsos..." class="buscador">
+                <button type="submit" class="buscar-btn"><i class="fas fa-search"></i></button>
+            </form>
+            <div class="icons">
+                {% if usuario %}
+                    <span class="user-welcome">Hola, {{ usuario }}</span>
+                    {% if rol == "admin" %}
+                        <a href="/admin" title="Panel Admin"><i class="fas fa-tools"></i></a>
+                    {% endif %}
+                    <a href="/mis-pedidos" title="Mis pedidos"><i class="fas fa-box"></i></a>
+                    <a href="/logout" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></a>
+                {% else %}
+                    <div class="user-menu">
+                        <span class="user-icon"><i class="far fa-user"></i></span>
+                        <div class="dropdown">
+                            <a href="/login">Iniciar sesión</a>
+                            <a href="/registro">Registrarse</a>
+                        </div>
+                    </div>
+                {% endif %}
+                <a href="javascript:void(0);" onclick="toggleCarrito()" title="Carrito" class="carrito-link" style="position:relative;text-decoration:none;">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="carrito-count">{{ cantidad_total_carrito }}</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <nav class="menu">
+        <a href="/mujer">MUJER</a>
+        <a href="/hombre">HOMBRE</a>
+        <a href="/lo-nuevo">LO NUEVO</a>
+        <a href="/rastrear" style="border-bottom: 2px solid #000;">RASTREAR PEDIDO</a>
+    </nav>
+</div>
+
+<div class="rastrear-wrapper">
+    <h2>Rastrea tu pedido</h2>
+    <p>Ingresa el número de pedido y el correo electrónico que usaste al comprar.</p>
+
+    {% if error %}
+    <div class="rastrear-error">{{ error }}</div>
+    {% endif %}
+
+    <form class="rastrear-form" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="number" name="pedido_id" placeholder="Número de pedido (Ej: 12)" required>
+        <input type="email" name="email" placeholder="Correo electrónico" required>
+        <button type="submit">CONSULTAR</button>
+    </form>
+
+    {% if resultado %}
+    <div class="rastrear-result">
+        <h3>Pedido #{{ resultado.Id_pedido }}</h3>
+        <div class="row"><strong>Cliente</strong><span>{{ resultado.cliente }}</span></div>
+        <div class="row"><strong>Fecha</strong><span>{{ resultado.fecha }}</span></div>
+        <div class="row"><strong>Total</strong><span>${{ "{:,.0f}".format(resultado.total) }}</span></div>
+        <div class="row">
+            <strong>Estado del pago</strong>
+            <span class="status-badge {{ 'bg-pagado' if resultado.estado == 'Pagado' else 'bg-pendiente' }}">{{ resultado.estado }}</span>
+        </div>
+        <div class="row">
+            <strong>Estado del envío</strong>
+            <span class="status-badge {{ 'bg-entregado' if resultado.estado_envio == 'Entregado' else 'bg-enviado' if resultado.estado_envio == 'Enviado' else 'bg-pendiente' }}">{{ resultado.estado_envio or 'Pendiente' }}</span>
+        </div>
+        {% if resultado.transportadora and resultado.numero_guia and resultado.estado_envio == 'Enviado' %}
+        <div class="row"><strong>Transportadora</strong><span>{{ resultado.transportadora }}</span></div>
+        <div class="row"><strong>Guía</strong><span>{{ resultado.numero_guia }}</span></div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<footer class="footer">
+    <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
+</footer>
+
+{% include 'carrito_sidebar.html' %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

@@ -23,26 +23,33 @@
 
         <h1 class="admin-title">Agregar Nuevo Bolso</h1>
 
+        {% if error %}
+        <div class="alert" style="background:#fdf2f2;border:1px solid #d9534f;color:#721c24;padding:12px;margin-bottom:20px;border-radius:2px;font-size:13px;">
+            {{ error }}
+        </div>
+        {% endif %}
+
         <div class="admin-card">
-            <form action="/admin/producto/nuevo" method="POST">
+            <form action="/admin/producto/nuevo" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                 <div class="form-group">
                     <label>Nombre del Bolso</label>
-                    <input type="text" name="nombre" placeholder="Ej: Bolso de Cuero Minimal" required>
+                    <input type="text" name="nombre" placeholder="Ej: Bolso Minimal" required>
                 </div>
 
                 <div class="form-group">
                     <label>Categoría</label>
                     <select name="id_categoria" style="width:100%; padding:12px 15px; border:1px solid #ddd; border-radius:2px; font-family:'Montserrat',sans-serif; font-size:14px; box-sizing:border-box; cursor:pointer; background:#fff;">
-                        <option value="1">Mujer</option>
-                        <option value="2">Hombre</option>
-                        <option value="3">Unisex</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.Id_categoria }}">{{ cat.nombre_categoria }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label>Descripción (opcional)</label>
-                    <textarea name="descripcion" placeholder="Ej: Bolso de cuero genuino con cierre magnético..." 
+                    <textarea name="descripcion" placeholder="Ej: Bolso con cierre magnético..." 
                         style="width:100%; padding:12px 15px; border:1px solid #ddd; border-radius:2px; font-family:'Montserrat',sans-serif; font-size:14px; box-sizing:border-box; resize:vertical; min-height:80px;"></textarea>
                 </div>
 
@@ -58,11 +65,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label>URL de la Imagen</label>
-                    <input type="text" name="imagen_url" placeholder="Ej: bolso_negro.jpg" required>
+                    <label>Imagen (subir archivo)</label>
+                    <input type="file" name="imagen" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" style="width:100%;padding:8px;border:1px solid #ddd;">
                     <small style="color:#999; font-size:11px; margin-top:5px; display:block;">
-                        <i class="fa-solid fa-circle-info"></i> Guarda la imagen en <code>static/img/productos/</code> y escribe solo el nombre del archivo.
+                        <i class="fa-solid fa-circle-info"></i> O ingresa una URL manualmente:
                     </small>
+                    <input type="text" name="imagen_url" placeholder="Ej: bolso_negro.jpg" style="margin-top:8px;">
                 </div>
 
                 <button type="submit" class="btn-save">

@@ -28,6 +28,7 @@
                     {% if rol == "admin" %}
                         <a href="/admin" title="Panel Admin"><i class="fas fa-tools"></i></a>
                     {% endif %}
+                    <a href="/mis-pedidos" title="Mis pedidos"><i class="fas fa-box"></i></a>
                     <a href="/logout" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></a>
                 {% else %}
                     <div class="user-menu">
@@ -49,23 +50,38 @@
         <a href="/mujer">MUJER</a>
         <a href="/hombre">HOMBRE</a>
         <a href="/contacto">CONTACTO</a>
+        <a href="/rastrear">RASTREAR</a>
     </nav>
 </div>
 
 <!-- RESULTADOS -->
 <section class="vitrina-productos">
-    <div class="section-header">
-        <div>
-            <h2>RESULTADOS DE BÚSQUEDA</h2>
-            <p style="font-size:13px;color:#666;margin-top:6px;">
-                {% if productos %}
-                    {{ productos|length }} resultado{% if productos|length != 1 %}s{% endif %} para "<strong>{{ query }}</strong>"
-                {% else %}
-                    Sin resultados para "<strong>{{ query }}</strong>"
-                {% endif %}
-            </p>
+    <div class="section-header" style="flex-direction:column;align-items:stretch;gap:15px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div>
+                <h2 style="margin:0;">RESULTADOS DE BÚSQUEDA</h2>
+                <p style="font-size:13px;color:#666;margin-top:6px;">
+                    {% if productos %}
+                        {{ productos|length }} resultado{% if productos|length != 1 %}s{% endif %} para "<strong>{{ query }}</strong>"
+                    {% else %}
+                        Sin resultados para "<strong>{{ query }}</strong>"
+                    {% endif %}
+                </p>
+            </div>
+            <a href="/" class="ver-mas"><i class="fas fa-arrow-left"></i> Volver al inicio</a>
         </div>
-        <a href="/" class="ver-mas"><i class="fas fa-arrow-left"></i> Volver al inicio</a>
+        <form method="GET" action="/buscar" style="display:flex;gap:10px;flex-wrap:wrap;padding:15px;background:#f9f9f9;border:1px solid #eee;border-radius:4px;">
+            <input type="hidden" name="q" value="{{ query }}">
+            <input type="number" name="precio_min" placeholder="Precio mínimo" value="{{ request.args.get('precio_min', '') }}" style="flex:1;min-width:120px;padding:10px;border:1px solid #ddd;font-size:13px;">
+            <input type="number" name="precio_max" placeholder="Precio máximo" value="{{ request.args.get('precio_max', '') }}" style="flex:1;min-width:120px;padding:10px;border:1px solid #ddd;font-size:13px;">
+            <select name="categoria" style="flex:1;min-width:120px;padding:10px;border:1px solid #ddd;font-size:13px;">
+                <option value="">Todas las categorías</option>
+                {% for cat in categorias %}
+                <option value="{{ cat.Id_categoria }}" {{ 'selected' if request.args.get('categoria')|string == cat.Id_categoria|string }}>{{ cat.nombre_categoria }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" style="background:#000;color:#fff;border:none;padding:10px 20px;cursor:pointer;font-weight:700;font-size:12px;letter-spacing:1px;">FILTRAR</button>
+        </form>
     </div>
 
     {% if productos %}
@@ -83,6 +99,11 @@
                 <div class="producto-info">
                     <h3 class="producto-nombre">{{ producto.nombre }}</h3>
                     <p class="producto-precio">$ {{ "{:,.0f}".format(producto.precio) if producto.precio is number else producto.precio }}</p>
+                    {% if producto.stock == 0 %}
+                        <span style="display:block;font-size:10px;color:#d9534f;font-weight:700;margin-top:4px;">AGOTADO</span>
+                    {% elif producto.stock is number and producto.stock <= 3 %}
+                        <span style="display:block;font-size:10px;color:#f0ad4e;font-weight:700;margin-top:4px;">ÚLTIMAS {{ producto.stock }} UNIDADES</span>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}

@@ -13,7 +13,7 @@
 <body>
 
     <header class="admin-header">
-        <a href="/" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
             <a href="/">Ver Tienda</a>
             <a href="/logout" class="logout-btn"><i class="fa-solid fa-power-off"></i> Salir</a>
@@ -68,10 +68,10 @@
             </div>
 
             <div class="admin-card">
-                <i class="fa-solid fa-ticket"></i>
-                <h3>Marketing</h3>
-                <p>Configura cupones y promociones.</p>
-                <a href="#" class="btn-panel">Cupones</a>
+                <i class="fa-solid fa-tags"></i>
+                <h3>Categorías</h3>
+                <p>Administra las categorías de productos.</p>
+                <a href="{{ url_for('admin_categorias') }}" class="btn-panel">Gestionar</a>
             </div>
         </div>
 
