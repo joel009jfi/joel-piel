@@ -68,13 +68,6 @@
             </div>
 
             <div class="admin-card">
-                <i class="fa-solid fa-tags"></i>
-                <h3>Categorías</h3>
-                <p>Administra las categorías de productos.</p>
-                <a href="{{ url_for('admin_categorias') }}" class="btn-panel">Gestionar</a>
-            </div>
-
-            <div class="admin-card">
                 <i class="fa-solid fa-envelope"></i>
                 <h3>Mensajes {{ '<span style=\"background:#d9534f;color:#fff;border-radius:50%;padding:2px 8px;font-size:11px;margin-left:5px;\">' ~ mensajes_no_leidos ~ '</span>' if mensajes_no_leidos > 0 else '' }}</h3>
                 <p>Bandeja de mensajes de contacto.</p>

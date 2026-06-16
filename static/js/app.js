@@ -1,4 +1,4 @@
-// --- Hero slideshow ---
+
 (function() {
     let slides = document.querySelectorAll('.slide');
     let index = 0;
@@ -11,7 +11,8 @@
     }
 })();
 
-// --- Cart sidebar toggle ---
+/* Abre/cierra el carrito lateral (sidebar) */
+
 function toggleCarrito() {
     const sidebar = document.getElementById('carrito-lateral');
     const overlay = document.getElementById('cart-overlay');
@@ -19,12 +20,12 @@ function toggleCarrito() {
     if (overlay) overlay.classList.toggle('active');
 }
 
-// --- Add from product detail page ---
+/* Agrega producto al carrito desde la página de detalle */
+
 function agregarDesdeDetalle(idProducto) {
     agregarAlCarritoAsync(idProducto);
 }
 
-// --- Add product to cart (async) ---
 function agregarAlCarritoAsync(idProducto) {
     fetch(`/carrito/agregar/${idProducto}`, { method: 'POST' })
     .then(response => response.json())
@@ -60,7 +61,6 @@ function agregarAlCarritoAsync(idProducto) {
     .catch(error => console.error("Error al aÃ±adir bolso:", error));
 }
 
-// --- Increment/decrement quantity in cart sidebar ---
 function alterarCantidad(idProducto, accion) {
     const url = accion === 'sumar' ? `/carrito/agregar/${idProducto}` : `/carrito/restar/${idProducto}`;
     fetch(url, { method: 'POST' })
@@ -93,7 +93,6 @@ function alterarCantidad(idProducto, accion) {
     .catch(error => console.error("Error al alterar cantidad en la bolsa:", error));
 }
 
-// --- Auto-open cart after reload ---
 document.addEventListener("DOMContentLoaded", () => {
     if (sessionStorage.getItem('abrir_carrito_al_cargar') === 'true') {
         sessionStorage.removeItem('abrir_carrito_al_cargar');
@@ -101,7 +100,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// --- Remove product from cart (async) ---
+/* Elimina producto del carrito vía AJAX */
+
 function eliminarDelCarritoAsync(idProducto) {
     fetch(`/carrito/eliminar/${idProducto}`, { method: 'POST' })
     .then(response => response.json())
