@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+<!-- === CABECERA DE LA PÁGINA === -->
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Usuarios | JOEL PIEL</title>
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <!-- === BARRA DE NAVEGACIÓN === -->
     <header class="admin-header">
         <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
@@ -15,12 +17,15 @@
         </nav>
     </header>
 
+    <!-- === CONTENEDOR PRINCIPAL === -->
     <div class="admin-container">
+        <!-- === ENCABEZADO CON TÍTULO Y BOTÓN NUEVO USUARIO === -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h1 class="admin-title">Personas Registradas</h1>
-            <a href="{{ url_for('crear_usuario_admin') }}" style="background: #000; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 12px; font-weight: bold;">+ NUEVO USUARIO</a>
+            <a href="{{ url_for('registro') }}" style="background: #000; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 12px; font-weight: bold;">+ NUEVO USUARIO</a>
         </div>
 
+        <!-- === TABLA DE USUARIOS === -->
         <table class="admin-table">
             <thead>
                 <tr>
@@ -43,12 +48,11 @@
                         </span>
                     </td>
                     <td>
-                        <a href="{{ url_for('editar_usuario', id_usuario=usuario.Id_usuario) }}" style="color: #000; margin-right: 15px;">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </a>
-                        <a href="{{ url_for('eliminar_usuario', id_usuario=usuario.Id_usuario) }}" onclick="return confirm('¿Eliminar este usuario?')" style="color: #d9534f;">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </a>
+                        <!-- === BOTÓN PARA CAMBIAR ROL DEL USUARIO === -->
+                        <form action="{{ url_for('cambiar_rol_usuario', id_usuario=usuario.Id_usuario) }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" style="background:none;border:none;color:#000;cursor:pointer;font-size:16px;margin-right:15px;" title="Cambiar rol"><i class="fa-solid fa-arrows-rotate"></i></button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}

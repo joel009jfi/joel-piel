@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>¡Pedido Confirmado! | JOEL PIEL</title>
+    <!-- Fuentes tipográficas -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 </head>
 <body class="body-exito">
 
+    <!-- ===== PÁGINA DE CONFIRMACIÓN DE COMPRA ===== -->
     <div class="contenedor-exito">
+        <!-- Icono de check -->
         <div class="icono-exito">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -19,6 +22,7 @@
         <h1>¡Tu pedido ha sido recibido!</h1>
         <p>Gracias por tu compra en JOEL PIEL. Estamos preparando todo con el cuidado y la dedicación que merecen nuestros diseños.</p>
 
+        <!-- Detalles del pedido -->
         <div class="detalles-pedido">
             <div class="linea-detalle">
                 <span>Estado del pago:</span>
@@ -34,8 +38,10 @@
             </div>
         </div>
 
+        <!-- Enlace para seguir explorando -->
         <a href="{{ url_for('inicio') }}" class="btn-regresar">Seguir explorando la colección</a>
         
+        <!-- Nota sobre el correo de confirmación -->
         <div class="nota-pie">
             Un correo de confirmación con los detalles del envío está en camino.
         </div>

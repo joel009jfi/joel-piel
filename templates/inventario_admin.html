@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+<!-- === CABECERA Y ESTILOS DEL INVENTARIO === -->
 <head>
     <meta charset="UTF-8">
     <title>Inventario | JOEL PIEL</title>
@@ -36,6 +37,7 @@
     </style>
 </head>
 <body>
+    <!-- === BARRA DE NAVEGACIÓN === -->
     <header class="admin-header">
         <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
@@ -44,21 +46,25 @@
         </nav>
     </header>
  
+    <!-- === CONTENEDOR PRINCIPAL === -->
     <div class="admin-container">
+        <!-- === ENCABEZADO CON TÍTULO Y BOTÓN NUEVO PRODUCTO === -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h1 class="admin-title" style="margin: 0;">Gestión de Inventario</h1>
-            <a href="/admin/producto/nuevo" class="btn-panel" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+            <a href="{{ url_for('crear_producto') }}" class="btn-panel" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-plus"></i> NUEVO BOLSO
             </a>
         </div>
+        <!-- === FORMULARIO DE BÚSQUEDA === -->
         <div style="margin-bottom: 20px;">
-            <form method="GET" action="/admin/inventario" style="display:flex;gap:10px;">
+            <form method="GET" action="{{ url_for('admin_productos') }}" style="display:flex;gap:10px;">
                 <input type="text" name="q" placeholder="Buscar producto por nombre..." value="{{ busqueda or '' }}" style="flex:1;padding:10px 15px;border:1px solid #ddd;font-size:14px;font-family:'Montserrat',sans-serif;">
                 <button type="submit" style="background:#000;color:#fff;border:none;padding:10px 20px;cursor:pointer;font-weight:700;font-size:12px;letter-spacing:1px;">BUSCAR</button>
-                {% if busqueda %}<a href="/admin/inventario" style="display:inline-flex;align-items:center;padding:10px 15px;color:#888;text-decoration:none;font-size:13px;">X Limpiar</a>{% endif %}
+                {% if busqueda %}<a href="{{ url_for('admin_productos') }}" style="display:inline-flex;align-items:center;padding:10px 15px;color:#888;text-decoration:none;font-size:13px;">X Limpiar</a>{% endif %}
             </form>
         </div>
         
+        <!-- === TABLA DE PRODUCTOS === -->
         <div class="admin-section">
             <table class="admin-table">
                 <thead>
@@ -81,6 +87,7 @@
                         </td>
                         <td>${{ "{:,.0f}".format(p.precio) }}</td>
                         <td>
+                            <!-- === CONTROLES DE AJUSTE DE STOCK (+ / -) === -->
                             <div class="stock-control">
                                 <button class="btn-stock" onclick="cambiarStock({{ p.id_producto }}, -1)">-</button>
                                 <span id="stock-{{ p.id_producto }}" style="font-weight: 700; width: 30px; text-align: center;">{{ p.stock }}</span>
@@ -93,11 +100,12 @@
                             </span>
                         </td>
                         <td>
+                            <!-- === BOTONES DE EDICIÓN Y ELIMINACIÓN === -->
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <a href="/admin/producto/editar/{{ p.id_producto }}" class="btn-editar">
+                                <a href="{{ url_for('editar_producto', id_producto=p.id_producto) }}" class="btn-editar">
                                     <i class="fa-solid fa-pen"></i> Editar
                                 </a>
-                                <a href="/admin/producto/eliminar/{{ p.id_producto }}" 
+                                <a href="{{ url_for('eliminar_producto', id_producto=p.id_producto) }}" 
                                    class="btn-eliminar" 
                                    onclick="return confirm('¿Estás seguro de eliminar {{ p.nombre }}? Esta acción no se puede deshacer.');">
                                    <i class="fa-solid fa-trash"></i> Eliminar
@@ -115,22 +123,24 @@
                 </tbody>
             </table>
 
-            {% if total_pages > 1 %}
+            <!-- === PAGINACIÓN === -->
+            {% if total_paginas > 1 %}
             <div class="pagination" style="display:flex;justify-content:center;gap:8px;margin-top:25px;padding-bottom:30px;">
-                {% if page > 1 %}
-                <a href="?page={{ page - 1 }}" class="btn-pagination" style="padding:8px 16px;border:1px solid #ccc;text-decoration:none;color:#333;font-size:13px;">&laquo; Anterior</a>
+                {% if pagina > 1 %}
+                <a href="?pagina={{ pagina - 1 }}" class="btn-pagination" style="padding:8px 16px;border:1px solid #ccc;text-decoration:none;color:#333;font-size:13px;">&laquo; Anterior</a>
                 {% endif %}
-                {% for p in range(1, total_pages + 1) %}
-                <a href="?page={{ p }}" class="btn-pagination" style="padding:8px 14px;border:1px solid #ccc;text-decoration:none;color:#333;font-size:13px;{{ 'background:#000;color:#fff;border-color:#000;' if p == page }}">{{ p }}</a>
+                {% for p in range(1, total_paginas + 1) %}
+                <a href="?pagina={{ p }}" class="btn-pagination" style="padding:8px 14px;border:1px solid #ccc;text-decoration:none;color:#333;font-size:13px;{{ 'background:#000;color:#fff;border-color:#000;' if p == pagina }}">{{ p }}</a>
                 {% endfor %}
-                {% if page < total_pages %}
-                <a href="?page={{ page + 1 }}" class="btn-pagination" style="padding:8px 16px;border:1px solid #ccc;text-decoration:none;color:#333;font-size:13px;">Siguiente &raquo;</a>
+                {% if pagina < total_paginas %}
+                <a href="?pagina={{ pagina + 1 }}" class="btn-pagination" style="padding:8px 16px;border:1px solid #ccc;text-decoration:none;color:#333;font-size:13px;">Siguiente &raquo;</a>
                 {% endif %}
             </div>
             {% endif %}
         </div>
     </div>
  
+    <!-- === SCRIPT PARA AJUSTE RÁPIDO DE STOCK VÍA AJAX === -->
     <script>
         function cambiarStock(id, cambio) {
             const stockElement = document.getElementById(`stock-${id}`);
@@ -139,7 +149,7 @@
  
             if (nuevoStock < 0) return;
  
-            fetch('/admin/inventario/update', {
+            fetch('{{ url_for('admin_productos') }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: id, stock: nuevoStock })

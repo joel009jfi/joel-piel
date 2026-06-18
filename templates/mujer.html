@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bolsos Mujer | JOEL PIEL</title>
+    <!-- Fuentes tipográficas -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
@@ -11,6 +12,7 @@
 </head>
 <body>
 
+<!-- ===== BARRA SUPERIOR Y ENCABEZADO ===== -->
 <div class="navbar-fixed">
     <div class="top-bar">
         ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS
@@ -18,6 +20,7 @@
     <header class="header">
         <div class="logo" onclick="window.location.href='/'" style="cursor:pointer;">JOEL PIEL</div>
         <div class="header-right">
+            <!-- Buscador -->
             <form action="/buscar" method="GET" class="buscador-form">
                 <input type="text" name="q" placeholder="Buscar bolsos..." class="buscador" aria-label="Buscar productos">
                 <button type="submit" class="buscar-btn"><i class="fas fa-search"></i></button>
@@ -46,6 +49,7 @@
             </div>
         </div>
     </header>
+    <!-- Menú de navegación con indicador de página activa -->
     <nav class="menu">
         <a href="/mujer" style="border-bottom: 2px solid #000;">MUJER</a>
         <a href="/hombre">HOMBRE</a>
@@ -54,7 +58,7 @@
     </nav>
 </div>
 
-<!-- BANNER CATEGORÍA -->
+<!-- ===== BANNER DE CATEGORÍA MUJER ===== -->
 <div class="categoria-banner" style="background-image: linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.55)), url('/static/img/coleccion_mujer.jpg');">
     <div class="categoria-banner-text">
         <h2>Colección</h2>
@@ -63,10 +67,11 @@
     </div>
 </div>
 
-<!-- VITRINA DE PRODUCTOS -->
+<!-- ===== VITRINA DE PRODUCTOS MUJER ===== -->
 <section class="vitrina-productos">
     <div class="section-header">
         <h2>BOLSOS MUJER</h2>
+        <!-- Contador de productos disponibles -->
         <span style="font-size:13px;color:#666;">{{ productos|length }} producto{% if productos|length != 1 %}s{% endif %} disponible{% if productos|length != 1 %}s{% endif %}</span>
     </div>
 
@@ -94,6 +99,7 @@
         </div>
     </div>
 {% else %}
+    <!-- Mensaje cuando no hay productos -->
     <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#888;">
         <i class="fas fa-box-open" style="font-size:3rem;margin-bottom:20px;display:block;color:#ccc;"></i>
         <p style="font-size:16px;font-weight:500;">No hay bolsos disponibles por el momento.</p>
@@ -103,6 +109,7 @@
     </div>
 </section>
 
+<!-- ===== PIE DE PÁGINA ===== -->
 <footer class="footer">
     <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
 </footer>

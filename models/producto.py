@@ -3,6 +3,7 @@ from mysql.connector import Error
 
 
 def registrar_producto(nombre, precio, stock, imagen_url, id_categoria, descripcion=''):
+    """INSERT: crea un producto en el inventario con imagen y categoría."""
     db = conectar()
     if db:
         try:
@@ -23,6 +24,7 @@ def registrar_producto(nombre, precio, stock, imagen_url, id_categoria, descripc
 
 
 def actualizar_stock_db(id_producto, nuevo_stock):
+    """UPDATE: cambia el stock de un producto a un valor específico."""
     db = conectar()
     if db:
         try:
@@ -42,10 +44,12 @@ def actualizar_stock_db(id_producto, nuevo_stock):
 
 
 def descontar_stock(id_producto, cantidad):
+    """UPDATE: descuenta una cantidad del stock actual de un producto."""
     db = conectar()
     if db:
         try:
             cursor = db.cursor()
+            # Resta cantidad al stock existente en la BD
             cursor.execute("UPDATE productos SET stock = stock - %s WHERE id_producto = %s", (cantidad, id_producto))
             db.commit()
             return True
@@ -60,6 +64,7 @@ def descontar_stock(id_producto, cantidad):
 
 
 def obtener_productos_activos():
+    """SELECT: retorna productos con stock > 0 ordenados descendente."""
     db = conectar()
     if not db:
         return []
@@ -79,6 +84,7 @@ def obtener_productos_activos():
 
 
 def obtener_producto_por_id(id_producto):
+    """SELECT: retorna un producto completo por su id, o None."""
     db = conectar()
     if not db:
         return None
@@ -96,6 +102,7 @@ def obtener_producto_por_id(id_producto):
 
 
 def obtener_stock(id_producto):
+    """SELECT: retorna el stock actual de un producto (entero)."""
     db = conectar()
     if not db:
         return 0
@@ -114,6 +121,7 @@ def obtener_stock(id_producto):
 
 
 def obtener_productos_por_ids(ids):
+    """SELECT: retorna varios productos por una lista de IDs."""
     if not ids:
         return []
     db = conectar()
@@ -121,6 +129,7 @@ def obtener_productos_por_ids(ids):
         return []
     try:
         cursor = obtener_cursor(db, diccionario=True)
+        # Genera placeholders dinámicos (ej: %s,%s,%s para 3 IDs)
         placeholders = ','.join(['%s'] * len(ids))
         cursor.execute(
             f"SELECT id_producto, nombre, precio, imagen_url, stock FROM productos WHERE id_producto IN ({placeholders})",
@@ -137,6 +146,7 @@ def obtener_productos_por_ids(ids):
 
 
 def obtener_todos_productos_admin():
+    """SELECT: retorna todos los productos incluyendo nombre de categoría (admin)."""
     db = conectar()
     if not db:
         return []
@@ -156,6 +166,7 @@ def obtener_todos_productos_admin():
 
 
 def editar_producto_en_db(id_producto, nombre, descripcion, precio, stock, imagen_url, id_categoria):
+    """UPDATE: modifica todos los campos editables de un producto."""
     db = conectar()
     if db:
         try:
@@ -176,6 +187,7 @@ def editar_producto_en_db(id_producto, nombre, descripcion, precio, stock, image
 
 
 def eliminar_producto_de_db(id_producto):
+    """DELETE: elimina un producto por su Id_producto."""
     db = conectar()
     if db:
         try:
@@ -194,6 +206,7 @@ def eliminar_producto_de_db(id_producto):
 
 
 def contar_productos():
+    """SELECT COUNT: cantidad total de productos en inventario."""
     db = conectar()
     if not db:
         return 0
@@ -211,6 +224,7 @@ def contar_productos():
 
 
 def contar_productos_agotados():
+    """SELECT COUNT: cantidad de productos con stock = 0."""
     db = conectar()
     if not db:
         return 0
@@ -228,6 +242,7 @@ def contar_productos_agotados():
 
 
 def obtener_categorias():
+    """SELECT: retorna todas las categorías ordenadas por ID (para formularios)."""
     db = conectar()
     if not db:
         return []

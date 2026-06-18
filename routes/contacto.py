@@ -7,6 +7,7 @@ from extensions import mail
 def register_routes(app):
     @app.route("/contacto", methods=["GET", "POST"])
     def contacto():
+        """Formulario de contacto: guarda en BD y envía email al administrador."""
         usuario = session.get("usuario")
         rol = session.get("rol")
         mensaje = ""
@@ -16,7 +17,7 @@ def register_routes(app):
             email = request.form.get("email", "").strip()
             asunto = request.form.get("asunto", "otro")
             texto = request.form.get("mensaje", "").strip()
-            if nombre and email and texto:
+            if nombre and email and texto:  # Validación básica de campos obligatorios
                 try:
                     guardar_mensaje(nombre, email, asunto, texto)
                     enviar_notificacion_contacto(mail, nombre, email, asunto, texto)

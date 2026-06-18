@@ -5,6 +5,7 @@ from db import conectar, obtener_cursor
 def register_routes(app):
     @app.route("/mis-pedidos")
     def mis_pedidos():
+        """Muestra todos los pedidos del usuario logueado con sus productos."""
         if "usuario" not in session or not session.get("Id_usuario"):
             return redirect(url_for('login'))
         usuario = session.get("usuario")
@@ -14,6 +15,7 @@ def register_routes(app):
         pedidos = []
         if db:
             cursor = obtener_cursor(db, diccionario=True)
+            # Obtiene todos los pedidos del usuario ordenados por fecha
             cursor.execute("""
                 SELECT p.Id_pedido, p.total, p.estado, p.fecha,
                        e.estado_envio, e.transportadora, e.numero_guia
@@ -23,6 +25,7 @@ def register_routes(app):
                 ORDER BY p.fecha DESC
             """, (Id_usuario,))
             pedidos = cursor.fetchall()
+            # Para cada pedido, obtiene los productos del detalle
             for pedido in pedidos:
                 cursor.execute("""
                     SELECT dp.cantidad, dp.precio_unitario, pr.nombre, pr.imagen_url, pr.Id_producto
@@ -36,12 +39,14 @@ def register_routes(app):
 
     @app.route("/cancelar-pedido/<int:id_pedido>", methods=["POST"])
     def cancelar_pedido_cliente(id_pedido):
+        """Permite al cliente cancelar su propio pedido solo si está Pendiente."""
         if "usuario" not in session or not session.get("Id_usuario"):
             return redirect(url_for('login'))
         Id_usuario = session["Id_usuario"]
         db = conectar()
         if db:
             cursor = db.cursor()
+            # Verifica que el pedido pertenezca al usuario y esté Pendiente
             cursor.execute("SELECT estado FROM pedidos WHERE Id_pedido = %s AND Id_usuario = %s", (id_pedido, Id_usuario))
             pedido = cursor.fetchone()
             if pedido and pedido[0] in ("Pendiente",):

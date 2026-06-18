@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buscar: "{{ query }}" | JOEL PIEL</title>
+    <!-- Fuentes tipográficas -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
@@ -11,6 +12,7 @@
 </head>
 <body>
 
+<!-- ===== BARRA SUPERIOR Y ENCABEZADO ===== -->
 <div class="navbar-fixed">
     <div class="top-bar">
         ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS
@@ -18,6 +20,7 @@
     <header class="header">
         <div class="logo" onclick="window.location.href='/'" style="cursor:pointer;">JOEL PIEL</div>
         <div class="header-right">
+            <!-- Buscador (mantiene el query actual) -->
             <form action="/buscar" method="GET" class="buscador-form">
                 <input type="text" name="q" value="{{ query }}" placeholder="Buscar bolsos..." class="buscador" aria-label="Buscar productos">
                 <button type="submit" class="buscar-btn"><i class="fas fa-search"></i></button>
@@ -46,6 +49,7 @@
             </div>
         </div>
     </header>
+    <!-- Menú de navegación -->
     <nav class="menu">
         <a href="/mujer">MUJER</a>
         <a href="/hombre">HOMBRE</a>
@@ -54,12 +58,13 @@
     </nav>
 </div>
 
-<!-- RESULTADOS -->
+<!-- ===== RESULTADOS DE BÚSQUEDA ===== -->
 <section class="vitrina-productos">
     <div class="section-header" style="flex-direction:column;align-items:stretch;gap:15px;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
             <div>
                 <h2 style="margin:0;">RESULTADOS DE BÚSQUEDA</h2>
+                <!-- Indicador de cantidad de resultados -->
                 <p style="font-size:13px;color:#666;margin-top:6px;">
                     {% if productos %}
                         {{ productos|length }} resultado{% if productos|length != 1 %}s{% endif %} para "<strong>{{ query }}</strong>"
@@ -70,6 +75,7 @@
             </div>
             <a href="/" class="ver-mas"><i class="fas fa-arrow-left"></i> Volver al inicio</a>
         </div>
+        <!-- Filtros de búsqueda: precio mínimo, máximo y categoría -->
         <form method="GET" action="/buscar" style="display:flex;gap:10px;flex-wrap:wrap;padding:15px;background:#f9f9f9;border:1px solid #eee;border-radius:4px;">
             <input type="hidden" name="q" value="{{ query }}">
             <input type="number" name="precio_min" placeholder="Precio mínimo" value="{{ request.args.get('precio_min', '') }}" style="flex:1;min-width:120px;padding:10px;border:1px solid #ddd;font-size:13px;">
@@ -85,6 +91,7 @@
     </div>
 
     {% if productos %}
+    <!-- Grid de productos encontrados -->
     <div class="productos-grid">
         {% for producto in productos %}
             <div class="producto-card">
@@ -109,6 +116,7 @@
         {% endfor %}
     </div>
     {% else %}
+    <!-- Mensaje cuando no hay resultados -->
     <div style="text-align:center;padding:80px 20px;">
         <i class="fas fa-search" style="font-size:3.5rem;color:#ddd;display:block;margin-bottom:25px;"></i>
         <h3 style="font-family:'Playfair Display',serif;font-size:22px;margin-bottom:12px;">No encontramos lo que buscas</h3>
@@ -121,6 +129,7 @@
     {% endif %}
 </section>
 
+<!-- ===== PIE DE PÁGINA ===== -->
 <footer class="footer">
     <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
 </footer>

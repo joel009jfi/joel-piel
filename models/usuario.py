@@ -1,12 +1,14 @@
-from db import conectar, obtener_cursor
+from db import conectar, obtener_cursor  # Funciones de conexión a MySQL
 from mysql.connector import Error
 
 
 def registrar_usuario(nombre, email, password_hash, rol='cliente'):
+    """INSERT: crea un usuario nuevo con nombre, email, hash bcrypt y rol."""
     db = conectar()
     if db:
         try:
             cursor = db.cursor()
+            # Inserta los datos del usuario en la tabla usuarios
             sql = "INSERT INTO usuarios (nombre, email, password, rol) VALUES (%s, %s, %s, %s)"
             cursor.execute(sql, (nombre, email, password_hash, rol))
             db.commit()
@@ -22,6 +24,7 @@ def registrar_usuario(nombre, email, password_hash, rol='cliente'):
 
 
 def obtener_usuario_por_email(email):
+    """SELECT: retorna un usuario completo buscando por email, o None."""
     db = conectar()
     if not db:
         return None
@@ -39,6 +42,7 @@ def obtener_usuario_por_email(email):
 
 
 def obtener_usuario_por_id(id_usuario):
+    """SELECT: retorna un usuario por su Id_usuario, o None."""
     db = conectar()
     if not db:
         return None
@@ -56,6 +60,7 @@ def obtener_usuario_por_id(id_usuario):
 
 
 def obtener_todos_usuarios():
+    """SELECT: retorna todos los usuarios (id, nombre, email, rol) ordenados descendente."""
     db = conectar()
     if not db:
         return []
@@ -73,6 +78,7 @@ def obtener_todos_usuarios():
 
 
 def contar_clientes():
+    """SELECT COUNT: retorna la cantidad de usuarios con rol 'cliente'."""
     db = conectar()
     if not db:
         return 0
@@ -90,6 +96,7 @@ def contar_clientes():
 
 
 def eliminar_usuario_db(id_usuario):
+    """DELETE: elimina un usuario por su Id_usuario."""
     db = conectar()
     if db:
         try:

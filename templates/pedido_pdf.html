@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<!-- === PLANTILLA PDF PARA PEDIDO INDIVIDUAL === -->
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 30px; }
+        h1 { text-align: center; text-transform: uppercase; font-size: 22px; margin-bottom: 5px; }
+        .fecha { text-align: center; color: #666; font-size: 12px; margin-bottom: 30px; }
+        .info-box { background: #f9f9f9; padding: 15px; margin-bottom: 25px; font-size: 13px; }
+        .info-box p { margin: 5px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 13px; }
+        th { background-color: #000; color: white; }
+        .total-box { margin-top: 25px; font-weight: bold; font-size: 18px; text-align: right; }
+    </style>
+</head>
+<body>
+    <!-- === ENCABEZADO Y FECHA === -->
+    <h1>JOEL PIEL</h1>
+    <p class="fecha">Generado el: {{ fecha_generado }}</p>
+
+    <!-- === INFORMACIÓN DEL PEDIDO === -->
+    <div class="info-box">
+        <p><strong>Pedido #{{ pedido.Id_pedido }}</strong></p>
+        <p><strong>Cliente:</strong> {{ pedido.nombre }}</p>
+        <p><strong>Email:</strong> {{ pedido.email }}</p>
+        <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+        <p><strong>Método de pago:</strong> {{ pedido.metodo_pago }}</p>
+        {% if pedido.direccion_envio %}
+        <p><strong>Dirección de envío:</strong> {{ pedido.direccion_envio }}</p>
+        {% endif %}
+    </div>
+
+    <!-- === TABLA DE PRODUCTOS === -->
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in pedido.productos %}
+            <tr>
+                <td>{{ item.nombre }}</td>
+                <td>{{ item.cantidad }}</td>
+                <td>${{ "{:,.0f}".format(item.precio_unitario) }}</td>
+                <td>${{ "{:,.0f}".format(item.cantidad * item.precio_unitario) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- === TOTAL === -->
+    <div class="total-box">Total: ${{ "{:,.0f}".format(pedido.total) }}</div>
+</body>
+</html>

@@ -397,12 +397,11 @@ body {
     color: var(--negro);
 }
 
-/* ===================================================
-   PEGAR AL FINAL DE: admin.css
+/* 
    Usado por: admin.html, inventario_admin.html,
               ventas_admin.html, logistica_admin.html,
               usuarios_admin.html
-   =================================================== */
+ */
 
 /* --- STATUS PILLS DE PEDIDOS Y VENTAS --- */
 .status-pill {

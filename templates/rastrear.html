@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rastrear Pedido | JOEL PIEL</title>
+    <!-- Fuentes tipográficas -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <!-- Estilos específicos de la página de rastreo -->
     <style>
         .rastrear-wrapper { max-width: 600px; margin: 60px auto 80px; padding: 0 5%; }
         .rastrear-wrapper h2 { font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 10px; }
@@ -28,11 +30,13 @@
     </style>
 </head>
 <body>
+<!-- ===== BARRA SUPERIOR Y ENCABEZADO ===== -->
 <div class="navbar-fixed">
     <div class="top-bar">ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS</div>
     <header class="header">
         <div class="logo" onclick="window.location.href='/'" style="cursor:pointer;">JOEL PIEL</div>
         <div class="header-right">
+            <!-- Buscador -->
             <form action="/buscar" method="GET" class="buscador-form">
                 <input type="text" name="q" placeholder="Buscar bolsos..." class="buscador">
                 <button type="submit" class="buscar-btn"><i class="fas fa-search"></i></button>
@@ -61,6 +65,7 @@
             </div>
         </div>
     </header>
+    <!-- Menú de navegación con indicador de página activa -->
     <nav class="menu">
         <a href="/mujer">MUJER</a>
         <a href="/hombre">HOMBRE</a>
@@ -69,10 +74,12 @@
     </nav>
 </div>
 
+<!-- ===== FORMULARIO DE RASTREO ===== -->
 <div class="rastrear-wrapper">
     <h2>Rastrea tu pedido</h2>
     <p>Ingresa el número de pedido y el correo electrónico que usaste al comprar.</p>
 
+    <!-- Mensaje de error -->
     {% if error %}
     <div class="rastrear-error">{{ error }}</div>
     {% endif %}
@@ -84,6 +91,7 @@
         <button type="submit">CONSULTAR</button>
     </form>
 
+    <!-- Resultado de la consulta -->
     {% if resultado %}
     <div class="rastrear-result">
         <h3>Pedido #{{ resultado.Id_pedido }}</h3>
@@ -98,6 +106,7 @@
             <strong>Estado del envío</strong>
             <span class="status-badge {{ 'bg-entregado' if resultado.estado_envio == 'Entregado' else 'bg-enviado' if resultado.estado_envio == 'Enviado' else 'bg-pendiente' }}">{{ resultado.estado_envio or 'Pendiente' }}</span>
         </div>
+        <!-- Información de transportadora y guía si está enviado -->
         {% if resultado.transportadora and resultado.numero_guia and resultado.estado_envio == 'Enviado' %}
         <div class="row"><strong>Transportadora</strong><span>{{ resultado.transportadora }}</span></div>
         <div class="row"><strong>Guía</strong><span>{{ resultado.numero_guia }}</span></div>
@@ -106,6 +115,7 @@
     {% endif %}
 </div>
 
+<!-- ===== PIE DE PÁGINA ===== -->
 <footer class="footer">
     <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
 </footer>

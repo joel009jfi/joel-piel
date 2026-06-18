@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+<!-- === CABECERA DEL SITIO === -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,7 @@
 </head>
 <body>
 
+    <!-- === BARRA DE NAVEGACIÓN SUPERIOR === -->
     <header class="admin-header">
         <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
@@ -20,9 +22,11 @@
         </nav>
     </header>
 
+    <!-- === CONTENEDOR PRINCIPAL DEL PANEL === -->
     <div class="admin-container">
         <h1 class="admin-title">Panel de Control</h1>
 
+        <!-- === TARJETAS DE RESUMEN DE ESTADÍSTICAS === -->
         <div class="admin-stats-summary">
             <div class="stat-mini-card">
                 <span>Ventas Totales</span>
@@ -38,33 +42,34 @@
             </div>
         </div>
 
+        <!-- === CUADRÍCULA DE MÓDULOS DE ADMINISTRACIÓN === -->
         <div class="admin-grid">
             <div class="admin-card">
                 <i class="fa-solid fa-box-open"></i>
                 <h3>Inventario</h3>
                 <p>Gestiona los bolsos y el stock actual.</p>
-                <a href="{{ url_for('ver_stock') }}" class="btn-panel">Administrar</a>
+                <a href="{{ url_for('admin_productos') }}" class="btn-panel">Administrar</a>
             </div>
 
             <div class="admin-card">
                 <i class="fa-solid fa-truck-fast"></i>
                 <h3>Logística</h3>
                 <p>Control de despachos y guías de envío.</p>
-                <a href="{{ url_for('ver_envios') }}" class="btn-panel">Ver Envíos</a>
+                <a href="{{ url_for('admin_envios') }}" class="btn-panel">Ver Envíos</a>
             </div>
 
             <div class="admin-card">
                 <i class="fa-solid fa-chart-line"></i>
                 <h3>Ventas</h3>
                 <p>Historial de pedidos y facturación.</p>
-                <a href="{{ url_for('ver_ventas') }}" class="btn-panel">Reportes</a>
+                <a href="{{ url_for('admin_ventas') }}" class="btn-panel">Reportes</a>
             </div>
 
             <div class="admin-card">
                 <i class="fa-solid fa-users-gear"></i>
                 <h3>Clientes</h3>
                 <p>Administra registros, roles y accesos.</p>
-                <a href="{{ url_for('ver_usuarios') }}" class="btn-panel">Gestionar</a>
+                <a href="{{ url_for('admin_usuarios') }}" class="btn-panel">Gestionar</a>
             </div>
 
             <div class="admin-card">
@@ -75,6 +80,7 @@
             </div>
         </div>
 
+        <!-- === ALERTA DE STOCK BAJO === -->
         {% if stock_bajo %}
         <div class="admin-section" style="border-left: 3px solid #d9534f; padding-left: 18px; margin-bottom: 30px;">
             <h2 style="margin:0 0 12px;font-size:16px;color:#d9534f;"><i class="fa-solid fa-exclamation-triangle"></i> Productos con Stock Bajo</h2>
@@ -99,10 +105,11 @@
         </div>
         {% endif %}
 
+        <!-- === TABLA DE ÚLTIMOS PEDIDOS === -->
         <div class="admin-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 style="margin:0;">Últimos Pedidos</h2>
-                <a href="{{ url_for('ver_ventas') }}" style="text-decoration: none; color: var(--negro); font-size: 12px; font-weight: 700;">VER TODO →</a>
+                <a href="{{ url_for('admin_ventas') }}" style="text-decoration: none; color: var(--negro); font-size: 12px; font-weight: 700;">VER TODO →</a>
             </div>
             
             <table class="admin-table">

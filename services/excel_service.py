@@ -1,14 +1,17 @@
-import io
+import io  # Buffer en memoria para el archivo
 from datetime import datetime
 from flask import make_response
-import openpyxl
+import openpyxl  # Librería para crear archivos Excel (.xlsx)
 
 
 def exportar_ventas_excel(ventas):
-    wb = openpyxl.Workbook()
-    ws = wb.active
+    """Genera un archivo Excel descargable con el listado de ventas."""
+    wb = openpyxl.Workbook()  # Libro nuevo
+    ws = wb.active            # Hoja activa por defecto
     ws.title = "Ventas"
+    # Fila de encabezados
     ws.append(["ID Pedido", "Fecha", "Cliente", "Email", "Total", "Estado"])
+    # Datos de cada venta
     for v in ventas:
         fecha_str = v["fecha"].strftime('%d/%m/%Y %H:%M') if hasattr(v["fecha"], 'strftime') else v["fecha"]
         ws.append([
@@ -26,3 +29,22 @@ def exportar_ventas_excel(ventas):
     response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     response.headers['Content-Disposition'] = f'attachment; filename=ventas_joelpiel_{datetime.now().strftime("%Y%m%d")}.xlsx'
     return response
+
+
+def generar_excel_pedidos():
+    """Genera y descarga el Excel de todos los pedidos con datos del cliente."""
+    from db import conectar, obtener_cursor
+    db = conectar()
+    if not db:
+        return "Error de conexión", 500
+    cursor = obtener_cursor(db, diccionario=True)
+    cursor.execute("""
+        SELECT p.Id_pedido, p.total, p.estado, p.fecha, p.metodo_pago,
+               u.nombre as cliente, u.email
+        FROM pedidos p
+        LEFT JOIN usuarios u ON p.Id_usuario = u.Id_usuario
+        ORDER BY p.fecha DESC
+    """)
+    ventas = cursor.fetchall()
+    db.close()
+    return exportar_ventas_excel(ventas)

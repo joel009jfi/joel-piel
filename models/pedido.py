@@ -3,16 +3,18 @@ from mysql.connector import Error
 
 
 def crear_pedido(id_usuario, total, direccion, ciudad, codigo_postal, carrito_items):
-    """Crea un pedido y sus detalles. Retorna el ID del pedido o None."""
+    """Crea un pedido y sus detalles en una transacción. Retorna el ID del pedido o None."""
     db = conectar()
     if not db:
         return None
     try:
         cursor = db.cursor()
+        # Primero inserta el pedido principal
         sql_pedido = "INSERT INTO pedidos (Id_usuario, total, direccion, ciudad, codigo_postal, estado) VALUES (%s, %s, %s, %s, %s, 'pendiente')"
         cursor.execute(sql_pedido, (id_usuario, total, direccion, ciudad, codigo_postal))
-        id_pedido = cursor.lastrowid
+        id_pedido = cursor.lastrowid  # Obtiene el ID auto-generado
 
+        # Luego inserta cada producto del carrito en detalle_pedido
         sql_detalle = "INSERT INTO detalle_pedido (Id_pedido, Id_producto, cantidad, precio_unitario) VALUES (%s, %s, %s, %s)"
         for item in carrito_items:
             cursor.execute(sql_detalle, (id_pedido, item['id_producto'], item['cantidad'], item['precio']))
@@ -20,7 +22,7 @@ def crear_pedido(id_usuario, total, direccion, ciudad, codigo_postal, carrito_it
         db.commit()
         return id_pedido
     except Error as e:
-        db.rollback()
+        db.rollback()  # Revierte todo si hay error (transacción atómica)
         print(f"Error al crear pedido: {e}")
         return None
     finally:
@@ -30,6 +32,7 @@ def crear_pedido(id_usuario, total, direccion, ciudad, codigo_postal, carrito_it
 
 
 def obtener_pedidos_por_usuario(id_usuario):
+    """SELECT: retorna los pedidos de un usuario ordenados por fecha descendente."""
     db = conectar()
     if not db:
         return []
@@ -50,6 +53,7 @@ def obtener_pedidos_por_usuario(id_usuario):
 
 
 def obtener_pedido_por_id(id_pedido):
+    """SELECT: retorna un pedido por su ID (sin verificar usuario)."""
     db = conectar()
     if not db:
         return None
@@ -67,6 +71,7 @@ def obtener_pedido_por_id(id_pedido):
 
 
 def obtener_pedido_si_es_del_usuario(id_pedido, id_usuario):
+    """SELECT: retorna un pedido solo si pertenece al usuario indicado."""
     db = conectar()
     if not db:
         return None
@@ -84,6 +89,7 @@ def obtener_pedido_si_es_del_usuario(id_pedido, id_usuario):
 
 
 def obtener_detalles_pedido(id_pedido):
+    """SELECT: retorna los productos (nombre, cantidad, precio) de un pedido."""
     db = conectar()
     if not db:
         return []
@@ -107,6 +113,7 @@ def obtener_detalles_pedido(id_pedido):
 
 
 def obtener_todos_pedidos():
+    """SELECT: retorna todos los pedidos con nombre del cliente, ordenados descendente."""
     db = conectar()
     if not db:
         return []
@@ -129,6 +136,7 @@ def obtener_todos_pedidos():
 
 
 def obtener_pedidos_logistica():
+    """SELECT: retorna pedidos con datos completos para la vista de logística."""
     db = conectar()
     if not db:
         return []
@@ -148,6 +156,7 @@ def obtener_pedidos_logistica():
 
 
 def actualizar_estado_pedido(id_pedido, nuevo_estado):
+    """UPDATE: cambia el estado de un pedido (Pendiente/Pagado/Cancelado)."""
     db = conectar()
     if db:
         try:
@@ -166,6 +175,7 @@ def actualizar_estado_pedido(id_pedido, nuevo_estado):
 
 
 def contar_pedidos():
+    """SELECT COUNT: cantidad total de pedidos."""
     db = conectar()
     if not db:
         return 0
@@ -183,6 +193,7 @@ def contar_pedidos():
 
 
 def contar_pedidos_pendientes():
+    """SELECT COUNT: cantidad de pedidos con estado 'pendiente'."""
     db = conectar()
     if not db:
         return 0
@@ -200,6 +211,7 @@ def contar_pedidos_pendientes():
 
 
 def obtener_ventas_del_mes():
+    """SELECT SUM: retorna el total de ventas del mes actual."""
     db = conectar()
     if not db:
         return 0
@@ -219,6 +231,7 @@ def obtener_ventas_del_mes():
 
 
 def obtener_ultimos_pedidos(limite=5):
+    """SELECT: retorna los últimos N pedidos con nombre del cliente."""
     db = conectar()
     if not db:
         return []

@@ -1,12 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
+<!-- === CABECERA CON ESTILOS DE LOGÍSTICA === -->
 <head>
     <meta charset="UTF-8">
-    <title>Historial de envíos | JOEL PIEL</title>
+    <title>Envíos y Logística | JOEL PIEL</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .card-logistics { padding: 20px; margin-bottom: 15px; }
+        .card-logistics-content { margin-bottom: 15px; }
+        .card-logistics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .card-logistics-header h3 { margin: 0; font-size: 16px; }
+        .card-logistics p { margin: 4px 0; font-size: 13px; color: #555; }
+        .status-badge { display: inline-block; padding: 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px; border-radius: 2px; }
+        .bg-pago-pagado { background: #d4edda; color: #155724; }
+        .bg-pago-pendiente { background: #fff3cd; color: #856404; }
+        .bg-envio-preparando { background: #fff3cd; color: #856404; }
+        .bg-envio-enviado { background: #d4edda; color: #155724; }
+        .bg-envio-entregado { background: #cce5ff; color: #004085; }
+        .admin-logistics-form { background: #f9f9f9; padding: 15px; border-radius: 4px; }
+        .admin-logistics-input, .admin-logistics-select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; font-size: 13px; box-sizing: border-box; }
+    </style>
 </head>
 <body>
+    <!-- === BARRA DE NAVEGACIÓN === -->
     <header class="admin-header">
         <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
@@ -15,12 +32,15 @@
         </nav>
     </header>
 
+    <!-- === CONTENEDOR PRINCIPAL === -->
     <div class="admin-container">
         <h1 class="admin-title">Envíos y Logística</h1>
-        
+
+        <!-- === TARJETAS DE ENVÍO CON INFORMACIÓN Y FORMULARIO DE ACTUALIZACIÓN === -->
         <div class="admin-grid">
             {% for e in envios %}
             <div class="admin-card card-logistics">
+                <!-- === INFORMACIÓN DEL PEDIDO Y CLIENTE === -->
                 <div class="card-logistics-content">
                     <div class="card-logistics-header">
                         <h3><i class="fas fa-box"></i> Pedido #{{ e.Id_pedido }}</h3>
@@ -28,59 +48,52 @@
                             Pago: {{ e.estado_pago }}
                         </span>
                     </div>
-                    
+
                     <p><strong>Cliente:</strong> {{ e.cliente }}</p>
                     <p><strong>Fecha Venta:</strong> {{ e.fecha }}</p>
-                    <p><strong>Valor Total (Bolsos):</strong> ${{ "{:,.0f}".format(e.total) }}</p>
-                    
-                    <div class="shipping-info-block">
-                        <p><strong><i class="fas fa-map-marker-alt"></i> Destino:</strong> {{ e.direccion_envio }}</p>
-                        <p><strong><i class="fas fa-truck"></i> Transportadora:</strong> {{ e.transportadora }}</p>
-                        <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia }}</p>
-                        <p class="shipping-status-container">
-                            <strong>Estado Envío:</strong> 
-                            <span class="status-badge {{ 'bg-envio-preparando' if e.estado_envio == 'Por despachar' or e.estado_envio == 'Preparando' else 'bg-envio-enviado' if e.estado_envio == 'Enviado' else 'bg-envio-entregado' }}">
-                                {{ e.estado_envio }}
-                            </span>
-                        </p>
-                    </div>
+                    <p><strong>Valor Total:</strong> ${{ "{:,.0f}".format(e.total) }}</p>
+
+                    <p><strong><i class="fas fa-map-marker-alt"></i> Destino:</strong> {{ e.direccion_envio }}</p>
+                    <p><strong><i class="fas fa-truck"></i> Transportadora:</strong> {{ e.transportadora }}</p>
+                    <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia }}</p>
+                    <!-- === ESTADO ACTUAL DEL ENVÍO === -->
+                    <p>
+                        <strong>Estado Envío:</strong>
+                        <span class="status-badge {{ 'bg-envio-preparando' if e.estado_envio in ('Por despachar', 'Preparando') else 'bg-envio-enviado' if e.estado_envio == 'Enviado' else 'bg-envio-entregado' }}">
+                            {{ e.estado_envio }}
+                        </span>
+                    </p>
                 </div>
 
+                <!-- === FORMULARIO PARA ACTUALIZAR ESTADO, GUÍA Y TRANSPORTADORA === -->
                 <div class="admin-logistics-form">
-                    {% if e.estado_envio == 'Por despachar' or e.estado_envio == 'Preparando' %}
-                    <form action="/admin/despachar_pedido/{{ e.Id_pedido }}" method="POST">
+                    <form action="{{ url_for('actualizar_envio', id_envio=e.Id_envios) }}" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <select name="transportadora" class="admin-logistics-select" required>
-                            <option value="" disabled selected>Seleccione Transportadora</option>
-                            <option value="Interrapidísimo">Interrapidísimo</option>
-                            <option value="Coordinadora">Coordinadora</option>
-                            <option value="Servientrega">Servientrega</option>
-                            <option value="Envía">Envía</option>
+                        <select name="estado_envio" class="admin-logistics-select" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="Por despachar" {{ 'selected' if e.estado_envio == 'Por despachar' }}>Por despachar</option>
+                            <option value="Preparando" {{ 'selected' if e.estado_envio == 'Preparando' }}>Preparando</option>
+                            <option value="Enviado" {{ 'selected' if e.estado_envio == 'Enviado' }}>Enviado</option>
+                            <option value="Entregado" {{ 'selected' if e.estado_envio == 'Entregado' }}>Entregado</option>
                         </select>
-                        <input type="text" name="numero_guia" class="admin-logistics-input" placeholder="Número de Guía (Flete al Cobrar)" required>
+                        <input type="text" name="numero_guia" class="admin-logistics-input" placeholder="Número de Guía" value="{{ e.numero_guia }}">
+                        <select name="transportadora" class="admin-logistics-select">
+                            <option value="" disabled selected>Transportadora</option>
+                            <option value="Interrapidísimo" {{ 'selected' if e.transportadora == 'Interrapidísimo' }}>Interrapidísimo</option>
+                            <option value="Coordinadora" {{ 'selected' if e.transportadora == 'Coordinadora' }}>Coordinadora</option>
+                            <option value="Servientrega" {{ 'selected' if e.transportadora == 'Servientrega' }}>Servientrega</option>
+                            <option value="Envia" {{ 'selected' if e.transportadora == 'Envia' }}>Envia</option>
+                            <option value="Por asignar" {{ 'selected' if e.transportadora == 'Por asignar' }}>Por asignar</option>
+                        </select>
                         <button type="submit" style="display:block;width:100%;background:#000;color:#fff;border:none;padding:12px 20px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-radius:2px;">
-                            DESPACHAR Y NOTIFICAR
+                            ACTUALIZAR ENVÍO
                         </button>
                     </form>
-                    
-                    {% elif e.estado_envio == 'Enviado' %}
-                    <form action="/admin/entregar_pedido/{{ e.Id_pedido }}" method="POST">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button type="submit" style="display:block;width:100%;background:#222;color:#fff;border:none;padding:12px 20px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-radius:2px;">
-                            MARCAR COMO ENTREGADO
-                        </button>
-                    </form>
-                    
-                    {% else %}
-                    <button style="display:block;width:100%;background:#ccc;color:#fff;border:none;padding:12px 20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-radius:2px;pointer-events:none;cursor:not-allowed;" disabled>
-                        FLUJO FINALIZADO
-                    </button>
-                    {% endif %}
                 </div>
             </div>
             {% else %}
-            <div class="no-records-message">
-                No hay envíos registrados en el sistema en este momento.
+            <div style="text-align:center;color:#888;padding:40px;border:1px solid #eee;border-radius:4px;">
+                No hay envíos registrados.
             </div>
             {% endfor %}
         </div>

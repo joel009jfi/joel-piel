@@ -1,22 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
+<!-- === CABECERA CON ESTILOS Y MODAL DE DETALLE === -->
 <head>
     <meta charset="UTF-8">
     <title>Historial de Ventas | JOEL PIEL</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .mes-box { border: 1px solid #eee; margin-bottom: 15px; border-radius: 4px; overflow: hidden; }
-        .mes-header { background: #f8f8f8; padding: 14px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; user-select: none; transition: background 0.2s; }
-        .mes-header:hover { background: #f0f0f0; }
-        .mes-header .fa-chevron-down { transition: transform 0.2s; }
-        .mes-header.active .fa-chevron-down { transform: rotate(180deg); }
-        .mes-body { display: none; }
-        .mes-body.open { display: block; }
-        .mes-resumen { font-size: 12px; color: #888; font-weight: 400; }
-        .mes-actual .mes-header { background: #000; color: #fff; }
-        .mes-actual .mes-header:hover { background: #222; }
-        .mes-actual .mes-resumen { color: #ccc; }
         .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
         .modal-box { background:#fff; padding:30px; max-width:500px; width:90%; border-radius:4px; max-height:80vh; overflow-y:auto; }
         .modal-box h2 { margin-top:0; font-size:18px; }
@@ -25,6 +15,7 @@
         .modal-table th, .modal-table td { padding:10px 12px; text-align:left; border-bottom:1px solid #eee; font-size:13px; }
         .modal-table th { background:#f8f8f8; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
     </style>
+    <!-- === FUNCIONES JAVASCRIPT PARA MODAL DE DETALLE === -->
     <script>
         function verDetalle(id) {
             fetch('/admin/ventas/detalle/' + id)
@@ -44,6 +35,7 @@
     </script>
 </head>
 <body>
+    <!-- === BARRA DE NAVEGACIÓN === -->
     <header class="admin-header">
         <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
@@ -52,85 +44,81 @@
         </nav>
     </header>
 
+    <!-- === CONTENEDOR PRINCIPAL === -->
     <div class="admin-container">
+        <!-- === ENCABEZADO CON TÍTULO Y BOTÓN DE DESCARGA EXCEL === -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h1 class="admin-title">Historial de Ventas</h1>
-            <a href="{{ url_for('reporte_ventas_pdf') }}" style="background: #d9534f; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 12px; font-weight: bold; border-radius: 4px;">
-                <i class="fa-solid fa-file-pdf"></i> PDF
-            </a>
-            <a href="{{ url_for('reporte_ventas_excel') }}" style="background: #5cb85c; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 12px; font-weight: bold; border-radius: 4px;">
+            <a href="{{ url_for('descargar_excel_ventas') }}" style="background: #5cb85c; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 12px; font-weight: bold; border-radius: 4px;">
                 <i class="fa-solid fa-file-excel"></i> EXCEL
             </a>
         </div>
 
-        {% for mes, datos in meses.items() %}
-        {% set partes = mes.split(' ') %}
-        {% set mes_nombre = partes[0] %}
-        {% set mes_ano = partes[1] if partes | length > 1 else '' %}
-        <div class="mes-box {{ 'mes-actual' if mes == mes_actual }}">
-            <div class="mes-header" onclick="this.classList.toggle('active');this.nextElementSibling.classList.toggle('open')">
-                <span>{{ mes }} <span class="mes-resumen">({{ datos.activas }} activas · ${{ "{:,.0f}".format(datos.total) }})</span></span>
-                <span>
-                    <a href="{{ url_for('reporte_ventas_pdf', mes=mes_nombre, ano=mes_ano) }}" onclick="event.stopPropagation();" style="background:#d9534f;color:#fff;padding:5px 12px;text-decoration:none;font-size:11px;font-weight:bold;border-radius:3px;margin-right:10px;">
-                        <i class="fa-solid fa-file-pdf"></i> PDF
-                    </a>
-                    <i class="fa-solid fa-chevron-down"></i>
-                </span>
-            </div>
-            <div class="mes-body {{ 'open' if mes == mes_actual }}">
-                <table class="admin-table" style="border-top: none;">
-                    <thead>
-                        <tr>
-                            <th>Factura</th>
-                            <th>Fecha</th>
-                            <th>Cliente</th>
-                            <th>Total</th>
-                            <th>Pago</th>
-                            <th>Estado</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for venta in datos.ventas %}
-                        <tr>
-                            <td>#{{ venta.Id_pedido }}</td>
-                            <td>
-                                {% if venta.fecha.strftime is defined %}
-                                    {{ venta.fecha.strftime('%d/%m/%Y %H:%M') }}
-                                {% else %}
-                                    {{ venta.fecha }}
-                                {% endif %}
-                            </td>
-                            <td>{{ venta.cliente }}</td>
-                            <td>${{ "{:,.0f}".format(venta.total) }}</td>
-                            <td><span class="status-pill" style="background:#eee;font-size:10px;">{{ venta.metodo_pago or 'Contraentrega' }}</span></td>
-                            <td>
-                                <span class="status-pill status-{{ venta.estado|lower }}">
-                                    {{ venta.estado|upper }}
-                                </span>
-                            </td>
-                            <td>
-                                <div style="display:flex;gap:6px;align-items:center;">
-                                    <button onclick="verDetalle({{ venta.Id_pedido }})" style="background:none;border:none;color:#000;cursor:pointer;font-size:14px;" title="Ver detalle"><i class="fa-solid fa-eye"></i></button>
-                                    <form action="/admin/ventas/eliminar/{{ venta.Id_pedido }}" method="POST" onsubmit="return confirm('¿Eliminar el pedido #{{ venta.Id_pedido }}?');">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <button type="submit" style="background:none;border:none;color:#d9534f;cursor:pointer;font-size:16px;" title="Eliminar pedido"><i class="fa-solid fa-trash"></i></button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <!-- === TABLA DE VENTAS CON ACCIONES === -->
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Pago</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pedido in pedidos %}
+                <tr>
+                    <td>#{{ pedido.Id_pedido }}</td>
+                    <td style="font-size:12px;color:#666;">
+                        {% if pedido.fecha.strftime is defined %}{{ pedido.fecha.strftime('%d/%m/%Y %H:%M') }}{% else %}{{ pedido.fecha }}{% endif %}
+                    </td>
+                    <td>{{ pedido.cliente }}</td>
+                    <td>${{ "{:,.0f}".format(pedido.total) }}</td>
+                    <td><span class="status-pill" style="background:#eee;font-size:10px;">{{ pedido.metodo_pago or 'Contraentrega' }}</span></td>
+                    <td>
+                        <span class="status-pill status-{{ pedido.estado|lower }}">
+                            {{ pedido.estado|upper }}
+                        </span>
+                    </td>
+                    <td>
+                        <!-- === BOTONES DE ACCIÓN: VER DETALLE, CONFIRMAR PAGO, DESCARGAR PDF === -->
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            <a href="{{ url_for('detalle_pedido', id_pedido=pedido.Id_pedido) }}" style="background:none;border:none;color:#000;cursor:pointer;font-size:14px;text-decoration:none;" title="Ver detalle"><i class="fa-solid fa-eye"></i></a>
+                            <form action="{{ url_for('confirmar_pago', id_pedido=pedido.Id_pedido) }}" method="POST" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" style="background:none;border:none;color:#5cb85c;cursor:pointer;font-size:14px;" title="Confirmar pago"><i class="fa-solid fa-check"></i></button>
+                            </form>
+                            <a href="{{ url_for('descargar_pdf_pedido', id_pedido=pedido.Id_pedido) }}" style="background:none;border:none;color:#d9534f;cursor:pointer;font-size:14px;text-decoration:none;" title="Descargar PDF"><i class="fa-solid fa-file-pdf"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" style="text-align:center;color:#888;padding:40px;">No hay ventas registradas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- === PAGINACIÓN === -->
+        {% if total_paginas > 1 %}
+        <div class="pagination" style="display:flex;justify-content:center;gap:8px;margin-top:25px;padding-bottom:30px;">
+            {% if pagina > 1 %}
+            <a href="?pagina={{ pagina - 1 }}" class="btn-pagination" style="padding:8px 16px;border:1px solid #ccc;text-decoration:none;color:#333;font-size:13px;">&laquo; Anterior</a>
+            {% endif %}
+            {% for p in range(1, total_paginas + 1) %}
+            <a href="?pagina={{ p }}" class="btn-pagination" style="padding:8px 14px;border:1px solid #ccc;text-decoration:none;color:#333;font-size:13px;{{ 'background:#000;color:#fff;border-color:#000;' if p == pagina }}">{{ p }}</a>
+            {% endfor %}
+            {% if pagina < total_paginas %}
+            <a href="?pagina={{ pagina + 1 }}" class="btn-pagination" style="padding:8px 16px;border:1px solid #ccc;text-decoration:none;color:#333;font-size:13px;">Siguiente &raquo;</a>
+            {% endif %}
         </div>
-        {% else %}
-        <div style="text-align:center;color:#888;padding:40px;border:1px solid #eee;border-radius:4px;">
-            Aún no se han realizado ventas.
-        </div>
-        {% endfor %}
+        {% endif %}
     </div>
 
+    <!-- === MODAL PARA DETALLE DEL PEDIDO === -->
     <div id="detalle-modal" class="modal-overlay" onclick="if(event.target===this)cerrarDetalle()">
         <div class="modal-box">
             <span class="modal-close" onclick="cerrarDetalle()">&times;</span>

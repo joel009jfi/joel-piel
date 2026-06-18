@@ -1,10 +1,13 @@
+<!-- ===== SIDEBAR DEL CARRITO (deslizable desde la derecha) ===== -->
 <div id="carrito-lateral" class="cart-sidebar">
     <div class="cart-sidebar-header">
         <h2>MI BOLSA</h2>
+        <!-- Botón para cerrar el sidebar -->
         <button class="btn-close-cart" onclick="toggleCarrito()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="cart-sidebar-content" id="cart-content-wrapper">
         {% if session.get('carrito') and productos_carrito %}
+            <!-- Productos en el carrito -->
             {% for p in productos_carrito %}
             <div class="cart-item-card" id="item-card-{{ p.id_producto }}" style="display:flex;align-items:center;margin-bottom:15px;border-bottom:1px solid #eee;padding-bottom:15px;gap:12px;">
                 <a href="/producto/{{ p.id_producto }}" style="flex-shrink:0;">
@@ -16,6 +19,7 @@
                 </a>
                 <div class="cart-item-details" style="flex:1;">
                     <h4 style="margin:0;font-size:14px;font-family:'Montserrat',sans-serif;font-weight:600;">{{ p.nombre }}</h4>
+                    <!-- Controles de cantidad en sidebar -->
                     <div class="quantity-controls" style="display:flex;align-items:center;margin:8px 0;gap:8px;">
                         <button type="button" onclick="alterarCantidad('{{ p.id_producto }}', 'restar')" style="background:#f4f4f4;border:1px solid #ddd;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:bold;font-size:14px;border-radius:3px;">-</button>
                         <span id="cantidad-{{ p.id_producto }}" style="font-family:'Montserrat',sans-serif;font-weight:600;min-width:22px;text-align:center;font-size:13px;">{{ p.cantidad }}</span>
@@ -23,18 +27,21 @@
                     </div>
                     <p class="cart-item-price" id="subtotal-{{ p.id_producto }}" style="margin:0;font-weight:700;color:#000;font-size:13px;">${{ "{:,.0f}".format(p.subtotal) }}</p>
                 </div>
+                <!-- Botón eliminar -->
                 <a href="javascript:void(0);" onclick="eliminarDelCarritoAsync('{{ p.id_producto }}')" class="cart-item-remove" style="color:#999;margin-left:auto;">
                     <i class="fa-solid fa-trash-can"></i>
                 </a>
             </div>
             {% endfor %}
         {% else %}
+            <!-- Mensaje de carrito vacío -->
             <div class="cart-empty-message" id="cart-empty-placeholder">
                 <i class="fa-solid fa-bag-shopping" style="font-size:2.5rem;color:#ccc;margin-bottom:15px;"></i>
                 <p>Tu bolsa está vacía.</p>
             </div>
         {% endif %}
     </div>
+    <!-- Footer del sidebar con total y botón de pago -->
     <div class="cart-sidebar-footer" id="cart-footer-wrapper" style="{% if not productos_carrito %}display:none;{% endif %}">
         <div class="cart-total-line">
             <span>TOTAL:</span>
@@ -45,4 +52,5 @@
         </a>
     </div>
 </div>
+<!-- Overlay oscuro detrás del sidebar -->
 <div id="cart-overlay" class="cart-overlay" onclick="toggleCarrito()"></div>

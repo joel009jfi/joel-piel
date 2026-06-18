@@ -1,138 +1,118 @@
-from datetime import datetime
-from flask import render_template, request, redirect, session, url_for, jsonify
+from flask import render_template, request, redirect, session, url_for
 from db import conectar, obtener_cursor
-from services.helpers import MESES_ES
-from services.pdf_service import generar_reporte_ventas_pdf
-from services.excel_service import exportar_ventas_excel
+from services.email_service import enviar_notificacion_pago
+from services.pdf_service import generar_pdf_pedido
+from services.excel_service import generar_excel_pedidos
+from extensions import mail
 
 
 def register_routes(app):
     @app.route("/admin/ventas")
-    def ver_ventas():
+    def admin_ventas():
+        """Lista de todos los pedidos con paginación (25 por página)."""
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
-        db = conectar()
-        cursor = obtener_cursor(db, diccionario=True)
-        cursor.execute("""
-            SELECT p.Id_pedido, p.total, p.estado, p.metodo_pago, p.fecha, u.nombre as cliente
-            FROM pedidos p
-            JOIN usuarios u ON p.Id_usuario = u.Id_usuario
-            ORDER BY p.fecha DESC
-        """)
-        ventas_db = cursor.fetchall()
-        db.close()
-        meses = {}
-        for v in ventas_db:
-            if isinstance(v['fecha'], str):
-                dt = datetime.strptime(v['fecha'], '%Y-%m-%d %H:%M:%S')
-            else:
-                dt = v['fecha']
-            clave = f"{MESES_ES[dt.month]} {dt.year}"
-            meses.setdefault(clave, []).append(v)
-        meses_con_totales = {}
-        for mes, ventas in meses.items():
-            activas = [v for v in ventas if v['estado'] != 'Cancelado']
-            total = sum(v['total'] for v in activas if v['total'] is not None)
-            meses_con_totales[mes] = {'ventas': ventas, 'total': total, 'cantidad': len(ventas), 'activas': len(activas)}
-        mes_actual = f"{MESES_ES[datetime.now().month]} {datetime.now().year}"
-        return render_template("ventas_admin.html", meses=meses_con_totales, mes_actual=mes_actual)
-
-    @app.route("/admin/ventas/eliminar/<int:id_pedido>", methods=["POST"])
-    def eliminar_venta(id_pedido):
-        if session.get("rol") != "admin":
-            return redirect(url_for('inicio'))
-        db = conectar()
-        if db:
-            try:
-                cursor = db.cursor()
-                cursor.execute("DELETE FROM envios WHERE Id_pedido = %s", (id_pedido,))
-                cursor.execute("DELETE FROM pedidos WHERE Id_pedido = %s", (id_pedido,))
-                db.commit()
-            except Exception as e:
-                db.rollback()
-                print(f"Error al eliminar pedido: {e}")
-            finally:
-                db.close()
-        return redirect(url_for('ver_ventas'))
-
-    @app.route("/admin/marcar-pagado/<int:id_pedido>", methods=["POST"])
-    def marcar_pagado(id_pedido):
-        if session.get("rol") != "admin":
-            return redirect(url_for('inicio'))
-        db = conectar()
-        if db:
-            cursor = db.cursor()
-            cursor.execute("UPDATE pedidos SET estado = 'Pagado' WHERE Id_pedido = %s", (id_pedido,))
-            db.commit()
-            db.close()
-        return redirect(url_for('ver_ventas'))
-
-    @app.route("/admin/ventas/detalle/<int:id_pedido>")
-    def detalle_venta(id_pedido):
-        if session.get("rol") != "admin":
-            return jsonify({"error": "No autorizado"}), 403
         db = conectar()
         if not db:
-            return jsonify({"error": "Error de conexión"}), 500
+            return "Error al conectar con la BD", 500
         cursor = obtener_cursor(db, diccionario=True)
+        pagina = request.args.get("pagina", 1, type=int)
+        por_pagina = 25
+        offset = (pagina - 1) * por_pagina
+        cursor.execute("SELECT COUNT(*) as total FROM pedidos")
+        total_pedidos = cursor.fetchone()["total"]
+        total_paginas = (total_pedidos + por_pagina - 1) // por_pagina
+        # Obtiene pedidos con datos del cliente
         cursor.execute("""
-            SELECT dp.Id_producto, dp.cantidad, dp.precio_unitario, p.nombre, p.imagen_url
+            SELECT p.Id_pedido, p.Id_usuario, p.total, p.estado, p.fecha, p.metodo_pago,
+                   u.nombre as cliente, u.email
+            FROM pedidos p
+            LEFT JOIN usuarios u ON p.Id_usuario = u.Id_usuario
+            ORDER BY p.fecha DESC
+            LIMIT %s OFFSET %s
+        """, (por_pagina, offset))
+        pedidos_db = cursor.fetchall()
+        # Para cada pedido, obtiene los productos del detalle
+        for pedido in pedidos_db:
+            cursor.execute("""
+                SELECT dp.cantidad, dp.precio_unitario, pr.nombre, pr.imagen_url
+                FROM detalle_pedido dp
+                JOIN productos pr ON dp.Id_producto = pr.Id_producto
+                WHERE dp.Id_pedido = %s
+            """, (pedido['Id_pedido'],))
+            pedido['productos'] = cursor.fetchall()
+        db.close()
+        return render_template("ventas_admin.html", pedidos=pedidos_db, pagina=pagina, total_paginas=total_paginas)
+
+    @app.route("/admin/ventas/<int:id_pedido>")
+    def detalle_pedido(id_pedido):
+        """Detalle de un pedido específico (admin)."""
+        if session.get("rol") != "admin":
+            return redirect(url_for('inicio'))
+        db = conectar()
+        if not db:
+            return "Error al conectar con la BD", 500
+        cursor = obtener_cursor(db, diccionario=True)
+        # JOIN completo con usuario y envío
+        cursor.execute("""
+            SELECT p.Id_pedido, p.total, p.estado, p.fecha, p.metodo_pago,
+                   u.nombre, u.email, e.direccion_envio, e.estado_envio,
+                   e.transportadora, e.numero_guia
+            FROM pedidos p
+            JOIN usuarios u ON p.Id_usuario = u.Id_usuario
+            LEFT JOIN envios e ON p.Id_pedido = e.Id_pedido
+            WHERE p.Id_pedido = %s
+        """, (id_pedido,))
+        pedido = cursor.fetchone()
+        if not pedido:
+            db.close()
+            return redirect(url_for('admin_ventas'))
+        # Productos incluidos en el pedido
+        cursor.execute("""
+            SELECT dp.cantidad, dp.precio_unitario, pr.nombre, pr.imagen_url
             FROM detalle_pedido dp
-            JOIN productos p ON dp.Id_producto = p.id_producto
+            JOIN productos pr ON dp.Id_producto = pr.Id_producto
             WHERE dp.Id_pedido = %s
         """, (id_pedido,))
-        items = cursor.fetchall()
+        pedido['productos'] = cursor.fetchall()
         db.close()
-        return jsonify(items)
+        return render_template("detalle_pedido.html", pedido=pedido)
 
-    @app.route("/admin/ventas/pdf")
-    def reporte_ventas_pdf():
+    @app.route("/admin/ventas/confirmar-pago/<int:id_pedido>", methods=["POST"])
+    def confirmar_pago(id_pedido):
+        """Marca pedido como Pagado y envía notificación al cliente."""
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
-        mes_filtro = request.args.get("mes", "").strip()
         db = conectar()
-        if not db:
-            return "Error de conexión", 500
-        cursor = obtener_cursor(db, diccionario=True)
-        if mes_filtro and mes_filtro in MESES_ES:
-            mes_num = MESES_ES.index(mes_filtro)
-            ano = request.args.get("ano", datetime.now().year, type=int)
+        if db:
+            cursor = db.cursor(dictionary=True, buffered=True)
+            # Obtiene datos del cliente para el email
             cursor.execute("""
-                SELECT p.Id_pedido, p.total, p.estado, p.fecha, u.nombre as cliente
-                FROM pedidos p
+                SELECT u.nombre, u.email FROM pedidos p
                 JOIN usuarios u ON p.Id_usuario = u.Id_usuario
-                WHERE MONTH(p.fecha) = %s AND YEAR(p.fecha) = %s
-                ORDER BY p.fecha DESC
-            """, (mes_num, ano))
-            titulo = f"Reporte {mes_filtro} {ano}"
-        else:
-            cursor.execute("""
-                SELECT p.Id_pedido, p.total, p.estado, p.fecha, u.nombre as cliente
-                FROM pedidos p
-                JOIN usuarios u ON p.Id_usuario = u.Id_usuario
-                ORDER BY p.fecha DESC
-            """)
-            titulo = "Reporte General"
-        ventas = cursor.fetchall()
-        gran_total = sum(v['total'] for v in ventas if v['total'] is not None) if ventas else 0
-        db.close()
-        fecha_generado = datetime.now().strftime("%d/%m/%Y %H:%M")
-        return generar_reporte_ventas_pdf(ventas, titulo, fecha_generado, gran_total, mes_filtro)
+                WHERE p.Id_pedido = %s
+            """, (id_pedido,))
+            pedido = cursor.fetchone()
+            if pedido:
+                cursor.execute("UPDATE pedidos SET estado = 'Pagado' WHERE Id_pedido = %s", (id_pedido,))
+                db.commit()
+                try:
+                    enviar_notificacion_pago(mail, pedido['nombre'], pedido['email'], id_pedido)
+                except Exception as e:
+                    print(f"Error al enviar notificación de pago: {e}")
+            db.close()
+        return redirect(url_for('admin_ventas'))
+
+    @app.route("/admin/ventas/pdf/<int:id_pedido>")
+    def descargar_pdf_pedido(id_pedido):
+        """Genera y descarga el PDF de un pedido."""
+        if session.get("rol") != "admin":
+            return redirect(url_for('inicio'))
+        return generar_pdf_pedido(id_pedido)
 
     @app.route("/admin/ventas/excel")
-    def reporte_ventas_excel():
+    def descargar_excel_ventas():
+        """Genera y descarga el Excel de todos los pedidos."""
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
-        db = conectar()
-        if not db:
-            return "Error de conexión", 500
-        cursor = obtener_cursor(db, diccionario=True)
-        cursor.execute("""
-            SELECT p.Id_pedido, p.fecha, u.nombre as cliente, u.email, p.total, p.estado
-            FROM pedidos p
-            JOIN usuarios u ON p.Id_usuario = u.Id_usuario
-            ORDER BY p.fecha DESC
-        """)
-        ventas = cursor.fetchall()
-        db.close()
-        return exportar_ventas_excel(ventas)
+        return generar_excel_pedidos()

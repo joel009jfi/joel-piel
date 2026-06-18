@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+<!-- === CABECERA DE LA PÁGINA === -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,28 +10,33 @@
 </head>
 <body class="auth-body">
 
+    <!-- === CONTENEDOR DEL FORMULARIO DE REGISTRO === -->
     <div class="auth-container">
         
         <h2>Registrar Nuevo Usuario</h2>
 
+        <!-- === FORMULARIO DE CREACIÓN DE USUARIO === -->
         <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <!-- === CAMPO: NOMBRE COMPLETO === -->
             <input type="text" name="nombre" class="auth-input" placeholder="Nombre completo" required>
-            
+            <!-- === CAMPO: CORREO ELECTRÓNICO === -->
             <input type="email" name="email" class="auth-input" placeholder="Correo electrónico" required>
-            
+            <!-- === CAMPO: CONTRASEÑA === -->
             <input type="password" name="password" class="auth-input" placeholder="Contraseña de acceso" required>
-            
+            <!-- === CAMPO: SELECCIÓN DE ROL === -->
             <select name="rol" class="auth-input" style="background: #fff; cursor: pointer; height: 48px;">
                 <option value="cliente">Cliente</option>
                 <option value="admin">Administrador</option>
             </select>
 
+            <!-- === BOTÓN DE ENVÍO === -->
             <button type="submit" class="btn-auth">Crear Usuario y Enviar Bienvenida</button>
         </form>
 
+        <!-- === ENLACE PARA VOLVER A LA LISTA DE USUARIOS === -->
         <p class="auth-switch" style="margin-top: 25px;">
-            <a href="{{ url_for('ver_usuarios') }}">← Volver a la Lista de Usuarios</a>
+            <a href="{{ url_for('admin_usuarios') }}">← Volver a la Lista de Usuarios</a>
         </p>
 
     </div>

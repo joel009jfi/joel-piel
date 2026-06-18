@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página no encontrada | JOEL PIEL</title>
+    <!-- Fuentes tipográficas -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <!-- Estilos específicos de la página de error -->
     <style>
         .error-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; padding: 40px; }
         .error-page h1 { font-family: 'Playfair Display', serif; font-size: 120px; margin: 0; color: #b19470; line-height: 1; }
@@ -16,12 +18,14 @@
     </style>
 </head>
 <body>
+    <!-- ===== BARRA SUPERIOR SIMPLIFICADA ===== -->
     <div class="navbar-fixed">
         <div class="top-bar">ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS</div>
         <header class="header">
             <div class="logo" onclick="window.location.href='/'" style="cursor:pointer;">JOEL PIEL</div>
         </header>
     </div>
+    <!-- ===== CONTENIDO DE ERROR 404 ===== -->
     <div class="error-page">
         <h1>404</h1>
         <h2>Esta página no existe</h2>

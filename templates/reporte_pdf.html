@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<!-- === PLANTILLA PDF PARA REPORTE DE VENTAS === -->
 <head>
     <style>
         body { font-family: Arial, sans-serif; }
@@ -11,8 +12,10 @@
     </style>
 </head>
 <body>
+    <!-- === TÍTULO Y FECHA DE GENERACIÓN === -->
     <h1>{{ titulo if titulo else 'Reporte de Ventas' }} - JOEL PIEL</h1>
     <p>Generado el: {{ fecha_generado }}</p>
+    <!-- === TABLA DE VENTAS === -->
     <table>
         <thead>
             <tr>
@@ -35,6 +38,7 @@
             {% endfor %}
         </tbody>
     </table>
+    <!-- === TOTAL GENERAL === -->
     <div class="total-box">Total General: $ {{ "{:,.0f}".format(gran_total) }}</div>
 </body>
 </html>

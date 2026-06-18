@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Joel Piel | Datos de Envío</title>
+    <!-- Fuentes tipográficas -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
@@ -12,6 +13,7 @@
 </head>
 <body>
 
+<!-- ===== ENCABEZADO SIMPLIFICADO ===== -->
 <div class="navbar-fixed">
     <div class="top-bar">ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS</div>
     <header class="header">
@@ -22,7 +24,9 @@
     </header>
 </div>
 
+<!-- ===== CONTENEDOR PRINCIPAL DE CHECKOUT ===== -->
 <div class="checkout-container">
+    <!-- Formulario de datos de envío -->
     <div class="checkout-box">
         <a href="/" class="btn-back-store">
             <i class="fa-solid fa-arrow-left-long"></i> VOLVER A LA TIENDA
@@ -32,6 +36,7 @@
         <form action="/carrito/finalizar" method="POST" autocomplete="off">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             
+            <!-- Campo: Departamento (con autocompletado) -->
             <div class="form-group">
                 <label for="departamento_input">Departamento *</label>
                 <div class="autocomplete-wrapper">
@@ -41,21 +46,25 @@
                 </div>
             </div>
 
+            <!-- Campo: Ciudad -->
             <div class="form-group">
                 <label for="ciudad">Ciudad / Municipio *</label>
                 <input type="text" name="ciudad" id="ciudad" class="form-control" placeholder="Ej: Medellín" required>
             </div>
 
+            <!-- Campo: Dirección -->
             <div class="form-group">
                 <label for="direccion">Dirección Completa *</label>
                 <input type="text" name="direccion" id="direccion" class="form-control" placeholder="Ej: Calle 10 # 43E - 20, Apto 402" required>
             </div>
 
+            <!-- Campo: Teléfono -->
             <div class="form-group">
                 <label for="telefono">Teléfono de Contacto *</label>
                 <input type="tel" name="telefono" id="telefono" class="form-control" placeholder="Ej: 3001234567" required>
             </div>
 
+            <!-- Selección de método de pago -->
             <div class="form-group">
                 <label>Método de pago</label>
                 <div style="display:flex;flex-direction:column;gap:10px;margin-top:5px;">
@@ -76,13 +85,16 @@
                 </div>
             </div>
 
+            <!-- Botón de confirmación -->
             <button type="submit" style="display:block;width:100%;background:#000;color:#fff;border:none;padding:15px;font-family:Montserrat,sans-serif;font-weight:600;font-size:1rem;letter-spacing:2px;cursor:pointer;margin-top:20px;">CONFIRMAR Y PAGAR</button>
         </form>
     </div>
 
+    <!-- Resumen del pedido (lado derecho) -->
     <div class="checkout-box summary-bg">
         <h2 class="checkout-title">TU BOLSA</h2>
         
+        <!-- Productos en el resumen -->
         {% for p in productos %}
         <div class="order-summary-item">
             {% if 'static/' in p.imagen_url %}
@@ -98,21 +110,25 @@
         </div>
         {% endfor %}
 
+        <!-- Línea de total de productos -->
         <div class="checkout-total-line">
             <span>PRODUCTOS:</span>
             <span>${{ "{:,.0f}".format(total) }}</span>
         </div>
 
+        <!-- Total a pagar ahora (se actualiza con JS según método de pago) -->
         <div class="checkout-total-line" style="border-top:1px solid #ddd;padding-top:10px;margin-top:5px;">
             <span>TOTAL A PAGAR AHORA:</span>
             <span id="total-ahora">${{ "{:,.0f}".format(total) }}</span>
         </div>
 
+        <!-- Nota informativa sobre el envío -->
         <div class="info-nota">
             <i class="fa-solid fa-truck-ramp-box"></i> <strong>Envío:</strong><br>
             El costo del envío es de <strong>$15,000 por kilo</strong> y se paga directamente a la transportadora al recibir el paquete, independientemente del método de pago elegido.
         </div>
 
+<!-- Script para actualizar el total según método de pago -->
 <script>
 function actualizarResumen() {
     var total = {{ total }};
@@ -128,10 +144,12 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </div>
 
+<!-- ===== PIE DE PÁGINA ===== -->
 <footer class="footer">
     <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
 </footer>
 
+<!-- Script de autocompletado para departamentos -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const departamentos = [
@@ -188,5 +206,4 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 </body>
-</html>
 </html>

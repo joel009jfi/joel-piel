@@ -1,9 +1,12 @@
-from flask_mail import Message
+from flask_mail import Message  # Clase para construir correos
 
 
 def enviar_bienvenida(mail, nombre, email, url_inicio):
+    """Envía un correo de bienvenida al usuario recién registrado."""
     try:
+        # Construye el mensaje con asunto y destinatario
         msg = Message(subject="¡Te damos la bienvenida a JOEL PIEL!", recipients=[email])
+        # HTML del correo con estilo de marca
         msg.html = f"""
         <div style="font-family: 'Montserrat', sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #eee; border-radius: 4px;">
             <div style="text-align: center; border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 25px;">
@@ -17,13 +20,14 @@ def enviar_bienvenida(mail, nombre, email, url_inicio):
             </div>
         </div>
         """
-        mail.send(msg)
+        mail.send(msg)  # Envía el correo usando la extensión Flask-Mail
         print("¡Correo de bienvenida enviado con éxito!")
     except Exception as e:
         print(f"Error al enviar correo de bienvenida: {e}")
 
 
 def enviar_confirmacion_compra(mail, usuario, email, id_pedido, metodo_pago):
+    """Envía un correo de confirmación al cliente después de realizar una compra."""
     try:
         msg = Message(subject=f"Compra confirmada · Pedido #{id_pedido} · JOEL PIEL", recipients=[email])
         msg.html = f"""
@@ -43,6 +47,7 @@ def enviar_confirmacion_compra(mail, usuario, email, id_pedido, metodo_pago):
 
 
 def enviar_notificacion_contacto(mail, nombre, email, asunto, texto, email_admin="joelpiel57@gmail.com"):
+    """Envía una notificación al administrador cuando alguien usa el formulario de contacto."""
     try:
         msg = Message(subject=f"[JOEL PIEL - Contacto] {asunto.capitalize()} · {nombre}", recipients=[email_admin])
         msg.html = f"""
@@ -61,6 +66,7 @@ def enviar_notificacion_contacto(mail, nombre, email, asunto, texto, email_admin
 
 
 def enviar_notificacion_despacho(mail, cliente_nombre, cliente_email, id_pedido, transportadora, numero_guia, host_url):
+    """Envía un correo al cliente cuando su pedido es despachado."""
     try:
         msg = Message(subject=f"Tu pedido #{id_pedido} está en camino · JOEL PIEL", recipients=[cliente_email])
         msg.html = f"""
@@ -83,7 +89,27 @@ def enviar_notificacion_despacho(mail, cliente_nombre, cliente_email, id_pedido,
         print(f"Error al enviar notificación de despacho: {e}")
 
 
+def enviar_notificacion_pago(mail, nombre, email, id_pedido):
+    """Envía un correo al cliente notificando que su pago fue confirmado."""
+    try:
+        msg = Message(subject=f"Pago confirmado · Pedido #{id_pedido} · JOEL PIEL", recipients=[email])
+        msg.html = f"""
+        <div style="font-family:'Montserrat',sans-serif;max-width:600px;margin:0 auto;padding:30px;">
+            <h1 style="font-family:'Playfair Display',serif;text-align:center;">JOEL PIEL</h1>
+            <p>Hola <strong>{nombre}</strong>,</p>
+            <p>El pago de tu pedido <strong>#{id_pedido}</strong> ha sido confirmado.</p>
+            <p>Pronto recibirás la información de despacho.</p>
+            <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+            <p style="font-size:12px;color:#999;">JOEL PIEL · Envíos a todo Colombia</p>
+        </div>
+        """
+        mail.send(msg)
+    except Exception as e:
+        print(f"Error al enviar notificación de pago: {e}")
+
+
 def enviar_creacion_cuenta_admin(mail, nombre, email, rol):
+    """Envía un correo de notificación cuando un administrador crea una cuenta."""
     try:
         msg = Message(subject="¡Tu cuenta en JOEL PIEL ha sido creada!", recipients=[email])
         msg.html = f"<h3>Hola {nombre}</h3><p>Tu cuenta con rol <strong>{rol}</strong> ha sido dada de alta.</p>"

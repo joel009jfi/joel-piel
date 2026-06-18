@@ -5,6 +5,7 @@ from db import conectar, obtener_cursor
 def register_routes(app):
     @app.route("/rastrear", methods=["GET", "POST"])
     def rastrear_pedido():
+        """Rastrea pedido por número + email. Muestra estado de envío y guía."""
         usuario = session.get("usuario")
         rol = session.get("rol")
         resultado = None
@@ -16,6 +17,7 @@ def register_routes(app):
                 db = conectar()
                 if db:
                     cursor = obtener_cursor(db, diccionario=True)
+                    # JOIN de pedidos, usuarios y envios para mostrar toda la info
                     cursor.execute("""
                         SELECT p.Id_pedido, p.total, p.estado, p.fecha,
                                e.estado_envio, e.transportadora, e.numero_guia,
