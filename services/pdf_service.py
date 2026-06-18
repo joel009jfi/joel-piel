@@ -1,12 +1,10 @@
-import io  # Manejo de buffers en memoria
+import io
 from datetime import datetime
-from flask import render_template, make_response  # Respuesta HTTP desde template
-from xhtml2pdf import pisa  # Conversor de HTML a PDF
+from flask import render_template, make_response
+from xhtml2pdf import pisa
 
 
 def generar_reporte_ventas_pdf(ventas, titulo, fecha_generado, gran_total, mes_filtro=""):
-    """Genera un PDF descargable con el reporte de ventas."""
-    # Renderiza el template HTML como string
     rendered = render_template(
         'reporte_pdf.html',
         ventas=ventas,
@@ -15,7 +13,6 @@ def generar_reporte_ventas_pdf(ventas, titulo, fecha_generado, gran_total, mes_f
         titulo=titulo
     )
     result = io.BytesIO()
-    # Convierte el HTML renderizado a PDF en memoria
     pdf = pisa.CreatePDF(io.BytesIO(rendered.encode("utf-8")), dest=result)
     if not pdf.err:
         response = make_response(result.getvalue())
@@ -28,7 +25,6 @@ def generar_reporte_ventas_pdf(ventas, titulo, fecha_generado, gran_total, mes_f
 
 
 def generar_pdf_pedido(id_pedido):
-    """Genera y descarga el PDF de un pedido específico con sus productos."""
     from db import conectar, obtener_cursor
     db = conectar()
     if not db:

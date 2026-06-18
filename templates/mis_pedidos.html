@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Pedidos | JOEL PIEL</title>
-    <!-- Fuentes tipográficas -->
+    
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
-    <!-- Estilos específicos de la página de pedidos -->
+    
     <style>
         .pedidos-wrapper { max-width: 800px; margin: 50px auto 80px; padding: 0 5%; }
         .pedidos-wrapper h2 { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 30px; }
@@ -41,13 +41,13 @@
     </style>
 </head>
 <body>
-<!-- ===== BARRA SUPERIOR Y ENCABEZADO ===== -->
+
 <div class="navbar-fixed">
     <div class="top-bar">ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS</div>
     <header class="header">
         <div class="logo" onclick="window.location.href='/'" style="cursor:pointer;">JOEL PIEL</div>
         <div class="header-right">
-            <!-- Buscador -->
+            
             <form action="/buscar" method="GET" class="buscador-form">
                 <input type="text" name="q" placeholder="Buscar bolsos..." class="buscador">
                 <button type="submit" class="buscar-btn"><i class="fas fa-search"></i></button>
@@ -65,7 +65,7 @@
             </div>
         </div>
     </header>
-    <!-- Menú de navegación con indicador de página activa -->
+    
     <nav class="menu">
         <a href="/">INICIO</a>
         <a href="/mujer">MUJER</a>
@@ -76,12 +76,12 @@
     </nav>
 </div>
 
-<!-- ===== LISTADO DE PEDIDOS ===== -->
+
 <div class="pedidos-wrapper">
     <h2>Mis Pedidos</h2>
 
     {% if pedidos %}
-        <!-- Tarjetas de pedido -->
+        
         {% for p in pedidos %}
         <div class="pedido-card">
             <div class="pedido-header">
@@ -98,19 +98,19 @@
                     <strong>Envío:</strong>
                     <span class="status-badge {{ 'bg-entregado' if p.estado_envio == 'Entregado' else 'bg-enviado' if p.estado_envio == 'Enviado' else 'bg-pendiente' }}">{{ p.estado_envio or 'Pendiente' }}</span>
                 </div>
-                <!-- Guía de envío si aplica -->
+                
                 {% if p.transportadora and p.numero_guia and p.estado_envio == 'Enviado' %}
                 <div><strong>Guía:</strong> {{ p.transportadora }} · {{ p.numero_guia }}</div>
                 {% endif %}
             </div>
-            <!-- Botón de cancelar solo si está pendiente -->
+            
             {% if p.estado == 'Pendiente' %}
             <button type="button" class="btn-cancelar" onclick="mostrarConfirmacion({{ p.Id_pedido }})">CANCELAR PEDIDO</button>
             {% endif %}
         </div>
         {% endfor %}
     {% else %}
-        <!-- Mensaje cuando no hay pedidos -->
+        
         <div style="text-align:center;padding:60px 20px;border:1px solid #eee;border-radius:4px;">
             <i class="fa-solid fa-box-open" style="font-size:3rem;color:#ccc;margin-bottom:20px;"></i>
             <p style="color:#888;font-size:16px;">Aún no has realizado ningún pedido.</p>
@@ -119,14 +119,14 @@
     {% endif %}
 </div>
 
-<!-- ===== PIE DE PÁGINA ===== -->
+
 <footer class="footer">
     <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
 </footer>
 
 {% include 'carrito_sidebar.html' %}
 
-<!-- ===== MODAL DE CONFIRMACIÓN PARA CANCELAR PEDIDO ===== -->
+
 <div id="modal-confirm" class="modal-confirm-overlay">
     <div class="modal-confirm-box">
         <h3>¿Cancelar pedido?</h3>
@@ -139,7 +139,7 @@
     </div>
 </div>
 
-<!-- Scripts del modal de cancelación -->
+
 <script>
 function mostrarConfirmacion(id) {
     document.getElementById('form-cancelar').action = '/cancelar-pedido/' + id;

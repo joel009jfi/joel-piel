@@ -1,4 +1,6 @@
-from flask import render_template, request, session, redirect
+from flask import (
+    render_template, request, session, redirect
+)
 from db import conectar, obtener_cursor
 from models.producto import obtener_categorias
 
@@ -6,13 +8,11 @@ from models.producto import obtener_categorias
 def register_routes(app):
     @app.route("/")
     def inicio():
-        """Página principal con los últimos 4 productos."""
         usuario = session.get("usuario")
         rol = session.get("rol")
         db = conectar()
         if db:
             cursor = obtener_cursor(db, diccionario=True)
-            # Obtiene los 4 productos más recientes
             cursor.execute("SELECT id_producto, nombre, precio, imagen_url, stock FROM productos ORDER BY id_producto DESC LIMIT 4")
             productos_db = cursor.fetchall()
             db.close()
@@ -22,7 +22,6 @@ def register_routes(app):
 
     @app.route("/mujer")
     def pagina_mujer():
-        """Página de bolsos con categorías Mujer (1) y Unisex (3)."""
         usuario = session.get("usuario")
         rol = session.get("rol")
         db = conectar()
@@ -42,7 +41,6 @@ def register_routes(app):
 
     @app.route("/hombre")
     def pagina_hombre():
-        """Página de bolsos con categorías Hombre (2) y Unisex (3)."""
         usuario = session.get("usuario")
         rol = session.get("rol")
         db = conectar()
@@ -62,7 +60,6 @@ def register_routes(app):
 
     @app.route("/lo-nuevo")
     def lo_nuevo():
-        """Muestra los últimos 8 productos agregados al inventario."""
         usuario = session.get("usuario")
         rol = session.get("rol")
         db = conectar()
@@ -82,7 +79,6 @@ def register_routes(app):
 
     @app.route("/buscar")
     def buscar():
-        """Búsqueda con filtros: texto, precio_min, precio_max, categoría."""
         usuario = session.get("usuario")
         rol = session.get("rol")
         query = request.args.get("q", "").strip()
@@ -112,22 +108,19 @@ def register_routes(app):
             cursor.execute(sql, params)
             productos_db = cursor.fetchall()
             db.close()
-        categorias = obtener_categorias()  # Para el selector de categoría en el buscador
+        categorias = obtener_categorias()
         return render_template("buscar.html", usuario=usuario, rol=rol, query=query, productos=productos_db, categorias=categorias)
 
     @app.route("/producto/<int:id_producto>")
     def detalle_producto(id_producto):
-        """Detalle del producto + 4 productos relacionados de la misma categoría."""
         usuario = session.get("usuario")
         rol = session.get("rol")
         db = conectar()
         if not db:
             return redirect("/")
         cursor = obtener_cursor(db, diccionario=True)
-        # Obtiene todas las categorías para mostrar el nombre de la del producto
         cursor.execute("SELECT Id_categoria, nombre_categoria FROM categorias ORDER BY Id_categoria")
         categorias = {c["Id_categoria"]: c["nombre_categoria"] for c in cursor.fetchall()}
-        # Obtiene el producto principal
         cursor.execute("""
             SELECT id_producto, nombre, precio, stock, imagen_url, descripcion, Id_categoria
             FROM productos

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-<!-- === CABECERA DEL FORMULARIO === -->
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,14 +11,14 @@
 </head>
 <body>
  
-    <!-- === BARRA DE NAVEGACIÓN === -->
+    
     <header class="admin-header">
         <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
     </header>
  
-    <!-- === CONTENEDOR PRINCIPAL DEL FORMULARIO === -->
+    
     <div class="admin-container form-max-width">
-        <!-- === ENLACE PARA VOLVER AL INVENTARIO === -->
+        
         <div class="btn-back-container">
             <a href="{{ url_for('admin_productos') }}" class="btn-back-admin">
                 <i class="fa-solid fa-arrow-left"></i> Volver al Inventario
@@ -27,7 +27,7 @@
  
         <h1 class="admin-title">Editar Bolso</h1>
 
-        <!-- === MENSAJE DE ERROR === -->
+        
         {% if error %}
         <div class="alert" style="background:#fdf2f2;border:1px solid #d9534f;color:#721c24;padding:12px;margin-bottom:20px;border-radius:2px;font-size:13px;">
             {{ error }}
@@ -36,7 +36,7 @@
 
         <div class="admin-card">
  
-            <!-- VISTA PREVIA DE IMAGEN ACTUAL -->
+            
             <div style="text-align:center;margin-bottom:25px;">
                 <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:10px;">Imagen Actual</p>
                 <img id="preview-img" src="/static/img/{{ producto.imagen_url }}" 
@@ -44,17 +44,17 @@
                      onerror="this.src='https://via.placeholder.com/150x150?text=Sin+Imagen'">
             </div>
  
-            <!-- === FORMULARIO DE EDICIÓN === -->
+            
             <form action="{{ url_for('editar_producto', id_producto=producto['Id_producto']) }}" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-                <!-- === CAMPO: NOMBRE === -->
+                
                 <div class="form-group">
                     <label>Nombre del Bolso</label>
                     <input type="text" name="nombre" value="{{ producto.nombre }}" required>
                 </div>
  
-                <!-- === CAMPO: CATEGORÍA === -->
+                
                 <div class="form-group">
                     <label>Categoría</label>
                     <select name="id_categoria" style="width:100%;padding:12px 15px;border:1px solid #ddd;border-radius:2px;font-family:'Montserrat',sans-serif;font-size:14px;box-sizing:border-box;cursor:pointer;background:#fff;">
@@ -64,14 +64,14 @@
                     </select>
                 </div>
  
-                <!-- === CAMPO: DESCRIPCIÓN === -->
+                
                 <div class="form-group">
                     <label>Descripción</label>
                     <textarea name="descripcion" 
                         style="width:100%;padding:12px 15px;border:1px solid #ddd;border-radius:2px;font-family:'Montserrat',sans-serif;font-size:14px;box-sizing:border-box;resize:vertical;min-height:80px;">{{ producto.descripcion or '' }}</textarea>
                 </div>
  
-                <!-- === CAMPOS: PRECIO Y STOCK === -->
+                
                 <div class="form-row-flex">
                     <div class="form-group form-col-50">
                         <label>Precio ($)</label>
@@ -83,7 +83,7 @@
                     </div>
                 </div>
  
-                <!-- === CAMPO: IMAGEN (ARCHIVO O URL) === -->
+                
                 <div class="form-group">
                     <label>Imagen (subir archivo nuevo)</label>
                     <input type="file" name="imagen" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" style="width:100%;padding:8px;border:1px solid #ddd;" onchange="if(this.files.length>0)document.getElementById('input-imagen').required=false;">
@@ -94,7 +94,7 @@
                            oninput="actualizarPreview(this.value)">
                 </div>
  
-                <!-- === BOTÓN DE GUARDADO === -->
+                
                 <button type="submit" class="btn-save">
                     <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
                 </button>
@@ -103,7 +103,7 @@
         </div>
     </div>
  
-<!-- === SCRIPT PARA VISTA PREVIA DE IMAGEN === -->
+
 <script>
 function actualizarPreview(valor) {
     const img = document.getElementById('preview-img');

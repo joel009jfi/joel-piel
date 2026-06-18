@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-<!-- === CABECERA CON ESTILOS DEL DETALLE === -->
+
 <head>
     <meta charset="UTF-8">
     <title>Pedido #{{ pedido.Id_pedido }} | JOEL PIEL</title>
@@ -20,21 +20,21 @@
     </style>
 </head>
 <body>
-    <!-- === BARRA DE NAVEGACIÓN === -->
+    
     <header class="admin-header">
-        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+        <a href="{{ url_for('admin_panel') }}" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
-            <a href="{{ url_for('admin_ventas') }}">Volver a Ventas</a>
-            <a href="/logout" class="logout-btn">Salir</a>
+            <a href="{{ url_for('admin_panel') }}">Volver al Panel</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Salir</a>
         </nav>
     </header>
 
-    <!-- === CONTENEDOR PRINCIPAL DEL DETALLE === -->
+    
     <div class="detalle-wrapper">
         <div class="detalle-card">
             <h1><i class="fa-solid fa-receipt"></i> Pedido #{{ pedido.Id_pedido }}</h1>
 
-            <!-- === INFORMACIÓN GENERAL DEL PEDIDO === -->
+            
             <div class="info-grid">
                 <div><strong>Cliente</strong><span>{{ pedido.nombre }}</span></div>
                 <div><strong>Email</strong><span>{{ pedido.email }}</span></div>
@@ -46,7 +46,7 @@
                 <div><strong>Guía</strong><span>{{ pedido.numero_guia or 'Pendiente' }}</span></div>
             </div>
 
-            <!-- === TABLA DE PRODUCTOS DEL PEDIDO === -->
+            
             <h3 style="margin-top:25px;font-size:14px;text-transform:uppercase;letter-spacing:1px;">Productos</h3>
             <table>
                 <thead>
@@ -63,7 +63,7 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <!-- === TOTAL DEL PEDIDO === -->
+            
             <div class="total-row">Total: ${{ "{:,.0f}".format(pedido.total) }}</div>
         </div>
     </div>

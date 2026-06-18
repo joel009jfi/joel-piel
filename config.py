@@ -1,6 +1,6 @@
 # config.py - Configuración general de la aplicación Flask
 import os
-from dotenv import load_dotenv  # Carga variables de entorno desde .env
+from dotenv import load_dotenv
 load_dotenv()
 
 
@@ -19,8 +19,8 @@ class Config:
     MAIL_PORT = int(os.getenv("MAIL_PORT", 465))          # Puerto SSL de Gmail
     MAIL_USE_SSL = os.getenv("MAIL_USE_SSL", "true").lower() == "true"
     MAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "false").lower() == "true"
-    MAIL_USERNAME = os.getenv("MAIL_USERNAME", "")         # Correo remitente
-    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "")         # Contraseña de aplicación
+    MAIL_USERNAME = os.getenv("MAIL_USERNAME", "")
+    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "")
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", "joelpiel57@gmail.com")
 
     # Subida de imágenes: carpeta de destino y extensiones permitidas

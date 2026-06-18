@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Joel Piel | Bolsos</title>
-    <!-- Fuentes tipográficas (Playfair Display + Montserrat) -->
+    
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
@@ -12,7 +12,7 @@
 </head>
 <body>
 
-<!-- ===== BARRA SUPERIOR Y ENCABEZADO ===== -->
+
 <div class="navbar-fixed">
     <div class="top-bar">
         ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS
@@ -22,13 +22,13 @@
         <div class="logo">JOEL PIEL</div>
 
         <div class="header-right">
-            <!-- Formulario de búsqueda -->
+            
             <form action="/buscar" method="GET" class="buscador-form">
                 <input type="text" name="q" placeholder="Buscar bolsos..." class="buscador" aria-label="Buscar productos">
                 <button type="submit" class="buscar-btn"><i class="fas fa-search"></i></button>
             </form>
 
-            <!-- Iconos de usuario, admin y carrito -->
+            
             <div class="icons">
                 {% if usuario %}
                     <span class="user-welcome">Hola, {{ usuario }}</span>
@@ -55,7 +55,7 @@
         </div>
     </header>
 
-    <!-- Menú de navegación principal -->
+    
     <nav class="menu">
         <a href="/mujer">MUJER</a>
         <a href="/hombre">HOMBRE</a>
@@ -64,7 +64,7 @@
     </nav>
 </div>
 
-<!-- ===== HERO SLIDER ===== -->
+
 <section class="hero">
     <div class="slide active">
         <div class="hero-text">
@@ -89,7 +89,7 @@
     </div> 
 </section>
 
-<!-- ===== CATEGORÍAS DESTACADAS (MUJER / HOMBRE) ===== -->
+
 <section class="colecciones-duo">
     <a href="/mujer" class="coleccion-box mujer">
         <div class="coleccion-overlay">
@@ -105,14 +105,14 @@
     </a>
 </section>
 
-<!-- ===== VITRINA DE PRODUCTOS (LO NUEVO) ===== -->
+
 <section class="vitrina-productos">
     <div class="section-header">
         <h2>LO NUEVO</h2>
         <a href="/lo-nuevo" class="ver-mas">Ver todo <i class="fas fa-arrow-right"></i></a>
     </div>
 
-    <!-- Grid de tarjetas de producto -->
+    
     <div class="productos-grid">
 {% for producto in productos %}
 <div class="producto-card"> 
@@ -137,7 +137,7 @@
     </div>
 </div>
 {% endfor %}
-        <!-- Producto de muestra si no hay datos -->
+        
         {% if not productos %}
             <div class="producto-card">
                 <div class="producto-img-container">
@@ -153,12 +153,12 @@
     </div>
 </section>
 
-<!-- ===== PIE DE PÁGINA ===== -->
+
 <footer class="footer">
     <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
 </footer>
 
-<!-- Sidebar del carrito (incluido desde archivo aparte) -->
+
 {% include 'carrito_sidebar.html' %}
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>

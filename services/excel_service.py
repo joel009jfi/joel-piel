@@ -1,17 +1,14 @@
-import io  # Buffer en memoria para el archivo
+import io
 from datetime import datetime
 from flask import make_response
-import openpyxl  # Librería para crear archivos Excel (.xlsx)
+import openpyxl
 
 
 def exportar_ventas_excel(ventas):
-    """Genera un archivo Excel descargable con el listado de ventas."""
-    wb = openpyxl.Workbook()  # Libro nuevo
-    ws = wb.active            # Hoja activa por defecto
+    wb = openpyxl.Workbook()
+    ws = wb.active
     ws.title = "Ventas"
-    # Fila de encabezados
     ws.append(["ID Pedido", "Fecha", "Cliente", "Email", "Total", "Estado"])
-    # Datos de cada venta
     for v in ventas:
         fecha_str = v["fecha"].strftime('%d/%m/%Y %H:%M') if hasattr(v["fecha"], 'strftime') else v["fecha"]
         ws.append([
@@ -32,7 +29,6 @@ def exportar_ventas_excel(ventas):
 
 
 def generar_excel_pedidos():
-    """Genera y descarga el Excel de todos los pedidos con datos del cliente."""
     from db import conectar, obtener_cursor
     db = conectar()
     if not db:

@@ -1,16 +1,36 @@
 import os
 from werkzeug.utils import secure_filename  # Sanitiza nombres de archivos
-from flask import render_template, request, redirect, session, url_for, current_app
+from flask import (
+    render_template, request, redirect,
+    session, url_for, current_app, jsonify
+)
 from db import conectar, obtener_cursor
 from models.producto import obtener_categorias
 
 
 def register_routes(app):
-    @app.route("/admin/productos")
+    @app.route("/admin/productos", methods=["GET", "POST"])
     def admin_productos():
-        """Lista de productos con paginación (25 por página)."""
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
+        # Maneja petición POST JSON para actualizar stock
+        if request.method == "POST" and request.is_json:
+            try:
+                data = request.get_json()
+                id_producto = data.get("id")
+                nuevo_stock = data.get("stock")
+                if id_producto is None or nuevo_stock is None:
+                    return jsonify({"success": False, "error": "Datos incompletos"}), 400
+                db = conectar()
+                if not db:
+                    return jsonify({"success": False, "error": "Error de conexión"}), 500
+                cursor = db.cursor()
+                cursor.execute("UPDATE productos SET stock = %s WHERE id_producto = %s", (nuevo_stock, id_producto))
+                db.commit()
+                db.close()
+                return jsonify({"success": True})
+            except Exception as e:
+                return jsonify({"success": False, "error": str(e)}), 500
         db = conectar()
         if not db:
             return "Error al conectar con la BD", 500
@@ -18,11 +38,9 @@ def register_routes(app):
         pagina = request.args.get("pagina", 1, type=int)
         por_pagina = 25
         offset = (pagina - 1) * por_pagina
-        # Cuenta total para calcular páginas
         cursor.execute("SELECT COUNT(*) as total FROM productos")
         total_productos = cursor.fetchone()["total"]
-        total_paginas = (total_productos + por_pagina - 1) // por_pagina  # Redondeo hacia arriba
-        # Página actual de productos con nombre de categoría
+        total_paginas = (total_productos + por_pagina - 1) // por_pagina
         cursor.execute("""
             SELECT p.id_producto, p.nombre, p.precio, p.stock, p.imagen_url, c.nombre_categoria
             FROM productos p
@@ -36,7 +54,6 @@ def register_routes(app):
 
     @app.route("/admin/productos/crear", methods=["GET", "POST"])
     def crear_producto():
-        """Formulario para agregar un producto con imagen opcional."""
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
         categorias = obtener_categorias()
@@ -49,12 +66,12 @@ def register_routes(app):
             imagen_url = ""
             archivo = request.files.get("imagen")
             if archivo and archivo.filename:
-                filename = secure_filename(archivo.filename)  # Limpia el nombre del archivo
+                filename = secure_filename(archivo.filename)
                 upload_folder = current_app.root_path + "/static/img/"
-                os.makedirs(upload_folder, exist_ok=True)  # Crea carpeta si no existe
+                os.makedirs(upload_folder, exist_ok=True)
                 ruta = os.path.join(upload_folder, filename)
                 archivo.save(ruta)
-                imagen_url = filename  # Guarda solo el nombre, no la ruta
+                imagen_url = filename
             db = conectar()
             if db:
                 cursor = obtener_cursor(db)
@@ -70,7 +87,6 @@ def register_routes(app):
 
     @app.route("/admin/productos/editar/<int:id_producto>", methods=["GET", "POST"])
     def editar_producto(id_producto):
-        """Formulario para editar un producto existente."""
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
         categorias = obtener_categorias()
@@ -96,7 +112,7 @@ def register_routes(app):
                 upload_folder = current_app.root_path + "/static/img/"
                 ruta = os.path.join(upload_folder, filename)
                 archivo.save(ruta)
-                imagen_url = filename  # Reemplaza con la nueva imagen
+                imagen_url = filename
             cursor.execute("""
                 UPDATE productos SET nombre=%s, precio=%s, stock=%s, descripcion=%s, imagen_url=%s, Id_categoria=%s
                 WHERE id_producto=%s
@@ -109,7 +125,6 @@ def register_routes(app):
 
     @app.route("/admin/productos/eliminar/<int:id_producto>")
     def eliminar_producto(id_producto):
-        """Elimina un producto de la base de datos."""
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
         db = conectar()

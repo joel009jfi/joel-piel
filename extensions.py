@@ -1,8 +1,6 @@
-from flask_mail import Mail      # Extensión para envío de correos SMTP
-from flask_wtf.csrf import CSRFProtect  # Protección contra CSRF en formularios
+from flask_mail import Mail
+from flask_wtf.csrf import CSRFProtect
 
-# Instancias compartidas de extensiones Flask.
-# Se declaran aquí (sin inicializar) y se vinculan a la app en app.py.
-# Esto evita importaciones circulares entre módulos.
+# Instancias compartidas — se vinculan a la app en app.py para evitar ciclos
 mail = Mail()
 csrf = CSRFProtect()

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-<!-- === CABECERA DEL SITIO === -->
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,20 +13,20 @@
 </head>
 <body>
 
-    <!-- === BARRA DE NAVEGACIÓN SUPERIOR === -->
+    
     <header class="admin-header">
         <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
-            <a href="/">Ver Tienda</a>
-            <a href="/logout" class="logout-btn"><i class="fa-solid fa-power-off"></i> Salir</a>
+            <a href="{{ url_for('inicio') }}">Ver Tienda</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fa-solid fa-power-off"></i> Salir</a>
         </nav>
     </header>
 
-    <!-- === CONTENEDOR PRINCIPAL DEL PANEL === -->
+    
     <div class="admin-container">
         <h1 class="admin-title">Panel de Control</h1>
 
-        <!-- === TARJETAS DE RESUMEN DE ESTADÍSTICAS === -->
+        
         <div class="admin-stats-summary">
             <div class="stat-mini-card">
                 <span>Ventas Totales</span>
@@ -42,7 +42,7 @@
             </div>
         </div>
 
-        <!-- === CUADRÍCULA DE MÓDULOS DE ADMINISTRACIÓN === -->
+        
         <div class="admin-grid">
             <div class="admin-card">
                 <i class="fa-solid fa-box-open"></i>
@@ -74,13 +74,13 @@
 
             <div class="admin-card">
                 <i class="fa-solid fa-envelope"></i>
-                <h3>Mensajes {{ '<span style=\"background:#d9534f;color:#fff;border-radius:50%;padding:2px 8px;font-size:11px;margin-left:5px;\">' ~ mensajes_no_leidos ~ '</span>' if mensajes_no_leidos > 0 else '' }}</h3>
+                <h3>Mensajes {% if mensajes_no_leidos > 0 %}<span style="background:#d9534f;color:#fff;border-radius:50%;padding:2px 8px;font-size:11px;margin-left:5px;">{{ mensajes_no_leidos }}</span>{% endif %}</h3>
                 <p>Bandeja de mensajes de contacto.</p>
                 <a href="{{ url_for('admin_mensajes') }}" class="btn-panel">Ver Mensajes</a>
             </div>
         </div>
 
-        <!-- === ALERTA DE STOCK BAJO === -->
+        
         {% if stock_bajo %}
         <div class="admin-section" style="border-left: 3px solid #d9534f; padding-left: 18px; margin-bottom: 30px;">
             <h2 style="margin:0 0 12px;font-size:16px;color:#d9534f;"><i class="fa-solid fa-exclamation-triangle"></i> Productos con Stock Bajo</h2>
@@ -97,7 +97,7 @@
                     <tr>
                         <td>{{ p.nombre }}</td>
                         <td><strong style="color:{{ 'red' if p.stock == 0 else '#d9534f' }};">{{ p.stock }} {{ 'AGOTADO' if p.stock == 0 else 'unidad(es)' }}</strong></td>
-                        <td><a href="/admin/inventario" style="color:#000;font-size:12px;font-weight:700;">IR A INVENTARIO</a></td>
+                        <td><a href="{{ url_for('admin_productos') }}" style="color:#000;font-size:12px;font-weight:700;">IR A INVENTARIO</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -105,7 +105,7 @@
         </div>
         {% endif %}
 
-        <!-- === TABLA DE ÚLTIMOS PEDIDOS === -->
+        
         <div class="admin-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 style="margin:0;">Últimos Pedidos</h2>

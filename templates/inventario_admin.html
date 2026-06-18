@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
-<!-- === CABECERA Y ESTILOS DEL INVENTARIO === -->
+
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Inventario | JOEL PIEL</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -37,25 +38,25 @@
     </style>
 </head>
 <body>
-    <!-- === BARRA DE NAVEGACIÓN === -->
+    
     <header class="admin-header">
-        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+        <a href="{{ url_for('admin_panel') }}" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
-            <a href="/admin">Volver al Panel</a>
-            <a href="/logout" class="logout-btn">Salir</a>
+            <a href="{{ url_for('admin_panel') }}">Volver al Panel</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Salir</a>
         </nav>
     </header>
  
-    <!-- === CONTENEDOR PRINCIPAL === -->
+    
     <div class="admin-container">
-        <!-- === ENCABEZADO CON TÍTULO Y BOTÓN NUEVO PRODUCTO === -->
+        
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h1 class="admin-title" style="margin: 0;">Gestión de Inventario</h1>
             <a href="{{ url_for('crear_producto') }}" class="btn-panel" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-plus"></i> NUEVO BOLSO
             </a>
         </div>
-        <!-- === FORMULARIO DE BÚSQUEDA === -->
+        
         <div style="margin-bottom: 20px;">
             <form method="GET" action="{{ url_for('admin_productos') }}" style="display:flex;gap:10px;">
                 <input type="text" name="q" placeholder="Buscar producto por nombre..." value="{{ busqueda or '' }}" style="flex:1;padding:10px 15px;border:1px solid #ddd;font-size:14px;font-family:'Montserrat',sans-serif;">
@@ -64,7 +65,7 @@
             </form>
         </div>
         
-        <!-- === TABLA DE PRODUCTOS === -->
+        
         <div class="admin-section">
             <table class="admin-table">
                 <thead>
@@ -81,13 +82,19 @@
                     <tr>
                         <td>
                             <div style="display: flex; align-items: center; gap: 15px;">
+                                {% if p.imagen_url and p.imagen_url.startswith('/static/') %}
                                 <img src="{{ p.imagen_url }}" class="product-img-mini" onerror="this.src='https://via.placeholder.com/50x50?text=Piel'">
+                                {% elif p.imagen_url %}
+                                <img src="{{ url_for('static', filename='img/' + p.imagen_url) }}" class="product-img-mini" onerror="this.src='https://via.placeholder.com/50x50?text=Piel'">
+                                {% else %}
+                                <img src="https://via.placeholder.com/50x50?text=Piel" class="product-img-mini">
+                                {% endif %}
                                 <strong>{{ p.nombre }}</strong>
                             </div>
                         </td>
                         <td>${{ "{:,.0f}".format(p.precio) }}</td>
                         <td>
-                            <!-- === CONTROLES DE AJUSTE DE STOCK (+ / -) === -->
+                            
                             <div class="stock-control">
                                 <button class="btn-stock" onclick="cambiarStock({{ p.id_producto }}, -1)">-</button>
                                 <span id="stock-{{ p.id_producto }}" style="font-weight: 700; width: 30px; text-align: center;">{{ p.stock }}</span>
@@ -95,12 +102,12 @@
                             </div>
                         </td>
                         <td>
-                            <span id="pill-{{ p.id_producto }}" class="status-pill {{ 'status-cancelado' if p.stock < 5 else 'status-enviado' }}">
-                                {{ 'Bajo Stock' if p.stock < 5 else 'Disponible' }}
+                            <span id="pill-{{ p.id_producto }}" class="status-pill {{ 'status-cancelado' if p.stock == 0 else 'status-advertencia' if p.stock < 5 else 'status-enviado' }}">
+                                {{ 'Sin Stock' if p.stock == 0 else 'Bajo Stock' if p.stock < 5 else 'Disponible' }}
                             </span>
                         </td>
                         <td>
-                            <!-- === BOTONES DE EDICIÓN Y ELIMINACIÓN === -->
+                            
                             <div style="display: flex; gap: 8px; align-items: center;">
                                 <a href="{{ url_for('editar_producto', id_producto=p.id_producto) }}" class="btn-editar">
                                     <i class="fa-solid fa-pen"></i> Editar
@@ -123,7 +130,7 @@
                 </tbody>
             </table>
 
-            <!-- === PAGINACIÓN === -->
+            
             {% if total_paginas > 1 %}
             <div class="pagination" style="display:flex;justify-content:center;gap:8px;margin-top:25px;padding-bottom:30px;">
                 {% if pagina > 1 %}
@@ -140,31 +147,39 @@
         </div>
     </div>
  
-    <!-- === SCRIPT PARA AJUSTE RÁPIDO DE STOCK VÍA AJAX === -->
+    
     <script>
         function cambiarStock(id, cambio) {
             const stockElement = document.getElementById(`stock-${id}`);
             const pillElement = document.getElementById(`pill-${id}`);
             let nuevoStock = parseInt(stockElement.innerText) + cambio;
- 
+
             if (nuevoStock < 0) return;
- 
+
             fetch('{{ url_for('admin_productos') }}', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
                 body: JSON.stringify({ id: id, stock: nuevoStock })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     stockElement.innerText = nuevoStock;
-                    if (nuevoStock < 5) {
-                        pillElement.innerText = 'Bajo Stock';
+                    if (nuevoStock === 0) {
+                        pillElement.innerText = 'Sin Stock';
                         pillElement.className = 'status-pill status-cancelado';
+                    } else if (nuevoStock < 5) {
+                        pillElement.innerText = 'Bajo Stock';
+                        pillElement.className = 'status-pill status-advertencia';
                     } else {
                         pillElement.innerText = 'Disponible';
                         pillElement.className = 'status-pill status-enviado';
                     }
+                } else {
+                    alert('Error: ' + (data.error || 'No se pudo actualizar el stock'));
                 }
             })
             .catch(err => console.error('Error al actualizar:', err));

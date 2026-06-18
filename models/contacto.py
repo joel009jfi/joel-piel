@@ -3,7 +3,6 @@ from mysql.connector import Error
 
 
 def guardar_mensaje(nombre, email, asunto, mensaje):
-    """INSERT: guarda un mensaje del formulario de contacto en la BD."""
     db = conectar()
     if db:
         try:
@@ -23,7 +22,6 @@ def guardar_mensaje(nombre, email, asunto, mensaje):
 
 
 def obtener_mensajes():
-    """SELECT: retorna todos los mensajes de contacto ordenados por fecha DESC."""
     db = conectar()
     if not db:
         return []
@@ -41,7 +39,6 @@ def obtener_mensajes():
 
 
 def contar_mensajes_no_leidos():
-    """SELECT COUNT: cantidad de mensajes de contacto no leídos."""
     db = conectar()
     if not db:
         return 0

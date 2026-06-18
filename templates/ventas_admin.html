@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-<!-- === CABECERA CON ESTILOS Y MODAL DE DETALLE === -->
+
 <head>
     <meta charset="UTF-8">
     <title>Historial de Ventas | JOEL PIEL</title>
@@ -15,7 +15,7 @@
         .modal-table th, .modal-table td { padding:10px 12px; text-align:left; border-bottom:1px solid #eee; font-size:13px; }
         .modal-table th { background:#f8f8f8; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
     </style>
-    <!-- === FUNCIONES JAVASCRIPT PARA MODAL DE DETALLE === -->
+    
     <script>
         function verDetalle(id) {
             fetch('/admin/ventas/detalle/' + id)
@@ -35,18 +35,18 @@
     </script>
 </head>
 <body>
-    <!-- === BARRA DE NAVEGACIÓN === -->
+    
     <header class="admin-header">
-        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+        <a href="{{ url_for('admin_panel') }}" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
-            <a href="/admin">Volver al Panel</a>
-            <a href="/logout" class="logout-btn">Salir</a>
+            <a href="{{ url_for('admin_panel') }}">Volver al Panel</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Salir</a>
         </nav>
     </header>
 
-    <!-- === CONTENEDOR PRINCIPAL === -->
+    
     <div class="admin-container">
-        <!-- === ENCABEZADO CON TÍTULO Y BOTÓN DE DESCARGA EXCEL === -->
+        
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h1 class="admin-title">Historial de Ventas</h1>
             <a href="{{ url_for('descargar_excel_ventas') }}" style="background: #5cb85c; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 12px; font-weight: bold; border-radius: 4px;">
@@ -54,7 +54,7 @@
             </a>
         </div>
 
-        <!-- === TABLA DE VENTAS CON ACCIONES === -->
+        
         <table class="admin-table">
             <thead>
                 <tr>
@@ -83,7 +83,7 @@
                         </span>
                     </td>
                     <td>
-                        <!-- === BOTONES DE ACCIÓN: VER DETALLE, CONFIRMAR PAGO, DESCARGAR PDF === -->
+                        
                         <div style="display:flex;gap:6px;align-items:center;">
                             <a href="{{ url_for('detalle_pedido', id_pedido=pedido.Id_pedido) }}" style="background:none;border:none;color:#000;cursor:pointer;font-size:14px;text-decoration:none;" title="Ver detalle"><i class="fa-solid fa-eye"></i></a>
                             <form action="{{ url_for('confirmar_pago', id_pedido=pedido.Id_pedido) }}" method="POST" style="display:inline;">
@@ -102,7 +102,7 @@
             </tbody>
         </table>
 
-        <!-- === PAGINACIÓN === -->
+        
         {% if total_paginas > 1 %}
         <div class="pagination" style="display:flex;justify-content:center;gap:8px;margin-top:25px;padding-bottom:30px;">
             {% if pagina > 1 %}
@@ -118,7 +118,7 @@
         {% endif %}
     </div>
 
-    <!-- === MODAL PARA DETALLE DEL PEDIDO === -->
+    
     <div id="detalle-modal" class="modal-overlay" onclick="if(event.target===this)cerrarDetalle()">
         <div class="modal-box">
             <span class="modal-close" onclick="cerrarDetalle()">&times;</span>

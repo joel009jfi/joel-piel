@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-<!-- === CABECERA CON ESTILOS DE LOGÍSTICA === -->
+
 <head>
     <meta charset="UTF-8">
     <title>Envíos y Logística | JOEL PIEL</title>
@@ -23,24 +23,24 @@
     </style>
 </head>
 <body>
-    <!-- === BARRA DE NAVEGACIÓN === -->
+    
     <header class="admin-header">
-        <a href="/admin" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+        <a href="{{ url_for('admin_panel') }}" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
-            <a href="/admin">Volver al Panel</a>
-            <a href="/logout" class="logout-btn">Salir</a>
+            <a href="{{ url_for('admin_panel') }}">Volver al Panel</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Salir</a>
         </nav>
     </header>
 
-    <!-- === CONTENEDOR PRINCIPAL === -->
+    
     <div class="admin-container">
         <h1 class="admin-title">Envíos y Logística</h1>
 
-        <!-- === TARJETAS DE ENVÍO CON INFORMACIÓN Y FORMULARIO DE ACTUALIZACIÓN === -->
+        
         <div class="admin-grid">
             {% for e in envios %}
             <div class="admin-card card-logistics">
-                <!-- === INFORMACIÓN DEL PEDIDO Y CLIENTE === -->
+                
                 <div class="card-logistics-content">
                     <div class="card-logistics-header">
                         <h3><i class="fas fa-box"></i> Pedido #{{ e.Id_pedido }}</h3>
@@ -55,8 +55,9 @@
 
                     <p><strong><i class="fas fa-map-marker-alt"></i> Destino:</strong> {{ e.direccion_envio }}</p>
                     <p><strong><i class="fas fa-truck"></i> Transportadora:</strong> {{ e.transportadora }}</p>
-                    <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia }}</p>
-                    <!-- === ESTADO ACTUAL DEL ENVÍO === -->
+                    <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia if e.numero_guia else '—' }}</p>
+                    <p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago }}</p>
+                    
                     <p>
                         <strong>Estado Envío:</strong>
                         <span class="status-badge {{ 'bg-envio-preparando' if e.estado_envio in ('Por despachar', 'Preparando') else 'bg-envio-enviado' if e.estado_envio == 'Enviado' else 'bg-envio-entregado' }}">
@@ -65,7 +66,7 @@
                     </p>
                 </div>
 
-                <!-- === FORMULARIO PARA ACTUALIZAR ESTADO, GUÍA Y TRANSPORTADORA === -->
+                
                 <div class="admin-logistics-form">
                     <form action="{{ url_for('actualizar_envio', id_envio=e.Id_envios) }}" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

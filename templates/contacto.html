@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contacto | JOEL PIEL</title>
-    <!-- Fuentes tipográficas -->
+    
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
-    <!-- Estilos específicos de la página de contacto -->
+    
     <style>
         .contacto-wrapper {
             max-width: 1000px;
@@ -139,7 +139,7 @@
 </head>
 <body>
 
-<!-- ===== BARRA SUPERIOR Y ENCABEZADO ===== -->
+
 <div class="navbar-fixed">
     <div class="top-bar">
         ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS
@@ -147,7 +147,7 @@
     <header class="header">
         <div class="logo" onclick="window.location.href='/'" style="cursor:pointer;">JOEL PIEL</div>
         <div class="header-right">
-            <!-- Buscador -->
+            
             <form action="/buscar" method="GET" class="buscador-form">
                 <input type="text" name="q" placeholder="Buscar bolsos..." class="buscador" aria-label="Buscar productos">
                 <button type="submit" class="buscar-btn"><i class="fas fa-search"></i></button>
@@ -176,7 +176,7 @@
             </div>
         </div>
     </header>
-    <!-- Menú de navegación con indicador de página activa -->
+    
     <nav class="menu">
         <a href="/mujer">MUJER</a>
         <a href="/hombre">HOMBRE</a>
@@ -185,14 +185,14 @@
     </nav>
 </div>
 
-<!-- ===== CONTENEDOR PRINCIPAL DE CONTACTO ===== -->
+
 <div class="contacto-wrapper">
-    <!-- Información de contacto (lado izquierdo) -->
+    
     <div class="contacto-info">
         <h2>Hablemos de diseño y calidad</h2>
         <p>¿Tienes preguntas sobre tu pedido, los materiales o nuestras colecciones? Escríbenos y con gusto te atendemos.</p>
 
-        <!-- Correo -->
+        
         <div class="contacto-dato">
             <i class="fas fa-envelope"></i>
             <div>
@@ -200,7 +200,7 @@
                 <span>joelpiel57@gmail.com</span>
             </div>
         </div>
-        <!-- Dirección -->
+        
         <div class="contacto-dato">
             <i class="fas fa-map-marker-alt"></i>
             <div>
@@ -208,7 +208,7 @@
                 <span>Colombia — Envíos a todo el país</span>
             </div>
         </div>
-        <!-- Horario -->
+        
         <div class="contacto-dato">
             <i class="fas fa-clock"></i>
             <div>
@@ -216,7 +216,7 @@
                 <span>Lunes a Viernes · 8am – 6pm</span>
             </div>
         </div>
-        <!-- WhatsApp -->
+        
         <div class="contacto-dato">
             <i class="fab fa-whatsapp"></i>
             <div>
@@ -226,11 +226,11 @@
         </div>
     </div>
 
-    <!-- Formulario de contacto (lado derecho) -->
+    
     <div class="contacto-form-box">
         <h3>Envíanos un mensaje</h3>
 
-        <!-- Mensaje de alerta (éxito o error) -->
+        
         {% if mensaje %}
             <div class="alert-contacto {{ 'error' if error else '' }}">
                 {{ mensaje }}
@@ -267,7 +267,7 @@
     </div>
 </div>
 
-<!-- ===== PIE DE PÁGINA ===== -->
+
 <footer class="footer">
     <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
 </footer>

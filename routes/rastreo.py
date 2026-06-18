@@ -5,7 +5,6 @@ from db import conectar, obtener_cursor
 def register_routes(app):
     @app.route("/rastrear", methods=["GET", "POST"])
     def rastrear_pedido():
-        """Rastrea pedido por número + email. Muestra estado de envío y guía."""
         usuario = session.get("usuario")
         rol = session.get("rol")
         resultado = None

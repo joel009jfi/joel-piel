@@ -1,18 +1,17 @@
-import mysql.connector  # Driver oficial de MySQL para Python
+import mysql.connector
 from mysql.connector import Error
-from config import Config  # Credenciales y configuración de la app
+from config import Config
 
 
 def conectar():
-    """Abre y retorna una conexión a la BD usando credenciales de Config."""
     try:
         conexion = mysql.connector.connect(
-            host=Config.DB_HOST,        # Dirección del servidor MySQL
-            user=Config.DB_USER,        # Usuario de la BD
-            password=Config.DB_PASSWORD, # Contraseña del usuario
-            database=Config.DB_NAME,    # Nombre de la base de datos
-            charset='utf8mb4',          # Soporte para caracteres especiales (tildes, emojis)
-            collation='utf8mb4_general_ci'  # Regla de comparación de texto
+            host=Config.DB_HOST,
+            user=Config.DB_USER,
+            password=Config.DB_PASSWORD,
+            database=Config.DB_NAME,
+            charset='utf8mb4',
+            collation='utf8mb4_general_ci'
         )
         if conexion.is_connected():
             return conexion
@@ -22,8 +21,6 @@ def conectar():
 
 
 def obtener_cursor(conexion, diccionario=True):
-    """Crea un cursor sobre una conexión existente.
-    Con diccionario=True devuelve filas como dicts (ideal para Jinja2)."""
     if conexion and conexion.is_connected():
         return conexion.cursor(dictionary=diccionario)
     return None

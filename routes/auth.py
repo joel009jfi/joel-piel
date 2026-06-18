@@ -4,27 +4,24 @@ from models.usuario import registrar_usuario, obtener_usuario_por_email
 from models.carrito import cargar_carrito_db
 from services.email_service import enviar_bienvenida
 from services.helpers import sincronizar_carrito_db
-from extensions import mail  # Instancia compartida de Flask-Mail
+from extensions import mail
 
 
 def register_routes(app):
     @app.route("/login", methods=["GET", "POST"])
     def login():
-        """Inicio de sesión: verifica email+password con bcrypt y carga carrito desde BD."""
         mensaje = ""
         if request.method == "POST":
             email = request.form["email"]
             password_ingresada = request.form["password"]
-            usuario = obtener_usuario_por_email(email)  # Busca el usuario en BD
+            usuario = obtener_usuario_por_email(email)
             if usuario:
                 # Convierte el hash a bytes si viene como string
                 hash_db = usuario["password"].encode('utf-8') if isinstance(usuario["password"], str) else usuario["password"]
                 if bcrypt.checkpw(password_ingresada.encode('utf-8'), hash_db):
-                    # Credenciales válidas: establece sesión
                     session["usuario"] = usuario["nombre"]
                     session["rol"] = usuario["rol"]
                     session["Id_usuario"] = usuario["Id_usuario"]
-                    # Carga el carrito guardado en BD para este usuario
                     carrito_db = cargar_carrito_db(usuario["Id_usuario"])
                     session["carrito"] = carrito_db
                     return redirect(url_for('admin_panel')) if usuario["rol"] == "admin" else redirect(url_for('inicio'))
@@ -35,7 +32,6 @@ def register_routes(app):
 
     @app.route("/registro", methods=["GET", "POST"])
     def registro():
-        """Registro de cliente: guarda usuario con bcrypt y envía email de bienvenida."""
         mensaje = ""
         if request.method == "POST":
             nombre = request.form["nombre"]
@@ -58,7 +54,6 @@ def register_routes(app):
 
     @app.route("/logout")
     def logout():
-        """Cierra sesión: guarda carrito en BD antes de limpiar session."""
         sincronizar_carrito_db()  # Persiste el carrito antes de salir
         session.clear()
         return redirect(url_for('inicio'))

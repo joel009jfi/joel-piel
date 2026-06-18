@@ -1,4 +1,6 @@
-from flask import render_template, request, redirect, session, url_for
+from flask import (
+    render_template, request, redirect, session, url_for
+)
 from db import conectar, obtener_cursor
 from services.email_service import enviar_notificacion_pago
 from services.pdf_service import generar_pdf_pedido
@@ -9,7 +11,6 @@ from extensions import mail
 def register_routes(app):
     @app.route("/admin/ventas")
     def admin_ventas():
-        """Lista de todos los pedidos con paginación (25 por página)."""
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
         db = conectar()
@@ -22,7 +23,6 @@ def register_routes(app):
         cursor.execute("SELECT COUNT(*) as total FROM pedidos")
         total_pedidos = cursor.fetchone()["total"]
         total_paginas = (total_pedidos + por_pagina - 1) // por_pagina
-        # Obtiene pedidos con datos del cliente
         cursor.execute("""
             SELECT p.Id_pedido, p.Id_usuario, p.total, p.estado, p.fecha, p.metodo_pago,
                    u.nombre as cliente, u.email
@@ -32,7 +32,6 @@ def register_routes(app):
             LIMIT %s OFFSET %s
         """, (por_pagina, offset))
         pedidos_db = cursor.fetchall()
-        # Para cada pedido, obtiene los productos del detalle
         for pedido in pedidos_db:
             cursor.execute("""
                 SELECT dp.cantidad, dp.precio_unitario, pr.nombre, pr.imagen_url
@@ -46,7 +45,6 @@ def register_routes(app):
 
     @app.route("/admin/ventas/<int:id_pedido>")
     def detalle_pedido(id_pedido):
-        """Detalle de un pedido específico (admin)."""
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
         db = conectar()
@@ -67,7 +65,6 @@ def register_routes(app):
         if not pedido:
             db.close()
             return redirect(url_for('admin_ventas'))
-        # Productos incluidos en el pedido
         cursor.execute("""
             SELECT dp.cantidad, dp.precio_unitario, pr.nombre, pr.imagen_url
             FROM detalle_pedido dp
@@ -80,13 +77,11 @@ def register_routes(app):
 
     @app.route("/admin/ventas/confirmar-pago/<int:id_pedido>", methods=["POST"])
     def confirmar_pago(id_pedido):
-        """Marca pedido como Pagado y envía notificación al cliente."""
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
         db = conectar()
         if db:
             cursor = db.cursor(dictionary=True, buffered=True)
-            # Obtiene datos del cliente para el email
             cursor.execute("""
                 SELECT u.nombre, u.email FROM pedidos p
                 JOIN usuarios u ON p.Id_usuario = u.Id_usuario
@@ -105,14 +100,12 @@ def register_routes(app):
 
     @app.route("/admin/ventas/pdf/<int:id_pedido>")
     def descargar_pdf_pedido(id_pedido):
-        """Genera y descarga el PDF de un pedido."""
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
         return generar_pdf_pedido(id_pedido)
 
     @app.route("/admin/ventas/excel")
     def descargar_excel_ventas():
-        """Genera y descarga el Excel de todos los pedidos."""
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
         return generar_excel_pedidos()

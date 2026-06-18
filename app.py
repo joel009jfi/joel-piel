@@ -4,19 +4,17 @@ from extensions import mail, csrf
 from services.helpers import datos_carrito
 from models.carrito import asegurar_tabla_carrito
 
-# Creación de la aplicación Flask y configuración desde la clase Config
 app = Flask(__name__)
 app.config.from_object(Config)
 app.config['WTF_CSRF_CHECK_DEFAULT'] = False  # Control manual de CSRF
 app.config['WTF_CSRF_TIME_LIMIT'] = 3600      # El token CSRF expira en 1 hora
-csrf.init_app(app)            # Activa CSRF en la app
-mail.init_app(app)            # Activa el envío de correos
-asegurar_tabla_carrito()      # Crea la tabla carrito si no existe
+csrf.init_app(app)
+mail.init_app(app)
+asegurar_tabla_carrito()
 
 
 @app.context_processor
 def inject_carrito():
-    """Inyecta datos del carrito en TODAS las plantillas (sidebar, badge, etc.)."""
     productos_carrito, total_carrito, cantidad_total_carrito = datos_carrito()
     return dict(
         productos_carrito=productos_carrito,
@@ -27,7 +25,6 @@ def inject_carrito():
 
 @app.template_test('numeric')
 def is_numeric(value):
-    """Test de plantilla para detectar valores numéricos (usado en templates)."""
     return isinstance(value, (int, float))
 
 
@@ -46,7 +43,6 @@ from routes.admin_logistica import register_routes as register_admin_logistica
 from routes.admin_usuarios import register_routes as register_admin_usuarios
 from routes.admin_mensajes import register_routes as register_admin_mensajes
 
-# Registro de todas las rutas en la aplicación
 register_auth(app)
 register_public(app)
 register_carrito(app)
@@ -64,15 +60,13 @@ register_admin_mensajes(app)
 
 @app.errorhandler(404)
 def not_found(e):
-    """Página personalizada para errores 404 (ruta no encontrada)."""
     return render_template("404.html"), 404
 
 
 @app.errorhandler(500)
 def server_error(e):
-    """Página personalizada para errores 500 (error interno del servidor)."""
     return render_template("500.html"), 500
 
 
 if __name__ == "__main__":
-    app.run(debug=True)  # Inicia el servidor en modo desarrollo
+    app.run(debug=True)
