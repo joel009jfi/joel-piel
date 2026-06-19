@@ -101,6 +101,26 @@ def enviar_notificacion_pago(mail, nombre, email, id_pedido):
         print(f"Error al enviar notificación de pago: {e}")
 
 
+def enviar_confirmacion_contacto_cliente(mail, nombre, email):
+    try:
+        msg = Message(subject="Hemos recibido tu mensaje · JOEL PIEL", recipients=[email])
+        msg.html = f"""
+        <div style="font-family:'Montserrat',sans-serif;max-width:600px;margin:0 auto;padding:30px;border:1px solid #eee;border-radius:4px;">
+            <div style="text-align:center;border-bottom:1px solid #eee;padding-bottom:20px;margin-bottom:25px;">
+                <h1 style="font-family:'Playfair Display',serif;font-size:26px;letter-spacing:2px;margin:0;color:#000;">JOEL PIEL</h1>
+            </div>
+            <p style="font-size:15px;color:#1c1a17;">Hola <strong>{nombre}</strong>,</p>
+            <p style="font-size:14px;color:#444;line-height:1.6;">Hemos recibido tu mensaje correctamente. Nuestro equipo lo revisará y te responderemos a la brevedad posible.</p>
+            <p style="font-size:14px;color:#444;line-height:1.6;">Gracias por contactarnos.</p>
+            <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+            <p style="font-size:12px;color:#999;text-align:center;">JOEL PIEL · Envíos a todo Colombia</p>
+        </div>
+        """
+        mail.send(msg)
+    except Exception as e:
+        print(f"Error al enviar confirmación de contacto: {e}")
+
+
 def enviar_creacion_cuenta_admin(mail, nombre, email, rol):
     try:
         msg = Message(subject="¡Tu cuenta en JOEL PIEL ha sido creada!", recipients=[email])
