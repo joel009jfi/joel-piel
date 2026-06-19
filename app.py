@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session
+from flask import Flask, session
 from config import Config
 from extensions import mail, csrf
 from services.helpers import datos_carrito
@@ -56,17 +56,6 @@ register_admin_ventas(app)
 register_admin_logistica(app)
 register_admin_usuarios(app)
 register_admin_mensajes(app)
-
-
-@app.errorhandler(404)
-def not_found(e):
-    return render_template("404.html"), 404
-
-
-@app.errorhandler(500)
-def server_error(e):
-    return render_template("500.html"), 500
-
 
 if __name__ == "__main__":
     app.run(debug=True)
