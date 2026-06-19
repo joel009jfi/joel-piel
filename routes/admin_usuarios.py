@@ -1,8 +1,36 @@
 from flask import render_template, request, redirect, session, url_for
+import bcrypt
 from db import conectar, obtener_cursor
+from models.usuario import registrar_usuario, obtener_usuario_por_email
+from services.email_service import enviar_bienvenida
+from extensions import mail
 
 
 def register_routes(app):
+    @app.route("/admin/usuarios/crear", methods=["GET", "POST"])
+    def admin_crear_usuario():
+        if session.get("rol") != "admin":
+            return redirect(url_for('inicio'))
+        mensaje = ""
+        if request.method == "POST":
+            nombre = request.form.get("nombre", "").strip()
+            email = request.form.get("email", "").strip()
+            password = request.form.get("password", "")
+            rol = request.form.get("rol", "cliente")
+            if not nombre or not email or not password:
+                mensaje = "Todos los campos son obligatorios."
+            elif obtener_usuario_por_email(email):
+                mensaje = "Ese correo ya está registrado."
+            else:
+                password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                if registrar_usuario(nombre, email, password_hash, rol):
+                    try:
+                        enviar_bienvenida(mail, nombre, email, url_for('inicio', _external=True))
+                    except Exception as e:
+                        print(f"Error al enviar correo de bienvenida: {e}")
+                    return redirect(url_for('admin_usuarios'))
+                mensaje = "Error al crear el usuario."
+        return render_template("crear_usuario.html", mensaje=mensaje)
     @app.route("/admin/usuarios")
     def admin_usuarios():
         if session.get("rol") != "admin":

@@ -341,7 +341,7 @@ body {
 .coleccion-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.45);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -350,7 +350,7 @@ body {
 }
 
 .coleccion-box:hover .coleccion-overlay {
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.65);
 }
 
 .coleccion-overlay h3 {
@@ -359,6 +359,7 @@ body {
     letter-spacing: 2px;
     text-transform: uppercase;
     margin-bottom: 15px;
+    color: #fff;
 }
 
 .coleccion-overlay .btn-text {
@@ -368,6 +369,7 @@ body {
     text-transform: uppercase;
     border-bottom: 2px solid #fff;
     padding-bottom: 5px;
+    color: #fff;
 }
 
 /* --- VITRINA DE PRODUCTOS --- */

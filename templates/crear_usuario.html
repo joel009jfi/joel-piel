@@ -5,40 +5,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Usuario | Panel Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 </head>
-<body class="auth-body">
+<body>
 
-    
-    <div class="auth-container">
-        
-        <h2>Registrar Nuevo Usuario</h2>
+    <header class="admin-header">
+        <a href="{{ url_for('admin_panel') }}" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin_usuarios') }}">Volver a Usuarios</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Salir</a>
+        </nav>
+    </header>
 
-        
-        <form method="POST">
+    <div class="admin-container">
+        <h1 class="admin-title">Registrar Nuevo Usuario</h1>
+
+        {% if mensaje %}
+        <div style="background: {% if 'Error' in mensaje or 'registrado' in mensaje or 'obligatorios' in mensaje %}#f8d7da{% else %}#d4edda{% endif %}; color: {% if 'Error' in mensaje or 'registrado' in mensaje or 'obligatorios' in mensaje %}#721c24{% else %}#155724{% endif %}; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-size: 14px;">
+            {{ mensaje }}
+        </div>
+        {% endif %}
+
+        <form method="POST" style="max-width: 450px;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            
-            <input type="text" name="nombre" class="auth-input" placeholder="Nombre completo" required>
-            
-            <input type="email" name="email" class="auth-input" placeholder="Correo electrónico" required>
-            
-            <input type="password" name="password" class="auth-input" placeholder="Contraseña de acceso" required>
-            
-            <select name="rol" class="auth-input" style="background: #fff; cursor: pointer; height: 48px;">
+
+            <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 13px;">Nombre completo</label>
+            <input type="text" name="nombre" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit;" required>
+
+            <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 13px;">Correo electrónico</label>
+            <input type="email" name="email" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit;" required>
+
+            <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 13px;">Contraseña de acceso</label>
+            <input type="password" name="password" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit;" required>
+
+            <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 13px;">Rol</label>
+            <select name="rol" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; background: #fff; cursor: pointer;">
                 <option value="cliente">Cliente</option>
                 <option value="admin">Administrador</option>
             </select>
 
-            
-            <button type="submit" class="btn-auth">Crear Usuario y Enviar Bienvenida</button>
+            <button type="submit" style="background: #000; color: #fff; border: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; cursor: pointer; font-family: inherit;">Crear Usuario</button>
         </form>
-
-        
-        <p class="auth-switch" style="margin-top: 25px;">
-            <a href="{{ url_for('admin_usuarios') }}">← Volver a la Lista de Usuarios</a>
-        </p>
-
     </div>
 
 </body>
