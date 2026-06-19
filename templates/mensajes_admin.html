@@ -37,7 +37,12 @@
     <div class="admin-container">
         <h1 class="admin-title">Mensajes de Contacto</h1>
 
-        {% for m in mensajes %}
+        {% set pendientes = mensajes | selectattr('respuesta', 'none') | list %}
+        {% set respondidos = mensajes | rejectattr('respuesta', 'none') | list %}
+
+        {% if pendientes %}
+        <h2 style="font-size:16px;margin-bottom:15px;color:#d9534f;"><i class="fa-solid fa-inbox"></i> Pendientes ({{ pendientes | length }})</h2>
+        {% for m in pendientes %}
         <div class="msg-card {{ 'no-leido' if not m.leido else 'leido' }}">
             <div class="msg-card-header">
                 <div>
@@ -60,13 +65,6 @@
             <p><strong>Email:</strong> {{ m.email }}</p>
             <div class="msg-texto">{{ m.mensaje }}</div>
 
-            {% if m.respuesta %}
-            <div class="msg-respuesta">
-                <strong><i class="fa-solid fa-reply"></i> Tu respuesta:</strong>
-                {{ m.respuesta }}
-            </div>
-            {% endif %}
-
             <div class="resp-form" id="resp-form-{{ m.id }}">
                 <form method="POST">
                     <input type="hidden" name="id_mensaje" value="{{ m.id }}">
@@ -79,11 +77,37 @@
                 </form>
             </div>
         </div>
-        {% else %}
+        {% endfor %}
+        {% endif %}
+
+        {% if respondidos %}
+        <h2 style="font-size:16px;margin:30px 0 15px;color:#5cb85c;"><i class="fa-solid fa-check-circle"></i> Respondidos ({{ respondidos | length }})</h2>
+        {% for m in respondidos %}
+        <div class="msg-card leido">
+            <div class="msg-card-header">
+                <div>
+                    <h3><i class="fa-solid fa-user"></i> {{ m.nombre }}</h3>
+                    <span class="fecha"><i class="fa-regular fa-clock"></i> {{ m.fecha.strftime('%d/%m/%Y %H:%M') if m.fecha.strftime is defined else m.fecha }}</span>
+                </div>
+                <span class="msg-label">{{ m.asunto }}</span>
+            </div>
+
+            <p><strong>Email:</strong> {{ m.email }}</p>
+            <div class="msg-texto">{{ m.mensaje }}</div>
+
+            <div class="msg-respuesta">
+                <strong><i class="fa-solid fa-reply"></i> Tu respuesta:</strong>
+                {{ m.respuesta }}
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if not pendientes and not respondidos %}
         <div style="text-align:center;color:#888;padding:40px;border:1px solid #eee;border-radius:4px;">
             No hay mensajes recibidos.
         </div>
-        {% endfor %}
+        {% endif %}
     </div>
 
     <script>
