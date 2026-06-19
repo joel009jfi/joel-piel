@@ -101,6 +101,29 @@ def enviar_notificacion_pago(mail, nombre, email, id_pedido):
         print(f"Error al enviar notificación de pago: {e}")
 
 
+def enviar_respuesta_contacto(mail, nombre, email, respuesta):
+    try:
+        msg = Message(subject="Respuesta a tu consulta · JOEL PIEL", recipients=[email])
+        msg.html = f"""
+        <div style="font-family:'Montserrat',sans-serif;max-width:600px;margin:0 auto;padding:30px;border:1px solid #eee;border-radius:4px;">
+            <div style="text-align:center;border-bottom:1px solid #eee;padding-bottom:20px;margin-bottom:25px;">
+                <h1 style="font-family:'Playfair Display',serif;font-size:26px;letter-spacing:2px;margin:0;color:#000;">JOEL PIEL</h1>
+            </div>
+            <p style="font-size:15px;color:#1c1a17;">Hola <strong>{nombre}</strong>,</p>
+            <p style="font-size:14px;color:#444;line-height:1.6;">Hemos dado respuesta a tu solicitud:</p>
+            <div style="background:#f9f9f9;padding:20px;border-left:3px solid #000;margin:20px 0;font-size:14px;color:#333;line-height:1.6;">
+                {respuesta}
+            </div>
+            <p style="font-size:14px;color:#444;line-height:1.6;">Gracias por escribirnos. Si tienes más preguntas, no dudes en contactarnos nuevamente.</p>
+            <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+            <p style="font-size:12px;color:#999;text-align:center;">JOEL PIEL · Envíos a todo Colombia</p>
+        </div>
+        """
+        mail.send(msg)
+    except Exception as e:
+        print(f"Error al enviar respuesta de contacto: {e}")
+
+
 def enviar_confirmacion_contacto_cliente(mail, nombre, email):
     try:
         msg = Message(subject="Hemos recibido tu mensaje · JOEL PIEL", recipients=[email])
