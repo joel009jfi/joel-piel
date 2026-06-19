@@ -12,6 +12,10 @@ def register_routes(app):
             return "Error al conectar con la BD", 500
         cursor = obtener_cursor(db, diccionario=True)
 
+        # Limpia mensajes con más de 7 días
+        cursor.execute("DELETE FROM contactos WHERE fecha < NOW() - INTERVAL 7 DAY")
+        db.commit()
+
         if request.method == "POST":
             id_mensaje = request.form.get("id_mensaje", type=int)
             accion = request.form.get("accion")
