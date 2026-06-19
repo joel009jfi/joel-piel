@@ -1,14 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <title>Mensajes de Contacto | JOEL PIEL</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .msg-card { background: #fff; border: 1px solid #eee; padding: 20px; margin-bottom: 15px; border-radius: 4px; }
+        .msg-card.no-leido { border-left: 4px solid #d9534f; background: #fef9e7; }
+        .msg-card.leido { border-left: 4px solid #5cb85c; }
+        .msg-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .msg-card-header h3 { margin: 0; font-size: 15px; }
+        .msg-card-header .fecha { font-size: 11px; color: #999; }
+        .msg-label { background: #eee; padding: 3px 10px; border-radius: 2px; font-size: 10px; font-weight: 700; text-transform: uppercase; display: inline-block; margin-bottom: 8px; }
+        .msg-texto { font-size: 13px; color: #555; line-height: 1.5; margin-bottom: 10px; padding: 10px; background: #fafafa; border-radius: 3px; }
+        .msg-respuesta { font-size: 13px; color: #155724; line-height: 1.5; margin: 10px 0; padding: 12px; background: #d4edda; border-radius: 3px; border-left: 3px solid #5cb85c; }
+        .msg-respuesta strong { display: block; margin-bottom: 5px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-accion { padding: 6px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border: none; cursor: pointer; border-radius: 2px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-leido { background: #5cb85c; color: #fff; }
+        .btn-responder { background: #000; color: #fff; }
+        .btn-cancelar-resp { background: none; border: none; color: #888; cursor: pointer; font-size: 12px; text-decoration: underline; }
+        .resp-form { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ddd; display: none; }
+        .resp-form textarea { width: 100%; padding: 10px; border: 1px solid #ddd; font-family: Montserrat, sans-serif; font-size: 13px; box-sizing: border-box; margin-bottom: 8px; min-height: 80px; }
+        .resp-form.visible { display: block; }
+    </style>
 </head>
 <body>
-    
     <header class="admin-header">
         <a href="{{ url_for('admin_panel') }}" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
@@ -17,40 +34,63 @@
         </nav>
     </header>
 
-    
     <div class="admin-container">
         <h1 class="admin-title">Mensajes de Contacto</h1>
 
-        
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Asunto</th>
-                    <th>Mensaje</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for m in mensajes %}
-                
-                <tr style="{{ 'background:#fef9e7;' if not m.leido }}">
-                    <td style="font-size:12px;color:#666;white-space:nowrap;">
-                        {% if m.fecha.strftime is defined %}{{ m.fecha.strftime('%d/%m/%Y %H:%M') }}{% else %}{{ m.fecha }}{% endif %}
-                    </td>
-                    <td><strong>{{ m.nombre }}</strong></td>
-                    <td>{{ m.email }}</td>
-                    <td><span class="status-pill" style="background:#eee;font-size:11px;">{{ m.asunto }}</span></td>
-                    <td style="max-width:350px;font-size:13px;color:#555;">{{ m.mensaje }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5" style="text-align:center;color:#888;padding:40px;">No hay mensajes recibidos.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% for m in mensajes %}
+        <div class="msg-card {{ 'no-leido' if not m.leido else 'leido' }}">
+            <div class="msg-card-header">
+                <div>
+                    <h3><i class="fa-solid fa-user"></i> {{ m.nombre }}</h3>
+                    <span class="fecha"><i class="fa-regular fa-clock"></i> {{ m.fecha.strftime('%d/%m/%Y %H:%M') if m.fecha.strftime is defined else m.fecha }}</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <span class="msg-label">{{ m.asunto }}</span>
+                    {% if not m.leido %}
+                    <form method="POST" style="display:inline;">
+                        <input type="hidden" name="id_mensaje" value="{{ m.id }}">
+                        <input type="hidden" name="accion" value="leido">
+                        <button type="submit" class="btn-accion btn-leido"><i class="fa-solid fa-check"></i> Leído</button>
+                    </form>
+                    {% endif %}
+                    <button class="btn-accion btn-responder" onclick="toggleRespuesta({{ m.id }})"><i class="fa-solid fa-reply"></i> Responder</button>
+                </div>
+            </div>
+
+            <p><strong>Email:</strong> {{ m.email }}</p>
+            <div class="msg-texto">{{ m.mensaje }}</div>
+
+            {% if m.respuesta %}
+            <div class="msg-respuesta">
+                <strong><i class="fa-solid fa-reply"></i> Tu respuesta:</strong>
+                {{ m.respuesta }}
+            </div>
+            {% endif %}
+
+            <div class="resp-form" id="resp-form-{{ m.id }}">
+                <form method="POST">
+                    <input type="hidden" name="id_mensaje" value="{{ m.id }}">
+                    <input type="hidden" name="accion" value="responder">
+                    <textarea name="respuesta" placeholder="Escribe tu respuesta aquí..."></textarea>
+                    <div style="display:flex;gap:8px;">
+                        <button type="submit" class="btn-accion btn-responder"><i class="fa-solid fa-paper-plane"></i> Enviar respuesta</button>
+                        <button type="button" class="btn-cancelar-resp" onclick="toggleRespuesta({{ m.id }})">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div style="text-align:center;color:#888;padding:40px;border:1px solid #eee;border-radius:4px;">
+            No hay mensajes recibidos.
+        </div>
+        {% endfor %}
     </div>
+
+    <script>
+        function toggleRespuesta(id) {
+            var form = document.getElementById('resp-form-' + id);
+            form.classList.toggle('visible');
+        }
+    </script>
 </body>
 </html>

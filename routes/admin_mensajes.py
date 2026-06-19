@@ -1,9 +1,9 @@
-from flask import render_template, redirect, session, url_for
+from flask import render_template, request, redirect, session, url_for
 from db import conectar, obtener_cursor
 
 
 def register_routes(app):
-    @app.route("/admin/mensajes")
+    @app.route("/admin/mensajes", methods=["GET", "POST"])
     def admin_mensajes():
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
@@ -11,6 +11,20 @@ def register_routes(app):
         if not db:
             return "Error al conectar con la BD", 500
         cursor = obtener_cursor(db, diccionario=True)
+
+        if request.method == "POST":
+            id_mensaje = request.form.get("id_mensaje", type=int)
+            accion = request.form.get("accion")
+            if id_mensaje:
+                if accion == "leido":
+                    cursor.execute("UPDATE contactos SET leido = 1 WHERE id = %s", (id_mensaje,))
+                elif accion == "responder":
+                    respuesta = request.form.get("respuesta", "").strip()
+                    if respuesta:
+                        cursor.execute("UPDATE contactos SET leido = 1, respuesta = %s WHERE id = %s",
+                                       (respuesta, id_mensaje))
+                db.commit()
+
         cursor.execute("SELECT * FROM contactos ORDER BY fecha DESC")
         mensajes = cursor.fetchall()
         db.close()
