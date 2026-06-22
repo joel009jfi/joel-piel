@@ -20,10 +20,20 @@
         .bg-envio-entregado { background: #cce5ff; color: #004085; }
         .admin-logistics-form { background: #f9f9f9; padding: 15px; border-radius: 4px; }
         .admin-logistics-input, .admin-logistics-select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; font-size: 13px; box-sizing: border-box; }
+
+        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 2px solid #000; display: flex; align-items: center; gap: 10px; }
+        .section-title i { font-size: 16px; color: #555; }
+        .section-title .count { font-size: 12px; color: #888; font-weight: 400; margin-left: auto; }
+
+        .entregados-section { margin-top: 50px; opacity: 0.7; }
+        .entregados-section .section-title { border-bottom-color: #ccc; }
+        .entregados-section .admin-card { background: #fafafa; }
+        .entregados-section .card-logistics p { color: #999; }
+        .entregado-readonly { font-size: 12px; color: #888; font-style: italic; margin-top: 10px; }
     </style>
 </head>
 <body>
-    
+
     <header class="admin-header">
         <a href="{{ url_for('admin_panel') }}" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
         <nav class="admin-nav">
@@ -32,15 +42,17 @@
         </nav>
     </header>
 
-    
     <div class="admin-container">
         <h1 class="admin-title">Envíos y Logística</h1>
 
-        
+        {% if pendientes %}
+        <div class="section-title">
+            <i class="fas fa-clock"></i> Pendientes
+            <span class="count">{{ pendientes|length }} envío(s)</span>
+        </div>
         <div class="admin-grid">
-            {% for e in envios %}
+            {% for e in pendientes %}
             <div class="admin-card card-logistics">
-                
                 <div class="card-logistics-content">
                     <div class="card-logistics-header">
                         <h3><i class="fas fa-box"></i> Pedido #{{ e.Id_pedido }}</h3>
@@ -48,25 +60,21 @@
                             Pago: {{ e.estado_pago }}
                         </span>
                     </div>
-
                     <p><strong>Cliente:</strong> {{ e.cliente }}</p>
                     <p><strong>Fecha Venta:</strong> {{ e.fecha }}</p>
                     <p><strong>Valor Total:</strong> ${{ "{:,.0f}".format(e.total) }}</p>
-
                     <p><strong><i class="fas fa-map-marker-alt"></i> Destino:</strong> {{ e.direccion_envio }}</p>
                     <p><strong><i class="fas fa-truck"></i> Transportadora:</strong> {{ e.transportadora }}</p>
                     <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia if e.numero_guia else '—' }}</p>
                     <p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago }}</p>
-                    
                     <p>
                         <strong>Estado Envío:</strong>
-                        <span class="status-badge {{ 'bg-envio-preparando' if e.estado_envio in ('Por despachar', 'Preparando') else 'bg-envio-enviado' if e.estado_envio == 'Enviado' else 'bg-envio-entregado' }}">
+                        <span class="status-badge {{ 'bg-envio-preparando' if e.estado_envio in ('Por despachar', 'Preparando') else 'bg-envio-enviado' }}">
                             {{ e.estado_envio }}
                         </span>
                     </p>
                 </div>
 
-                
                 <div class="admin-logistics-form">
                     <form action="{{ url_for('actualizar_envio', id_envio=e.Id_envios) }}" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -92,12 +100,54 @@
                     </form>
                 </div>
             </div>
-            {% else %}
-            <div style="text-align:center;color:#888;padding:40px;border:1px solid #eee;border-radius:4px;">
-                No hay envíos registrados.
-            </div>
             {% endfor %}
         </div>
+        {% else %}
+        <div style="text-align:center;color:#888;padding:20px;border:1px solid #eee;border-radius:4px;margin-bottom:30px;">
+            No hay envíos pendientes.
+        </div>
+        {% endif %}
+
+        {% if entregados %}
+        <div class="entregados-section">
+            <div class="section-title">
+                <i class="fas fa-check-circle"></i> Entregados
+                <span class="count">{{ entregados|length }} envío(s)</span>
+            </div>
+            <div class="admin-grid">
+                {% for e in entregados %}
+                <div class="admin-card card-logistics">
+                    <div class="card-logistics-content">
+                        <div class="card-logistics-header">
+                            <h3><i class="fas fa-box"></i> Pedido #{{ e.Id_pedido }}</h3>
+                            <span class="status-badge bg-envio-entregado">ENTREGADO</span>
+                        </div>
+                        <p><strong>Cliente:</strong> {{ e.cliente }}</p>
+                        <p><strong>Fecha Venta:</strong> {{ e.fecha }}</p>
+                        <p><strong>Valor Total:</strong> ${{ "{:,.0f}".format(e.total) }}</p>
+                        <p><strong><i class="fas fa-map-marker-alt"></i> Destino:</strong> {{ e.direccion_envio }}</p>
+                        <p><strong><i class="fas fa-truck"></i> Transportadora:</strong> {{ e.transportadora }}</p>
+                        <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia if e.numero_guia else '—' }}</p>
+                        <p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago }}</p>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <p class="entregado-readonly"><i class="fas fa-lock"></i> Envío completado — no editable</p>
+                        <div style="display:flex;gap:8px;">
+                            <form action="{{ url_for('agradecer_envio', id_envio=e.Id_envios) }}" method="POST" style="margin:0;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" style="background:none;border:1px solid #28a745;color:#28a745;padding:4px 12px;border-radius:3px;cursor:pointer;font-size:11px;">Agradecer</button>
+                            </form>
+                            <form action="{{ url_for('reabrir_envio', id_envio=e.Id_envios) }}" method="POST" onsubmit="return confirm('¿Reabrir este envío? Volverá a estado \"Por despachar\".');" style="margin:0;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" style="background:none;border:1px solid #999;color:#666;padding:4px 12px;border-radius:3px;cursor:pointer;font-size:11px;">Reabrir</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>

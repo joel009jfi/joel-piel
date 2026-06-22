@@ -99,8 +99,8 @@
                     <span class="status-badge {{ 'bg-entregado' if p.estado_envio == 'Entregado' else 'bg-enviado' if p.estado_envio == 'Enviado' else 'bg-pendiente' }}">{{ p.estado_envio or 'Pendiente' }}</span>
                 </div>
                 
-                {% if p.transportadora and p.numero_guia and p.estado_envio == 'Enviado' %}
-                <div><strong>Guía:</strong> {{ p.transportadora }} · {{ p.numero_guia }}</div>
+                {% if p.transportadora and p.numero_guia %}
+                <div><strong>Guía:</strong> {{ p.transportadora }} · {{ p.numero_guia }} <i class="fa-regular fa-copy" style="cursor:pointer;color:#888;font-size:13px;" onclick="navigator.clipboard.writeText('{{ p.numero_guia }}'); this.style.color='#28a745'; setTimeout(()=>this.style.color='#888',2000);" title="Copiar guía"></i></div>
                 {% endif %}
             </div>
             

@@ -77,7 +77,7 @@
 
 <div class="rastrear-wrapper">
     <h2>Rastrea tu pedido</h2>
-    <p>Ingresa el número de pedido y el correo electrónico que usaste al comprar.</p>
+    <p>Ingresa el número de pedido o guía y el correo electrónico que usaste al comprar.</p>
 
     
     {% if error %}
@@ -86,7 +86,7 @@
 
     <form class="rastrear-form" method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="number" name="pedido_id" placeholder="Número de pedido (Ej: 12)" required>
+        <input type="text" name="pedido_id" placeholder="Número de pedido o guía (Ej: 12 o INT-123)" required>
         <input type="email" name="email" placeholder="Correo electrónico" required>
         <button type="submit">CONSULTAR</button>
     </form>
@@ -107,7 +107,7 @@
             <span class="status-badge {{ 'bg-entregado' if resultado.estado_envio == 'Entregado' else 'bg-enviado' if resultado.estado_envio == 'Enviado' else 'bg-pendiente' }}">{{ resultado.estado_envio or 'Pendiente' }}</span>
         </div>
         
-        {% if resultado.transportadora and resultado.numero_guia and resultado.estado_envio == 'Enviado' %}
+        {% if resultado.transportadora and resultado.numero_guia %}
         <div class="row"><strong>Transportadora</strong><span>{{ resultado.transportadora }}</span></div>
         <div class="row"><strong>Guía</strong><span>{{ resultado.numero_guia }}</span></div>
         {% endif %}

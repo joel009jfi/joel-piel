@@ -2,6 +2,8 @@ from flask import (
     render_template, request, redirect, session, url_for
 )
 from db import conectar, obtener_cursor
+from services.email_service import enviar_agradecimiento_entrega
+from extensions import mail
 
 
 def register_routes(app):
@@ -25,7 +27,43 @@ def register_routes(app):
         """)
         envios = cursor.fetchall()
         db.close()
-        return render_template("logistica_admin.html", envios=envios)
+        pendientes = [e for e in envios if e['estado_envio'] != 'Entregado']
+        entregados = [e for e in envios if e['estado_envio'] == 'Entregado']
+        return render_template("logistica_admin.html", pendientes=pendientes, entregados=entregados)
+
+    @app.route("/admin/envios/reabrir/<int:id_envio>", methods=["POST"])
+    def reabrir_envio(id_envio):
+        if session.get("rol") != "admin":
+            return redirect(url_for('inicio'))
+        db = conectar()
+        if db:
+            cursor = obtener_cursor(db)
+            cursor.execute("UPDATE envios SET estado_envio='Por despachar' WHERE Id_envios=%s AND estado_envio='Entregado'", (id_envio,))
+            db.commit()
+            db.close()
+        return redirect(url_for('admin_envios'))
+
+    @app.route("/admin/envios/agradecer/<int:id_envio>", methods=["POST"])
+    def agradecer_envio(id_envio):
+        if session.get("rol") != "admin":
+            return redirect(url_for('inicio'))
+        db = conectar()
+        if db:
+            cursor = obtener_cursor(db, diccionario=True)
+            cursor.execute("""
+                SELECT u.nombre, u.email, e.Id_pedido FROM usuarios u
+                JOIN pedidos p ON u.Id_usuario = p.Id_usuario
+                JOIN envios e ON e.Id_pedido = p.Id_pedido
+                WHERE e.Id_envios = %s AND e.estado_envio = 'Entregado'
+            """, (id_envio,))
+            datos = cursor.fetchone()
+            db.close()
+            if datos:
+                try:
+                    enviar_agradecimiento_entrega(mail, datos['nombre'], datos['email'], datos['Id_pedido'])
+                except Exception as e:
+                    print(f"Error al enviar agradecimiento: {e}")
+        return redirect(url_for('admin_envios'))
 
     @app.route("/admin/envios/actualizar/<int:id_envio>", methods=["POST"])
     def actualizar_envio(id_envio):
@@ -33,10 +71,13 @@ def register_routes(app):
             return redirect(url_for('inicio'))
         db = conectar()
         if db:
-            cursor = obtener_cursor(db)
-            cursor.execute("SELECT Id_pedido FROM envios WHERE Id_envios = %s", (id_envio,))
+            cursor = obtener_cursor(db, diccionario=True)
+            cursor.execute("SELECT estado_envio FROM envios WHERE Id_envios = %s", (id_envio,))
             envio = cursor.fetchone()
             if envio:
+                if envio['estado_envio'] == 'Entregado':
+                    db.close()
+                    return redirect(url_for('admin_envios'))
                 estado_envio = request.form.get("estado_envio", "Por despachar")
                 numero_guia = request.form.get("numero_guia", "")
                 transportadora = request.form.get("transportadora", "Por asignar")
@@ -45,5 +86,6 @@ def register_routes(app):
                     (estado_envio, numero_guia, transportadora, id_envio)
                 )
                 db.commit()
+
             db.close()
         return redirect(url_for('admin_envios'))
