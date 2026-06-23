@@ -984,3 +984,29 @@ body {
     .producto-precio { font-size: 14px; }
     .cart-sidebar { width: 100%; right: -100%; }
 }
+
+@media (max-width: 480px) {
+    body { padding-top: 200px; }
+    .hero { height: 40vh; }
+    .hero-text h1 { font-size: 24px; }
+    .hero-text p { font-size: 12px; }
+    .productos-grid { grid-template-columns: 1fr; gap: 10px; }
+    .menu { flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .menu a { font-size: 10px; }
+    .coleccion-box { height: 30vh; }
+    .coleccion-box h3 { font-size: 18px; }
+    .auth-container { width: 90%; padding: 25px; }
+    .auth-input { font-size: 13px; padding: 12px; }
+    .checkout-container { flex-direction: column; padding: 15px; }
+    .checkout-box { width: 100%; }
+    .detalle-grid { grid-template-columns: 1fr; gap: 20px; }
+    .detalle-img-principal { aspect-ratio: 1/1; }
+    .footer { padding: 20px; font-size: 11px; }
+}
+
+@media (min-width: 481px) and (max-width: 1024px) {
+    .productos-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+    .detalle-grid { grid-template-columns: 1fr; gap: 30px; }
+    .checkout-container { flex-direction: column; padding: 20px; }
+    .checkout-box { width: 100%; }
+}
