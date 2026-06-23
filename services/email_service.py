@@ -31,8 +31,7 @@ def enviar_confirmacion_compra(mail, usuario, email, id_pedido, metodo_pago):
             <h1 style="font-family:'Playfair Display',serif;text-align:center;">JOEL PIEL</h1>
             <p>Hola <strong>{usuario}</strong>,</p>
             <p>Tu pedido <strong>#{id_pedido}</strong> ha sido confirmado.</p>
-            <p><strong>Método de pago:</strong> {"Pago en línea" if metodo_pago == "Completo" else "Contraentrega"}</p>
-            <p style="color:#666;">El envío (<strong>$15,000/kg</strong>) se paga directamente a la transportadora al recibir el paquete.</p>
+            <p><strong>Método de pago:</strong> {"Pago en línea" if metodo_pago == "Pagado" else "Contraentrega"}</p>
             <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
             <p style="font-size:12px;color:#999;">JOEL PIEL · Envíos a todo Colombia</p>
         </div>
@@ -72,7 +71,6 @@ def enviar_notificacion_despacho(mail, cliente_nombre, cliente_email, id_pedido,
                 <strong>Transportadora:</strong> {transportadora}<br>
                 <strong>Guía:</strong> {numero_guia}
             </p>
-            <p>El costo del envío (<strong>$15,000/kg</strong>) se paga directamente a la transportadora al recibir el paquete.</p>
             <p>Puedes rastrear tu pedido en <a href="{host_url}rastrear">{host_url}rastrear</a>.</p>
             <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
             <p style="font-size:12px;color:#999;">JOEL PIEL · Envíos a todo Colombia</p>
@@ -176,3 +174,27 @@ def enviar_agradecimiento_entrega(mail, nombre, email, id_pedido):
         mail.send(msg)
     except Exception as e:
         print(f"Error al enviar agradecimiento por entrega: {e}")
+
+
+def enviar_reset_password(mail, nombre, email, token, reset_url):
+    try:
+        msg = Message(subject="Restablece tu contraseña | JOEL PIEL", recipients=[email])
+        msg.html = f"""
+        <div style="font-family:'Montserrat',sans-serif;max-width:600px;margin:0 auto;padding:30px;border:1px solid #eee;border-radius:4px;">
+            <div style="text-align:center;border-bottom:1px solid #eee;padding-bottom:20px;margin-bottom:25px;">
+                <h1 style="font-family:'Playfair Display',serif;font-size:26px;letter-spacing:2px;margin:0;color:#000;">JOEL PIEL</h1>
+                <p style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#666;margin:5px 0 0 0;">Restablecer contraseña</p>
+            </div>
+            <p style="font-size:15px;color:#1c1a17;line-height:1.6;">Hola <strong>{nombre}</strong>,</p>
+            <p style="font-size:14px;color:#444;line-height:1.6;">Recibimos una solicitud para restablecer la contraseña de tu cuenta en JOEL PIEL. Haz clic en el botón de abajo para crear una nueva contraseña:</p>
+            <div style="text-align:center;margin:35px 0;">
+                <a href="{reset_url}" style="background-color:#000;color:#fff;text-decoration:none;padding:13px 28px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;display:inline-block;">Restablecer Contraseña</a>
+            </div>
+            <p style="font-size:12px;color:#888;line-height:1.5;">Este enlace expira en 1 hora. Si no solicitaste este cambio, ignora este mensaje.</p>
+            <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+            <p style="font-size:12px;color:#999;text-align:center;">JOEL PIEL · Envíos a todo Colombia</p>
+        </div>
+        """
+        mail.send(msg)
+    except Exception as e:
+        print(f"Error al enviar reset de contraseña: {e}")

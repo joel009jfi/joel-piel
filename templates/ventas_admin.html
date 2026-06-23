@@ -6,33 +6,6 @@
     <title>Historial de Ventas | JOEL PIEL</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
-        .modal-box { background:#fff; padding:30px; max-width:500px; width:90%; border-radius:4px; max-height:80vh; overflow-y:auto; }
-        .modal-box h2 { margin-top:0; font-size:18px; }
-        .modal-close { float:right; cursor:pointer; font-size:22px; color:#888; }
-        .modal-table { width:100%; border-collapse:collapse; margin-top:15px; }
-        .modal-table th, .modal-table td { padding:10px 12px; text-align:left; border-bottom:1px solid #eee; font-size:13px; }
-        .modal-table th { background:#f8f8f8; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
-    </style>
-    
-    <script>
-        function verDetalle(id) {
-            fetch('/admin/ventas/detalle/' + id)
-                .then(r => r.json())
-                .then(data => {
-                    let html = '<table class="modal-table"><thead><tr><th>Producto</th><th>Cant</th><th>Precio U.</th><th>Subtotal</th></tr></thead><tbody>';
-                    data.forEach(item => {
-                        let sub = (item.cantidad * parseFloat(item.precio_unitario)).toLocaleString('es-CO');
-                        html += '<tr><td>' + item.nombre + '</td><td>' + item.cantidad + '</td><td>$' + parseFloat(item.precio_unitario).toLocaleString('es-CO') + '</td><td>$' + sub + '</td></tr>';
-                    });
-                    html += '</tbody></table>';
-                    document.getElementById('detalle-content').innerHTML = html;
-                    document.getElementById('detalle-modal').style.display = 'flex';
-                });
-        }
-        function cerrarDetalle() { document.getElementById('detalle-modal').style.display = 'none'; }
-    </script>
 </head>
 <body>
     
@@ -49,9 +22,17 @@
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h1 class="admin-title">Historial de Ventas</h1>
-            <a href="{{ url_for('descargar_excel_ventas') }}" style="background: #5cb85c; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 12px; font-weight: bold; border-radius: 4px;">
-                <i class="fa-solid fa-file-excel"></i> EXCEL
-            </a>
+            <div style="display:flex;gap:10px;">
+                <a href="{{ url_for('descargar_excel_ventas') }}" style="background: #5cb85c; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 12px; font-weight: bold; border-radius: 4px;">
+                    <i class="fa-solid fa-file-excel"></i> EXCEL
+                </a>
+                <form action="{{ url_for('finalizar_mes') }}" method="POST" onsubmit="return confirm('¿Finalizar el mes? Se descargará un Excel con todas las ventas y se eliminarán de la página. Esta acción no se puede deshacer.');" style="margin:0;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" style="background: #d9534f; color: #fff; padding: 10px 20px; border: none; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer;">
+                        <i class="fa-solid fa-archive"></i> FINALIZAR MES
+                    </button>
+                </form>
+            </div>
         </div>
 
         
@@ -63,6 +44,7 @@
                     <th>Cliente</th>
                     <th>Total</th>
                     <th>Pago</th>
+                    <th>Envío</th>
                     <th>Estado</th>
                     <th>Acción</th>
                 </tr>
@@ -78,25 +60,34 @@
                     <td>${{ "{:,.0f}".format(pedido.total) }}</td>
                     <td><span class="status-pill" style="background:#eee;font-size:10px;">{{ pedido.metodo_pago or 'Contraentrega' }}</span></td>
                     <td>
+                        <span class="status-pill {{ 'bg-envio-entregado' if pedido.estado_envio == 'Entregado' else 'bg-envio-enviado' if pedido.estado_envio == 'Enviado' else 'bg-envio-preparando' }}" style="font-size:10px;">
+                            {{ pedido.estado_envio or '—' }}
+                        </span>
+                        {% if pedido.transportadora and pedido.numero_guia %}
+                        <div style="font-size:10px;color:#888;margin-top:2px;">{{ pedido.transportadora }} · {{ pedido.numero_guia }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
                         <span class="status-pill status-{{ pedido.estado|lower }}">
                             {{ pedido.estado|upper }}
                         </span>
                     </td>
                     <td>
-                        
                         <div style="display:flex;gap:6px;align-items:center;">
-                            <a href="{{ url_for('detalle_pedido', id_pedido=pedido.Id_pedido) }}" style="background:none;border:none;color:#000;cursor:pointer;font-size:14px;text-decoration:none;" title="Ver detalle"><i class="fa-solid fa-eye"></i></a>
+                            {% if pedido.estado != 'Pagado' and pedido.metodo_pago == 'Contraentrega' %}
                             <form action="{{ url_for('confirmar_pago', id_pedido=pedido.Id_pedido) }}" method="POST" style="display:inline;">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" style="background:none;border:none;color:#5cb85c;cursor:pointer;font-size:14px;" title="Confirmar pago"><i class="fa-solid fa-check"></i></button>
                             </form>
+                            {% endif %}
                             <a href="{{ url_for('descargar_pdf_pedido', id_pedido=pedido.Id_pedido) }}" style="background:none;border:none;color:#d9534f;cursor:pointer;font-size:14px;text-decoration:none;" title="Descargar PDF"><i class="fa-solid fa-file-pdf"></i></a>
+                            <a href="{{ url_for('admin_envios') }}" style="background:none;border:none;color:#888;cursor:pointer;font-size:14px;text-decoration:none;" title="Ir a logística"><i class="fa-solid fa-truck"></i></a>
                         </div>
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="7" style="text-align:center;color:#888;padding:40px;">No hay ventas registradas.</td>
+                    <td colspan="8" style="text-align:center;color:#888;padding:40px;">No hay ventas registradas.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -116,15 +107,6 @@
             {% endif %}
         </div>
         {% endif %}
-    </div>
-
-    
-    <div id="detalle-modal" class="modal-overlay" onclick="if(event.target===this)cerrarDetalle()">
-        <div class="modal-box">
-            <span class="modal-close" onclick="cerrarDetalle()">&times;</span>
-            <h2><i class="fa-solid fa-receipt"></i> Detalle del Pedido</h2>
-            <div id="detalle-content"></div>
-        </div>
     </div>
 </body>
 </html>

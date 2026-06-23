@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Contraseña | JOEL PIEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body class="auth-body">
+    <div class="auth-container">
+        <h2 style="font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 30px;">Recuperar Contraseña</h2>
+
+        {% if mensaje %}
+        <div class="alerta" style="border-left: 4px solid #b19470; background-color: #faf6f0; color: #5c4d3c; padding: 12px; margin-bottom: 20px; text-align: left; font-size: 13px;">
+            {{ mensaje }}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="email" name="email" class="auth-input" placeholder="Tu correo electrónico" required>
+            <button type="submit" class="btn-auth" style="margin-top: 15px;">Enviar enlace</button>
+        </form>
+
+        <p style="margin-top: 30px; text-align: center;">
+            <a href="{{ url_for('login') }}" style="font-size: 12px; color: #999; text-decoration: none; letter-spacing: 1px;"><i class="fa-solid fa-arrow-left"></i> Volver al inicio de sesión</a>
+        </p>
+    </div>
+</body>
+</html>

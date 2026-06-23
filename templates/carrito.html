@@ -90,14 +90,14 @@
         
         <div style="text-align:right;margin-top:30px;padding-top:20px;">
             <p style="font-size:20px;font-weight:700;">TOTAL: <span id="cart-page-total">${{ "{:,.0f}".format(total) }}</span></p>
-            <a href="/carrito/checkout" class="btn-cart-checkout" style="display:inline-block;padding:14px 40px;background:#000;color:#fff;text-decoration:none;font-weight:700;letter-spacing:1.5px;font-size:13px;margin-top:15px;">PROCESAR PEDIDO</a>
+            <a href="/carrito/checkout" class="btn-cart-checkout" style="display:inline-block;width:auto;margin-top:15px;background:#000;color:#fff!important;">PROCESAR PEDIDO</a>
         </div>
     {% else %}
         
         <div style="text-align:center;padding:60px 20px;">
             <i class="fa-solid fa-bag-shopping" style="font-size:3rem;color:#ccc;margin-bottom:20px;"></i>
             <p style="color:#888;font-size:16px;">Tu bolsa está vacía.</p>
-            <a href="/" class="btn-cart-checkout" style="display:inline-block;padding:12px 30px;background:#000;color:#fff;text-decoration:none;font-weight:600;font-size:12px;letter-spacing:1.5px;margin-top:20px;">VER COLECCIÓN</a>
+            <a href="/" class="btn-cart-checkout" style="display:inline-block;width:auto;margin-top:20px;background:#000;color:#fff!important;">VER COLECCIÓN</a>
         </div>
     {% endif %}
 </section>

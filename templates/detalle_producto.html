@@ -30,7 +30,8 @@
         .detalle-img-principal {
             width: 100%;
             aspect-ratio: 1 / 1;
-            object-fit: cover;
+            object-fit: contain;
+            background: #e8e8e8;
             border: 1px solid #eee;
             display: block;
         }
@@ -337,7 +338,7 @@
                 {% else %}
                     <img src="{{ url_for('static', filename='img/' + p.imagen_url) }}" alt="{{ p.nombre }}" class="producto-img" onerror="this.src='https://via.placeholder.com/300x300?text=JOEL+PIEL'">
                 {% endif %}
-                <a href="/producto/{{ p.id_producto }}" class="quick-add">VER PRODUCTO</a>
+                <a href="/producto/{{ p.id_producto }}" class="quick-add" style="color:#fff!important;">VER PRODUCTO</a>
             </div>
             <div class="producto-info">
                 <h3 class="producto-nombre">{{ p.nombre }}</h3>

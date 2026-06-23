@@ -38,7 +38,11 @@
             </div>
             <div class="stat-mini-card" style="border-left-color: #5cb85c;">
                 <span>Envíos en Camino</span>
-                <h2>{{ pedidos|selectattr('estado', 'equalto', 'Enviado')|list|length }}</h2>
+                <h2>{{ en_camino }}</h2>
+            </div>
+            <div class="stat-mini-card" style="border-left-color: #337ab7;">
+                <span>Pedidos Entregados</span>
+                <h2>{{ entregados }}</h2>
             </div>
         </div>
 
@@ -118,9 +122,9 @@
                         <th>ID</th>
                         <th>Fecha</th>
                         <th>Cliente</th>
+                        <th>Email</th>
                         <th>Total</th>
                         <th>Estado</th>
-                        <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -131,33 +135,12 @@
                             {{ pedido.fecha.strftime('%d/%m %H:%M') if pedido.fecha else 'S/F' }}
                         </td>
                         <td>{{ pedido.cliente if pedido.cliente else 'Usuario ID: ' ~ pedido.Id_usuario }}</td>
+                        <td style="font-size:12px;color:#888;">{{ pedido.email }}</td>
                         <td>$ {{ "{:,.0f}".format(pedido.total) }}</td>
                         <td>
                             <span class="status-pill status-{{ pedido.estado|lower }}">
                                 {{ pedido.estado }}
                             </span>
-                        </td>
-                        <td>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                {% if pedido.estado == 'Pendiente' %}
-                                    <a href="{{ url_for('actualizar_estado', id_pedido=pedido.Id_pedido, nuevo_estado='Enviado') }}" 
-                                       style="color: #28a745; font-weight: 700; text-decoration: none; font-size: 11px;">
-                                       <i class="fa-solid fa-check"></i> ENVIAR
-                                    </a>
-                                {% endif %}
-                                
-                                {% if pedido.estado == 'Cancelado' %}
-                                    <a href="{{ url_for('actualizar_estado', id_pedido=pedido.Id_pedido, nuevo_estado='Pendiente') }}" 
-                                       style="color: #28a745; font-weight: 700; text-decoration: none; font-size: 11px;">
-                                       <i class="fa-solid fa-rotate-left"></i> RE-ACTIVAR
-                                    </a>
-                                {% else %}
-                                    <a href="{{ url_for('actualizar_estado', id_pedido=pedido.Id_pedido, nuevo_estado='Cancelado') }}" 
-                                       style="color: #d9534f; text-decoration: none; font-size: 11px;">
-                                       <i class="fa-solid fa-xmark"></i> ANULAR
-                                    </a>
-                                {% endif %}
-                            </div>
                         </td>
                     </tr>
                     {% else %}

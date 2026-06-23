@@ -20,14 +20,17 @@ def register_routes(app):
         pagina = request.args.get("pagina", 1, type=int)
         por_pagina = 25
         offset = (pagina - 1) * por_pagina
-        cursor.execute("SELECT COUNT(*) as total FROM pedidos")
+        cursor.execute("SELECT COUNT(*) as total FROM pedidos WHERE archivado = 0")
         total_pedidos = cursor.fetchone()["total"]
         total_paginas = (total_pedidos + por_pagina - 1) // por_pagina
         cursor.execute("""
             SELECT p.Id_pedido, p.Id_usuario, p.total, p.estado, p.fecha, p.metodo_pago,
-                   u.nombre as cliente, u.email
+                   u.nombre as cliente, u.email,
+                   e.estado_envio, e.transportadora, e.numero_guia
             FROM pedidos p
             LEFT JOIN usuarios u ON p.Id_usuario = u.Id_usuario
+            LEFT JOIN envios e ON p.Id_pedido = e.Id_pedido
+            WHERE p.archivado = 0
             ORDER BY p.fecha DESC
             LIMIT %s OFFSET %s
         """, (por_pagina, offset))
@@ -83,13 +86,14 @@ def register_routes(app):
         if db:
             cursor = db.cursor(dictionary=True, buffered=True)
             cursor.execute("""
-                SELECT u.nombre, u.email FROM pedidos p
+                SELECT u.nombre, u.email, p.estado FROM pedidos p
                 JOIN usuarios u ON p.Id_usuario = u.Id_usuario
                 WHERE p.Id_pedido = %s
             """, (id_pedido,))
             pedido = cursor.fetchone()
-            if pedido:
-                cursor.execute("UPDATE pedidos SET estado = 'Pagado' WHERE Id_pedido = %s", (id_pedido,))
+            if pedido and pedido['estado'] != 'Pagado':
+                cursor.execute("UPDATE pedidos SET estado = 'Enviado', metodo_pago = 'Pagado' WHERE Id_pedido = %s", (id_pedido,))
+                cursor.execute("UPDATE envios SET estado_envio = 'Enviado' WHERE Id_pedido = %s", (id_pedido,))
                 db.commit()
                 try:
                     enviar_notificacion_pago(mail, pedido['nombre'], pedido['email'], id_pedido)
@@ -97,6 +101,30 @@ def register_routes(app):
                     print(f"Error al enviar notificación de pago: {e}")
             db.close()
         return redirect(url_for('admin_ventas'))
+
+    @app.route("/admin/ventas/finalizar-mes", methods=["POST"])
+    def finalizar_mes():
+        if session.get("rol") != "admin":
+            return redirect(url_for('inicio'))
+        from services.excel_service import exportar_ventas_excel
+        db = conectar()
+        if not db:
+            return "Error de conexión", 500
+        cursor = obtener_cursor(db, diccionario=True)
+        cursor.execute("""
+            SELECT p.Id_pedido, p.total, p.estado, p.fecha, p.metodo_pago,
+                   u.nombre as cliente, u.email
+            FROM pedidos p
+            LEFT JOIN usuarios u ON p.Id_usuario = u.Id_usuario
+            ORDER BY p.fecha ASC
+        """)
+        ventas = cursor.fetchall()
+        if ventas:
+            response = exportar_ventas_excel(ventas)
+            cursor.execute("UPDATE pedidos SET archivado = 1")
+            db.commit()
+        db.close()
+        return response if ventas else redirect(url_for('admin_ventas'))
 
     @app.route("/admin/ventas/pdf/<int:id_pedido>")
     def descargar_pdf_pedido(id_pedido):

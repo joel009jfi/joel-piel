@@ -415,7 +415,7 @@ body {
 }
 
 .producto-card {
-    background: #fff;
+    background: #f4f4f4;
     transition: box-shadow 0.3s;
 }
 
@@ -428,7 +428,7 @@ body {
     width: 100%;
     padding-top: 100%;
     overflow: hidden;
-    background-color: #f9f9f9;
+    background-color: #e8e8e8;
 }
 
 .producto-img {
@@ -450,15 +450,15 @@ body {
     bottom: -50px;
     left: 0;
     width: 100%;
-    background-color: rgba(0,0,0,0.8);
-    color: #fff;
+    background-color: #000;
+    color: #fff !important;
     text-align: center;
     padding: 15px;
     text-decoration: none;
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 1px;
-    transition: bottom 0.3s;
+    transition: bottom 0.3s, opacity 0.3s;
 }
 
 .producto-img-container:hover .quick-add {
@@ -498,6 +498,20 @@ body {
     font-size: 12px;
     color: #777;
     letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.footer .footer-link {
+    font-size: 11px;
+    color: #999;
+    text-decoration: none;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+}
+
+.footer .footer-link:hover {
+    color: #000;
 }
 
 /* --- CARRITO LATERAL DESPLEGABLE --- */
@@ -646,13 +660,13 @@ body {
 .btn-cart-checkout {
     display: block;
     width: 100%;
-    background: #222;
-    color: #fff;
-    border: 1px solid #222;
-    padding: 14px;
+    background: #000;
+    color: #fff !important;
+    border: none;
+    padding: 16px;
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 13px;
     letter-spacing: 2px;
     text-transform: uppercase;
     text-align: center;
@@ -663,7 +677,8 @@ body {
 
 .btn-cart-checkout:hover {
     background: transparent;
-    color: #222;
+    color: #fff !important;
+    border: 1px solid #000;
 }
 
 /* ===================================================

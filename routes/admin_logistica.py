@@ -39,6 +39,11 @@ def register_routes(app):
         if db:
             cursor = obtener_cursor(db)
             cursor.execute("UPDATE envios SET estado_envio='Por despachar' WHERE Id_envios=%s AND estado_envio='Entregado'", (id_envio,))
+            if cursor.rowcount:
+                cursor.execute("SELECT Id_pedido FROM envios WHERE Id_envios=%s", (id_envio,))
+                row = cursor.fetchone()
+                if row:
+                    cursor.execute("UPDATE pedidos SET estado='Pendiente' WHERE Id_pedido=%s", (row['Id_pedido'],))
             db.commit()
             db.close()
         return redirect(url_for('admin_envios'))
@@ -85,6 +90,15 @@ def register_routes(app):
                     "UPDATE envios SET estado_envio=%s, numero_guia=%s, transportadora=%s WHERE Id_envios=%s",
                     (estado_envio, numero_guia, transportadora, id_envio)
                 )
+                cursor.execute("SELECT Id_pedido FROM envios WHERE Id_envios=%s", (id_envio,))
+                row = cursor.fetchone()
+                if row:
+                    if estado_envio == 'Enviado':
+                        cursor.execute("UPDATE pedidos SET estado='Enviado' WHERE Id_pedido=%s", (row['Id_pedido'],))
+                    elif estado_envio == 'Entregado':
+                        cursor.execute("UPDATE pedidos SET estado='Entregado', metodo_pago='Pagado' WHERE Id_pedido=%s", (row['Id_pedido'],))
+                    else:
+                        cursor.execute("UPDATE pedidos SET estado='Pendiente' WHERE Id_pedido=%s", (row['Id_pedido'],))
                 db.commit()
 
             db.close()

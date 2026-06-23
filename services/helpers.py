@@ -3,7 +3,6 @@ from db import conectar, obtener_cursor
 
 # Constantes globales
 MESES_ES = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-COSTO_ENVIO = 15000  # $15.000/kg — se paga a la transportadora al recibir
 
 
 def datos_carrito():

@@ -35,22 +35,23 @@ def register_routes(app):
         if not db:
             return "Error al conectar con la BD", 500
         cursor = obtener_cursor(db, diccionario=True)
-        pagina = request.args.get("pagina", 1, type=int)
-        por_pagina = 25
-        offset = (pagina - 1) * por_pagina
-        cursor.execute("SELECT COUNT(*) as total FROM productos")
-        total_productos = cursor.fetchone()["total"]
-        total_paginas = (total_productos + por_pagina - 1) // por_pagina
+        cursor.execute("SELECT * FROM categorias ORDER BY Id_categoria ASC")
+        categorias = cursor.fetchall()
         cursor.execute("""
-            SELECT p.id_producto, p.nombre, p.precio, p.stock, p.imagen_url, c.nombre_categoria
+            SELECT p.id_producto, p.nombre, p.precio, p.stock, p.imagen_url, p.Id_categoria, c.nombre_categoria
             FROM productos p
             LEFT JOIN categorias c ON p.Id_categoria = c.Id_categoria
-            ORDER BY p.id_producto DESC
-            LIMIT %s OFFSET %s
-        """, (por_pagina, offset))
+            ORDER BY c.Id_categoria ASC, p.nombre ASC
+        """)
         productos = cursor.fetchall()
         db.close()
-        return render_template("inventario_admin.html", productos=productos, pagina=pagina, total_paginas=total_paginas)
+        agrupados = {}
+        for cat in categorias:
+            agrupados[cat['Id_categoria']] = {
+                'nombre': cat['nombre_categoria'],
+                'productos': [p for p in productos if p['Id_categoria'] == cat['Id_categoria']]
+            }
+        return render_template("inventario_admin.html", agrupados=agrupados)
 
     @app.route("/admin/productos/crear", methods=["GET", "POST"])
     def crear_producto():
@@ -105,7 +106,7 @@ def register_routes(app):
             stock = request.form.get("stock", type=int, default=0)
             descripcion = request.form.get("descripcion", "")
             id_categoria = request.form.get("id_categoria", type=int)
-            imagen_url = producto["imagen_url"]  # Mantiene la imagen actual por defecto
+            imagen_url = request.form.get("imagen_url", "").strip() or producto["imagen_url"]
             archivo = request.files.get("imagen")
             if archivo and archivo.filename:
                 filename = secure_filename(archivo.filename)

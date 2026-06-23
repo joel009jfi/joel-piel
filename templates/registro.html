@@ -6,6 +6,7 @@
     <title>Crear Cuenta | JOEL PIEL</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 </head>
 <body class="auth-body">
@@ -28,7 +29,10 @@
             
             <input type="email" name="email" class="auth-input" placeholder="Correo electrónico" required>
             
-            <input type="password" name="password" class="auth-input" placeholder="Contraseña segura" required>
+            <div style="position:relative;">
+                <input type="password" name="password" id="pass-reg" class="auth-input" placeholder="Contraseña segura" required>
+                <i class="fa-regular fa-eye" id="eye-reg" onclick="togglePass('pass-reg','eye-reg')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#999;"></i>
+            </div>
 
             <button type="submit" class="btn-auth" style="margin-top: 15px;">Registrarse y Comenzar</button>
         </form>
@@ -39,7 +43,23 @@
             <a href="{{ url_for('login') }}" style="color: #000; font-weight: 600; text-decoration: underline; display: inline-block; margin-top: 5px;">Inicia sesión</a>
         </p>
 
+        <p style="margin-top: 20px; text-align: center;">
+            <a href="{{ url_for('inicio') }}" style="font-size: 12px; color: #999; text-decoration: none; letter-spacing: 1px;"><i class="fa-solid fa-arrow-left"></i> Volver al inicio</a>
+        </p>
     </div>
 
+<script>
+function togglePass(inputId, eyeId) {
+    var input = document.getElementById(inputId);
+    var eye = document.getElementById(eyeId);
+    if (input.type === 'password') {
+        input.type = 'text';
+        eye.className = 'fa-regular fa-eye-slash';
+    } else {
+        input.type = 'password';
+        eye.className = 'fa-regular fa-eye';
+    }
+}
+</script>
 </body>
 </html>

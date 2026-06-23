@@ -40,10 +40,12 @@
                 <div><strong>Email</strong><span>{{ pedido.email }}</span></div>
                 <div><strong>Fecha</strong><span>{{ pedido.fecha }}</span></div>
                 <div><strong>Método de pago</strong><span>{{ pedido.metodo_pago }}</span></div>
-                <div><strong>Estado</strong><span>{{ pedido.estado }}</span></div>
+                <div><strong>Estado pago</strong><span>{{ pedido.estado }}</span></div>
+                <div><strong>Estado envío</strong><span>{{ pedido.estado_envio or 'Pendiente' }}</span></div>
                 <div><strong>Dirección</strong><span>{{ pedido.direccion_envio }}</span></div>
                 <div><strong>Transportadora</strong><span>{{ pedido.transportadora or 'Por asignar' }}</span></div>
                 <div><strong>Guía</strong><span>{{ pedido.numero_guia or 'Pendiente' }}</span></div>
+                <div><strong>Logística</strong><span><a href="{{ url_for('admin_envios') }}" style="color:#000;">Ir a envíos <i class="fa-solid fa-arrow-right"></i></a></span></div>
             </div>
 
             

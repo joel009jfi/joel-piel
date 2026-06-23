@@ -4,7 +4,7 @@ from flask import (
 from db import conectar, obtener_cursor
 from models.carrito import limpiar_carrito_db
 from services.email_service import enviar_confirmacion_compra
-from services.helpers import datos_carrito, COSTO_ENVIO
+from services.helpers import datos_carrito
 from extensions import mail
 
 
@@ -17,7 +17,7 @@ def register_routes(app):
         if not carrito:
             return redirect(url_for('inicio'))
         productos, total, cantidad = datos_carrito()
-        return render_template("checkout.html", productos=productos, total=total, cantidad_total=cantidad, costo_envio=COSTO_ENVIO)
+        return render_template("checkout.html", productos=productos, total=total, cantidad_total=cantidad)
 
     @app.route("/carrito/finalizar", methods=["POST"])
     def finalizar_compra():
@@ -42,6 +42,7 @@ def register_routes(app):
             direccion_cruda = request.form.get("direccion", "Por definir")
             telefono = request.form.get("telefono", "")
             metodo_pago = request.form.get("metodo_pago", "Contraentrega")
+            transportadora = request.form.get("transportadora", "Por asignar")
             direccion_completa = f"{direccion_cruda}, {ciudad} - {departamento}. Tel: {telefono}"
             total = 0
             items_a_procesar = []
@@ -61,16 +62,24 @@ def register_routes(app):
                     })
             try:
                 # Transacción: crea pedido, envío y descuenta stock
-                estado_inicial = "Pagado" if metodo_pago == "Completo" else "Pendiente"
+                estado_inicial = "Pagado" if metodo_pago == "Pagado" else "Pendiente"
                 cursor.execute(
                     "INSERT INTO pedidos (Id_usuario, total, estado, metodo_pago, fecha) VALUES (%s, %s, %s, %s, NOW())",
                     (id_usuario, total, estado_inicial, metodo_pago)
                 )
                 id_pedido_nuevo = cursor.lastrowid
                 cursor.execute(
-                    "INSERT INTO envios (Id_pedido, direccion_envio, estado_envio, numero_guia, transportadora) VALUES (%s, %s, 'Por despachar', '', 'Por asignar')",
-                    (id_pedido_nuevo, direccion_completa)
+                    "INSERT INTO envios (Id_pedido, direccion_envio, estado_envio, numero_guia, transportadora) VALUES (%s, %s, 'Por despachar', '', %s)",
+                    (id_pedido_nuevo, direccion_completa, transportadora)
                 )
+                for id_producto, cantidad in carrito.items():
+                    cursor.execute("SELECT precio FROM productos WHERE id_producto = %s", (id_producto,))
+                    prod_precio = cursor.fetchone()
+                    if prod_precio:
+                        cursor.execute(
+                            "INSERT INTO detalle_pedido (Id_pedido, Id_producto, cantidad, precio_unitario) VALUES (%s, %s, %s, %s)",
+                            (id_pedido_nuevo, id_producto, cantidad, prod_precio['precio'])
+                        )
                 for item in items_a_procesar:
                     cursor.execute("UPDATE productos SET stock = %s WHERE id_producto = %s", (item['nuevo_stock'], item['id']))
                 db.commit()
