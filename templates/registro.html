@@ -23,14 +23,14 @@
         </div>
         {% endif %}
 
-        <form method="POST">
+        <form method="POST" autocomplete="off">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="text" name="nombre" class="auth-input" placeholder="Nombre completo" required>
+            <input type="text" name="nombre" class="auth-input" placeholder="Nombre completo" required autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
             
-            <input type="email" name="email" class="auth-input" placeholder="Correo electrónico" required>
+            <input type="email" name="email" class="auth-input" placeholder="Correo electrónico" required autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
             
             <div style="position:relative;">
-                <input type="password" name="password" id="pass-reg" class="auth-input" placeholder="Contraseña segura" required>
+                <input type="password" name="password" id="pass-reg" class="auth-input" placeholder="Contraseña segura" required autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
                 <i class="fa-regular fa-eye" id="eye-reg" onclick="togglePass('pass-reg','eye-reg')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#999;"></i>
             </div>
 

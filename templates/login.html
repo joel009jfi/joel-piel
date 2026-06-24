@@ -23,12 +23,12 @@
         </div>
         {% endif %}
 
-        <form method="POST">
+        <form method="POST" autocomplete="off">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="email" name="email" class="auth-input" placeholder="Correo electrónico" required>
+            <input type="email" name="email" class="auth-input" placeholder="Correo electrónico" required autocomplete="off">
             
             <div style="position:relative;">
-                <input type="password" name="password" id="pass-login" class="auth-input" placeholder="Contraseña" required>
+                <input type="password" name="password" id="pass-login" class="auth-input" placeholder="Contraseña" required autocomplete="new-password">
                 <i class="fa-regular fa-eye" id="eye-login" onclick="togglePass('pass-login','eye-login')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#999;"></i>
             </div>
 
@@ -62,6 +62,11 @@ function togglePass(inputId, eyeId) {
         eye.className = 'fa-regular fa-eye';
     }
 }
+
+window.addEventListener('pageshow', function() {
+    document.querySelector('input[name="email"]').value = '';
+    document.getElementById('pass-login').value = '';
+});
 </script>
 </body>
 </html>

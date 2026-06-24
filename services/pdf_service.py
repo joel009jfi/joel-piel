@@ -5,9 +5,15 @@ from xhtml2pdf import pisa
 
 
 def generar_reporte_ventas_pdf(ventas, titulo, fecha_generado, gran_total, mes_filtro=""):
+    agrupados = {}
+    for v in ventas:
+        mp = v.get('metodo_pago', 'Contraentrega') or 'Contraentrega'
+        if mp not in agrupados:
+            agrupados[mp] = []
+        agrupados[mp].append(v)
     rendered = render_template(
         'reporte_pdf.html',
-        ventas=ventas,
+        agrupados=agrupados,
         fecha_generado=fecha_generado,
         gran_total=gran_total,
         titulo=titulo

@@ -44,7 +44,13 @@ def register_routes(app):
             """, (pedido['Id_pedido'],))
             pedido['productos'] = cursor.fetchall()
         db.close()
-        return render_template("ventas_admin.html", pedidos=pedidos_db, pagina=pagina, total_paginas=total_paginas)
+        agrupados = {}
+        for pedido in pedidos_db:
+            mp = pedido['metodo_pago'] or 'Contraentrega'
+            if mp not in agrupados:
+                agrupados[mp] = []
+            agrupados[mp].append(pedido)
+        return render_template("ventas_admin.html", agrupados=agrupados, pedidos=pedidos_db, pagina=pagina, total_paginas=total_paginas)
 
     @app.route("/admin/ventas/<int:id_pedido>")
     def detalle_pedido(id_pedido):

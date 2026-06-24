@@ -5,8 +5,9 @@
     <style>
         body { font-family: Arial, sans-serif; }
         h1 { text-align: center; text-transform: uppercase; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        h2 { font-size: 16px; margin-top: 30px; padding-bottom: 5px; border-bottom: 2px solid #000; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #000; color: white; }
         .total-box { margin-top: 30px; font-weight: bold; font-size: 20px; text-align: right; }
     </style>
@@ -16,6 +17,8 @@
     <h1>{{ titulo if titulo else 'Reporte de Ventas' }} - JOEL PIEL</h1>
     <p>Generado el: {{ fecha_generado }}</p>
     
+    {% for metodo, grupo in agrupados.items() %}
+    <h2>{{ 'PAGADOS' if metodo == 'Pagado' else 'CONTRAENTREGA' }}</h2>
     <table>
         <thead>
             <tr>
@@ -27,7 +30,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for v in ventas %}
+            {% for v in grupo %}
             <tr>
                 <td>#{{ v.Id_pedido }}</td>
                 <td>{{ v.cliente }}</td>
@@ -38,6 +41,7 @@
             {% endfor %}
         </tbody>
     </table>
+    {% endfor %}
     
     <div class="total-box">Total General: $ {{ "{:,.0f}".format(gran_total) }}</div>
 </body>

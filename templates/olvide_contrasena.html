@@ -9,8 +9,28 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 </head>
 <body class="auth-body">
-    <div class="auth-container">
-        <h2 style="font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 30px;">Recuperar Contraseña</h2>
+    <div class="auth-container" style="text-align:center;">
+
+        {% if enlace_reset %}
+        <div style="font-size:50px;color:#28a745;margin-bottom:15px;"><i class="fa-regular fa-envelope"></i></div>
+        <h2 style="font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 10px;">Revisa tu correo</h2>
+        <p style="color:#666;font-size:13px;margin-bottom:25px;">Te enviamos un enlace para restablecer tu contrase&ntilde;a.</p>
+
+        <a href="https://mail.google.com" target="_blank" style="display:inline-block;background:#000;color:#fff !important;padding:12px 30px;text-decoration:none;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-radius:2px;">
+            <i class="fa-regular fa-envelope"></i> ABRIR GMAIL
+        </a>
+
+        <p style="margin-top:30px;font-size:12px;">
+            <a href="#" onclick="event.preventDefault();document.getElementById('link-fallback').style.display='block';this.style.display='none';" style="color:#999;text-decoration:none;">
+                No recib&iacute; el correo
+            </a>
+        </p>
+        <div id="link-fallback" style="display:none;margin-top:10px;padding:12px;background:#f9f9f9;border-radius:4px;word-break:break-all;font-size:12px;">
+            <p style="color:#666;margin:0 0 8px;">Copia este enlace en tu navegador:</p>
+            <a href="{{ enlace_reset }}" style="color:#000;font-weight:600;">{{ enlace_reset }}</a>
+        </div>
+
+        {% else %}
 
         {% if mensaje %}
         <div class="alerta" style="border-left: 4px solid #b19470; background-color: #faf6f0; color: #5c4d3c; padding: 12px; margin-bottom: 20px; text-align: left; font-size: 13px;">
@@ -18,14 +38,18 @@
         </div>
         {% endif %}
 
+        <h2 style="font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 30px;">Recuperar Contrase&ntilde;a</h2>
+        <p style="color:#666;font-size:13px;margin-bottom:25px;">Ingresa tu correo y te enviaremos un enlace.</p>
+
         <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="email" name="email" class="auth-input" placeholder="Tu correo electrónico" required>
             <button type="submit" class="btn-auth" style="margin-top: 15px;">Enviar enlace</button>
         </form>
+        {% endif %}
 
         <p style="margin-top: 30px; text-align: center;">
-            <a href="{{ url_for('login') }}" style="font-size: 12px; color: #999; text-decoration: none; letter-spacing: 1px;"><i class="fa-solid fa-arrow-left"></i> Volver al inicio de sesión</a>
+            <a href="{{ url_for('login') }}" style="font-size: 12px; color: #999; text-decoration: none; letter-spacing: 1px;"><i class="fa-solid fa-arrow-left"></i> Volver al inicio de sesi&oacute;n</a>
         </p>
     </div>
 </body>

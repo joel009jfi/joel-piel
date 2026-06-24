@@ -6,6 +6,11 @@
     <title>Historial de Ventas | JOEL PIEL</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .pay-section { margin-bottom: 40px; }
+        .pay-title { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #000; }
+        .pay-count { font-size: 12px; color: #888; font-weight: 400; text-transform: none; letter-spacing: 0; }
+    </style>
 </head>
 <body>
     
@@ -36,62 +41,72 @@
         </div>
 
         
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Fecha</th>
-                    <th>Cliente</th>
-                    <th>Total</th>
-                    <th>Pago</th>
-                    <th>Envío</th>
-                    <th>Estado</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for pedido in pedidos %}
-                <tr>
-                    <td>#{{ pedido.Id_pedido }}</td>
-                    <td style="font-size:12px;color:#666;">
-                        {% if pedido.fecha.strftime is defined %}{{ pedido.fecha.strftime('%d/%m/%Y %H:%M') }}{% else %}{{ pedido.fecha }}{% endif %}
-                    </td>
-                    <td>{{ pedido.cliente }}</td>
-                    <td>${{ "{:,.0f}".format(pedido.total) }}</td>
-                    <td><span class="status-pill" style="background:#eee;font-size:10px;">{{ pedido.metodo_pago or 'Contraentrega' }}</span></td>
-                    <td>
-                        <span class="status-pill {{ 'bg-envio-entregado' if pedido.estado_envio == 'Entregado' else 'bg-envio-enviado' if pedido.estado_envio == 'Enviado' else 'bg-envio-preparando' }}" style="font-size:10px;">
-                            {{ pedido.estado_envio or '—' }}
-                        </span>
-                        {% if pedido.transportadora and pedido.numero_guia %}
-                        <div style="font-size:10px;color:#888;margin-top:2px;">{{ pedido.transportadora }} · {{ pedido.numero_guia }}</div>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <span class="status-pill status-{{ pedido.estado|lower }}">
-                            {{ pedido.estado|upper }}
-                        </span>
-                    </td>
-                    <td>
-                        <div style="display:flex;gap:6px;align-items:center;">
-                            {% if pedido.estado != 'Pagado' and pedido.metodo_pago == 'Contraentrega' %}
-                            <form action="{{ url_for('confirmar_pago', id_pedido=pedido.Id_pedido) }}" method="POST" style="display:inline;">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button type="submit" style="background:none;border:none;color:#5cb85c;cursor:pointer;font-size:14px;" title="Confirmar pago"><i class="fa-solid fa-check"></i></button>
-                            </form>
+        {% for metodo, grupo in agrupados.items() %}
+        <div class="pay-section">
+            <div class="pay-title">
+                {% if metodo == 'Pagado' %}<i class="fa-solid fa-check-circle" style="color:#5cb85c;"></i>{% else %}<i class="fa-solid fa-clock" style="color:#f0ad4e;"></i>{% endif %}
+                {{ 'Pagados' if metodo == 'Pagado' else 'Contraentrega' }}
+                <span class="pay-count">{{ grupo|length }} pedido(s)</span>
+            </div>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                        <th>Pago</th>
+                        <th>Envío</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pedido in grupo %}
+                    <tr>
+                        <td>#{{ pedido.Id_pedido }}</td>
+                        <td style="font-size:12px;color:#666;">
+                            {% if pedido.fecha.strftime is defined %}{{ pedido.fecha.strftime('%d/%m/%Y %H:%M') }}{% else %}{{ pedido.fecha }}{% endif %}
+                        </td>
+                        <td>{{ pedido.cliente }}</td>
+                        <td>${{ "{:,.0f}".format(pedido.total) }}</td>
+                        <td><span class="status-pill" style="background:#eee;font-size:10px;">{{ pedido.metodo_pago or 'Contraentrega' }}</span></td>
+                        <td>
+                            <span class="status-pill {{ 'bg-envio-entregado' if pedido.estado_envio == 'Entregado' else 'bg-envio-enviado' if pedido.estado_envio == 'Enviado' else 'bg-envio-preparando' }}" style="font-size:10px;">
+                                {{ pedido.estado_envio or '—' }}
+                            </span>
+                            {% if pedido.transportadora and pedido.numero_guia %}
+                            <div style="font-size:10px;color:#888;margin-top:2px;">{{ pedido.transportadora }} · {{ pedido.numero_guia }}</div>
                             {% endif %}
-                            <a href="{{ url_for('descargar_pdf_pedido', id_pedido=pedido.Id_pedido) }}" style="background:none;border:none;color:#d9534f;cursor:pointer;font-size:14px;text-decoration:none;" title="Descargar PDF"><i class="fa-solid fa-file-pdf"></i></a>
-                            <a href="{{ url_for('admin_envios') }}" style="background:none;border:none;color:#888;cursor:pointer;font-size:14px;text-decoration:none;" title="Ir a logística"><i class="fa-solid fa-truck"></i></a>
-                        </div>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="8" style="text-align:center;color:#888;padding:40px;">No hay ventas registradas.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        </td>
+                        <td>
+                            <span class="status-pill status-{{ pedido.estado|lower }}">
+                                {{ pedido.estado|upper }}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display:flex;gap:6px;align-items:center;">
+                                {% if pedido.estado != 'Pagado' and pedido.metodo_pago == 'Contraentrega' %}
+                                <form action="{{ url_for('confirmar_pago', id_pedido=pedido.Id_pedido) }}" method="POST" style="display:inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" style="background:none;border:none;color:#5cb85c;cursor:pointer;font-size:14px;" title="Confirmar pago"><i class="fa-solid fa-check"></i></button>
+                                </form>
+                                {% endif %}
+                                <a href="{{ url_for('descargar_pdf_pedido', id_pedido=pedido.Id_pedido) }}" style="background:none;border:none;color:#d9534f;cursor:pointer;font-size:14px;text-decoration:none;" title="Descargar PDF"><i class="fa-solid fa-file-pdf"></i></a>
+                                <a href="{{ url_for('admin_envios') }}" style="background:none;border:none;color:#888;cursor:pointer;font-size:14px;text-decoration:none;" title="Ir a logística"><i class="fa-solid fa-truck"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align:center;color:#888;padding:40px;">No hay pedidos en este grupo.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
 
         
         {% if total_paginas > 1 %}

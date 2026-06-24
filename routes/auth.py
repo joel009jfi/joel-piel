@@ -67,21 +67,22 @@ def register_routes(app):
     @app.route("/olvide-contrasena", methods=["GET", "POST"])
     def olvide_contrasena():
         mensaje = ""
+        enlace_reset = ""
         if request.method == "POST":
             email = request.form.get("email", "")
             usuario = obtener_usuario_por_email(email)
             if usuario:
                 s = URLSafeTimedSerializer(Config.SECRET_KEY)
                 token = s.dumps(email, salt="reset-password")
+                enlace_reset = url_for('restablecer_contrasena', token=token, _external=True)
                 try:
-                    enviar_reset_password(mail, usuario['nombre'], email, token, url_for('restablecer_contrasena', token=token, _external=True))
-                    mensaje = "Te hemos enviado un enlace para restablecer tu contraseña. Revisa tu correo."
+                    enviar_reset_password(mail, usuario['nombre'], email, token, enlace_reset)
                 except Exception as e:
                     print(f"Error enviando reset: {e}")
-                    mensaje = "Error al enviar el correo. Intenta de nuevo."
+                mensaje = "Te hemos enviado un enlace para restablecer tu contraseña. Revisa tu correo."
             else:
                 mensaje = "No encontramos una cuenta con ese correo."
-        return render_template("olvide_contrasena.html", mensaje=mensaje)
+        return render_template("olvide_contrasena.html", mensaje=mensaje, enlace_reset=enlace_reset)
 
     @app.route("/restablecer-contrasena/<token>", methods=["GET", "POST"])
     def restablecer_contrasena(token):
