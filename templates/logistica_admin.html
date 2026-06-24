@@ -45,19 +45,19 @@
     <div class="admin-container">
         <h1 class="admin-title">Envíos y Logística</h1>
 
-        {% if pendientes %}
+        {% if por_despachar %}
         <div class="section-title">
-            <i class="fas fa-clock"></i> Pendientes
-            <span class="count">{{ pendientes|length }} envío(s)</span>
+            <i class="fas fa-clock"></i> Por despachar
+            <span class="count">{{ por_despachar|length }} envío(s)</span>
         </div>
         <div class="admin-grid">
-            {% for e in pendientes %}
+            {% for e in por_despachar %}
             <div class="admin-card card-logistics">
                 <div class="card-logistics-content">
                     <div class="card-logistics-header">
                         <h3><i class="fas fa-box"></i> Pedido #{{ e.Id_pedido }}</h3>
-                        <span class="status-badge {{ 'bg-pago-pagado' if e.estado_pago == 'Pagado' else 'bg-pago-pendiente' }}">
-                            Pedido: {{ e.estado_pago }}
+                        <span class="status-badge {{ 'bg-pago-pagado' if e.metodo_pago == 'Pagado' else 'bg-pago-pendiente' }}">
+                            Pedido: {{ 'Pagado' if e.metodo_pago == 'Pagado' else 'Pendiente' }}
                         </span>
                     </div>
                     <p><strong>Cliente:</strong> {{ e.cliente }}</p>
@@ -69,9 +69,7 @@
                     <p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago }}</p>
                     <p>
                         <strong>Estado Envío:</strong>
-                        <span class="status-badge {{ 'bg-envio-preparando' if e.estado_envio in ('Por despachar', 'Preparando') else 'bg-envio-enviado' }}">
-                            {{ e.estado_envio }}
-                        </span>
+                        <span class="status-badge bg-envio-preparando">{{ e.estado_envio or 'Por despachar' }}</span>
                     </p>
                 </div>
 
@@ -102,9 +100,62 @@
             </div>
             {% endfor %}
         </div>
-        {% else %}
-        <div style="text-align:center;color:#888;padding:20px;border:1px solid #eee;border-radius:4px;margin-bottom:30px;">
-            No hay envíos pendientes.
+        {% endif %}
+
+        {% if en_ruta %}
+        <div class="section-title" style="margin-top:40px;">
+            <i class="fas fa-truck"></i> Enviados
+            <span class="count">{{ en_ruta|length }} envío(s)</span>
+        </div>
+        <div class="admin-grid">
+            {% for e in en_ruta %}
+            <div class="admin-card card-logistics">
+                <div class="card-logistics-content">
+                    <div class="card-logistics-header">
+                        <h3><i class="fas fa-box"></i> Pedido #{{ e.Id_pedido }}</h3>
+                        <span class="status-badge {{ 'bg-pago-pagado' if e.metodo_pago == 'Pagado' else 'bg-pago-pendiente' }}">
+                            Pedido: {{ 'Pagado' if e.metodo_pago == 'Pagado' else 'Pendiente' }}
+                        </span>
+                    </div>
+                    <p><strong>Cliente:</strong> {{ e.cliente }}</p>
+                    <p><strong>Fecha Venta:</strong> {{ e.fecha }}</p>
+                    <p><strong>Valor Total:</strong> ${{ "{:,.0f}".format(e.total) }}</p>
+                    <p><strong><i class="fas fa-map-marker-alt"></i> Destino:</strong> {{ e.direccion_envio }}</p>
+                    <p><strong><i class="fas fa-truck"></i> Transportadora:</strong> {{ e.transportadora }}</p>
+                    <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia if e.numero_guia else '—' }}</p>
+                    <p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago }}</p>
+                    <p>
+                        <strong>Estado Envío:</strong>
+                        <span class="status-badge bg-envio-enviado">{{ e.estado_envio }}</span>
+                    </p>
+                </div>
+
+                <div class="admin-logistics-form">
+                    <form action="{{ url_for('actualizar_envio', id_envio=e.Id_envios) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <select name="estado_envio" class="admin-logistics-select" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="Por despachar">Por despachar</option>
+                            <option value="Preparando">Preparando</option>
+                            <option value="Enviado" selected>Enviado</option>
+                            <option value="Entregado">Entregado</option>
+                        </select>
+                        <input type="text" name="numero_guia" class="admin-logistics-input" placeholder="Número de Guía" value="{{ e.numero_guia }}">
+                        <select name="transportadora" class="admin-logistics-select">
+                            <option value="" disabled selected>Transportadora</option>
+                            <option value="Interrapidísimo" {{ 'selected' if e.transportadora == 'Interrapidísimo' }}>Interrapidísimo</option>
+                            <option value="Coordinadora" {{ 'selected' if e.transportadora == 'Coordinadora' }}>Coordinadora</option>
+                            <option value="Servientrega" {{ 'selected' if e.transportadora == 'Servientrega' }}>Servientrega</option>
+                            <option value="Envia" {{ 'selected' if e.transportadora == 'Envia' }}>Envia</option>
+                            <option value="Por asignar" {{ 'selected' if e.transportadora == 'Por asignar' }}>Por asignar</option>
+                        </select>
+                        <button type="submit" style="display:block;width:100%;background:#000;color:#fff;border:none;padding:12px 20px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-radius:2px;">
+                            ACTUALIZAR ENVÍO
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
         </div>
         {% endif %}
 

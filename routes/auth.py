@@ -24,6 +24,7 @@ def register_routes(app):
                     session["usuario"] = usuario["nombre"]
                     session["rol"] = usuario["rol"]
                     session["Id_usuario"] = usuario["Id_usuario"]
+                    session["email"] = usuario["email"]
                     carrito_db = cargar_carrito_db(usuario["Id_usuario"])
                     session["carrito"] = carrito_db
                     return redirect(url_for('admin_panel')) if usuario["rol"] == "admin" else redirect(url_for('inicio'))
@@ -50,6 +51,7 @@ def register_routes(app):
                         session["usuario"] = usuario["nombre"]
                         session["rol"] = usuario["rol"]
                         session["Id_usuario"] = usuario["Id_usuario"]
+                        session["email"] = usuario["email"]
                         try:
                             enviar_bienvenida(mail, nombre, email, url_for('inicio', _external=True))
                         except Exception as e:

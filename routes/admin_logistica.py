@@ -27,9 +27,10 @@ def register_routes(app):
         """)
         envios = cursor.fetchall()
         db.close()
-        pendientes = [e for e in envios if e['estado_envio'] != 'Entregado']
+        por_despachar = [e for e in envios if e['estado_envio'] in ('Por despachar', 'Preparando', None)]
+        en_ruta = [e for e in envios if e['estado_envio'] == 'Enviado']
         entregados = [e for e in envios if e['estado_envio'] == 'Entregado']
-        return render_template("logistica_admin.html", pendientes=pendientes, entregados=entregados)
+        return render_template("logistica_admin.html", por_despachar=por_despachar, en_ruta=en_ruta, entregados=entregados)
 
     @app.route("/admin/envios/reabrir/<int:id_envio>", methods=["POST"])
     def reabrir_envio(id_envio):

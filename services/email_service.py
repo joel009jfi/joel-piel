@@ -176,6 +176,27 @@ def enviar_agradecimiento_entrega(mail, nombre, email, id_pedido):
         print(f"Error al enviar agradecimiento por entrega: {e}")
 
 
+def enviar_cancelacion_reembolso(mail, nombre, email, id_pedido):
+    try:
+        msg = Message(subject=f"Reembolso · Pedido #{id_pedido} · JOEL PIEL", recipients=[email])
+        msg.html = f"""
+        <div style="font-family:'Montserrat',sans-serif;max-width:600px;margin:0 auto;padding:30px;border:1px solid #eee;border-radius:4px;">
+            <div style="text-align:center;border-bottom:1px solid #eee;padding-bottom:20px;margin-bottom:25px;">
+                <h1 style="font-family:'Playfair Display',serif;font-size:26px;letter-spacing:2px;margin:0;color:#000;">JOEL PIEL</h1>
+            </div>
+            <p style="font-size:15px;color:#1c1a17;line-height:1.6;">Hola <strong>{nombre}</strong>,</p>
+            <p style="font-size:14px;color:#444;line-height:1.6;">Tu pedido <strong>#{id_pedido}</strong> ha sido cancelado.</p>
+            <p style="font-size:14px;color:#444;line-height:1.6;">Te reembolsaremos el dinero en un lapso de <strong>24 horas</strong>. El abono se verá reflejado en el mismo método de pago que utilizaste.</p>
+            <p style="font-size:14px;color:#444;line-height:1.6;">Disculpa las molestias. Si tienes alguna pregunta, no dudes en contactarnos.</p>
+            <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+            <p style="font-size:12px;color:#999;text-align:center;">JOEL PIEL · Envíos a todo Colombia</p>
+        </div>
+        """
+        mail.send(msg)
+    except Exception as e:
+        print(f"Error al enviar notificación de cancelación/reembolso: {e}")
+
+
 def enviar_reset_password(mail, nombre, email, token, reset_url):
     try:
         msg = Message(subject="Restablece tu contraseña | JOEL PIEL", recipients=[email])

@@ -80,6 +80,16 @@
 <div class="pedidos-wrapper">
     <h2>Mis Pedidos</h2>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}" style="padding:12px 18px;margin-bottom:20px;border-radius:4px;font-size:14px;font-weight:500;{{ 'background:#d4edda;color:#155724;border:1px solid #c3e6cb' if category == 'success' else 'background:#f8d7da;color:#721c24;border:1px solid #f5c6cb' }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     {% if pedidos %}
         
         {% for p in pedidos %}
@@ -153,13 +163,9 @@ document.getElementById('modal-confirm').addEventListener('click', function(e) {
     if (e.target === this) cerrarConfirmacion();
 });
 document.getElementById('form-cancelar').addEventListener('submit', function(e) {
-    e.preventDefault();
-    var form = this;
-    var card = form.closest('.pedido-card');
-    card.classList.add('cancelando');
-    setTimeout(function() {
-        form.submit();
-    }, 400);
+    var btn = this.querySelector('.btn-confirmar');
+    btn.disabled = true;
+    btn.textContent = 'Cancelando...';
 });
 </script>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>

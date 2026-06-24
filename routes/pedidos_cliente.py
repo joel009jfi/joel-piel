@@ -1,5 +1,7 @@
-from flask import render_template, request, redirect, session, url_for
+from flask import render_template, request, redirect, session, url_for, flash
 from db import conectar, obtener_cursor
+from extensions import mail
+from services.email_service import enviar_cancelacion_reembolso
 
 
 def register_routes(app):
@@ -41,12 +43,22 @@ def register_routes(app):
         Id_usuario = session["Id_usuario"]
         db = conectar()
         if db:
-            cursor = db.cursor()
-            # Verifica que el pedido pertenezca al usuario y esté Pendiente
-            cursor.execute("SELECT estado FROM pedidos WHERE Id_pedido = %s AND Id_usuario = %s", (id_pedido, Id_usuario))
+            cursor = obtener_cursor(db, diccionario=True)
+            cursor.execute("SELECT estado, metodo_pago FROM pedidos WHERE Id_pedido = %s AND Id_usuario = %s", (id_pedido, Id_usuario))
             pedido = cursor.fetchone()
-            if pedido and pedido[0] in ("Pendiente",):
+            if pedido and pedido['estado'] in ("Pendiente",):
                 cursor.execute("UPDATE pedidos SET estado = 'Cancelado' WHERE Id_pedido = %s", (id_pedido,))
                 db.commit()
+                # Si pagó en línea, enviar correo de reembolso
+                if pedido['metodo_pago'] == 'Pagado':
+                    usuario = session.get("usuario", "Cliente")
+                    cursor.execute("SELECT email FROM usuarios WHERE Id_usuario = %s", (Id_usuario,))
+                    row = cursor.fetchone()
+                    email = row['email'] if row else None
+                    if email:
+                        enviar_cancelacion_reembolso(mail, usuario, email, id_pedido)
+                flash("Pedido cancelado correctamente.", "success")
+            else:
+                flash("Este pedido no se puede cancelar.", "danger")
             db.close()
         return redirect(url_for('mis_pedidos'))

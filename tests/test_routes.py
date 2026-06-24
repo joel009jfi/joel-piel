@@ -61,6 +61,22 @@ def test_checkout_redirect_when_not_logged(client):
     assert rv.status_code == 302
 
 
+def test_cancelar_pedido_redirect_when_not_logged(client):
+    rv = client.post("/cancelar-pedido/1")
+    assert rv.status_code == 302
+
+
+def test_cancelar_pedido_already_cancelled(client):
+    with client.session_transaction() as sess:
+        sess["usuario"] = "joel"
+        sess["Id_usuario"] = 6
+        sess["rol"] = "admin"
+        sess["email"] = "carlos@gmail.com"
+    rv = client.post("/cancelar-pedido/13", follow_redirects=True)
+    assert rv.status_code == 200
+    assert b"no se puede cancelar" in rv.data
+
+
 def test_admin_redirect_when_not_logged(client):
     rv = client.get("/admin")
     assert rv.status_code == 302
