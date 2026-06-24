@@ -71,7 +71,7 @@ def enviar_notificacion_despacho(mail, cliente_nombre, cliente_email, id_pedido,
                 <strong>Transportadora:</strong> {transportadora}<br>
                 <strong>Guía:</strong> {numero_guia}
             </p>
-            <p>Muchas Gracias <3.</p>
+            <p>Muchas Gracias, Buen dia.</p>
             <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
             <p style="font-size:12px;color:#999;">JOEL PIEL · Envíos a todo Colombia</p>
         </div>
