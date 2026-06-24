@@ -15,7 +15,7 @@ def register_routes(app):
         if db:
             cursor = obtener_cursor(db, diccionario=True)
             cursor.execute("""
-                SELECT p.Id_pedido, p.total, p.estado, p.fecha,
+                SELECT p.Id_pedido, p.total, p.estado, p.metodo_pago, p.fecha,
                        e.estado_envio, e.transportadora, e.numero_guia
                 FROM pedidos p
                 LEFT JOIN envios e ON p.Id_pedido = e.Id_pedido

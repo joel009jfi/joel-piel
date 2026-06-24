@@ -92,7 +92,7 @@
                 <div><strong>Total:</strong> ${{ "{:,.0f}".format(p.total) }}</div>
                 <div>
                     <strong>Pago:</strong>
-                    <span class="status-badge {{ 'bg-pagado' if p.estado == 'Pagado' else 'bg-pendiente' if p.estado == 'Pendiente' else 'bg-cancelado' }}">{{ p.estado }}</span>
+                    <span class="status-badge {{ 'bg-pagado' if p.metodo_pago == 'Pagado' else 'bg-pendiente' }}">{{ p.metodo_pago or 'Contraentrega' }}</span>
                 </div>
                 <div>
                     <strong>Envío:</strong>
