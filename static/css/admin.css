@@ -1,5 +1,3 @@
-/* static/css/admin.css */
-
 :root {
     --negro: #000000;
     --blanco: #ffffff;
@@ -38,7 +36,7 @@ body {
 }
 
 .admin-logo-sub {
-    font-size: 12px; 
+    font-size: 12px;
     font-weight: 300;
 }
 
@@ -83,20 +81,20 @@ body {
     padding: 20px;
     border-radius: 4px;
     border-left: 4px solid var(--negro);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.stat-mini-card span { 
-    font-size: 11px; 
-    color: #777; 
-    text-transform: uppercase; 
+.stat-mini-card span {
+    font-size: 11px;
+    color: #777;
+    text-transform: uppercase;
     letter-spacing: 1px;
     display: block;
 }
 
-.stat-mini-card h2 { 
-    margin: 5px 0 0; 
-    font-size: 24px; 
+.stat-mini-card h2 {
+    margin: 5px 0 0;
+    font-size: 24px;
     font-weight: 700;
 }
 
@@ -112,7 +110,7 @@ body {
     background: var(--blanco);
     padding: 30px;
     border-radius: 4px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     text-align: center;
     transition: transform 0.3s ease;
     border: 1px solid transparent;
@@ -144,8 +142,8 @@ body {
 
 /* --- SECCIÓN ESPECÍFICA DE LOGÍSTICA --- */
 .card-logistics {
-    display: flex; 
-    flex-direction: column; 
+    display: flex;
+    flex-direction: column;
     justify-content: space-between;
     text-align: left; /* Consistencia en la lectura de datos de envío */
 }
@@ -155,9 +153,9 @@ body {
 }
 
 .card-logistics-header {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 15px;
     border-bottom: 1px solid var(--gris-borde);
     padding-bottom: 10px;
@@ -230,8 +228,8 @@ body {
 }
 
 .btn-full {
-    width: 100%; 
-    border: none; 
+    width: 100%;
+    border: none;
     cursor: pointer;
     box-sizing: border-box;
 }
@@ -241,7 +239,7 @@ body {
 }
 
 .btn-disabled {
-    background: #ccc; 
+    background: #ccc;
     color: #fff;
     pointer-events: none;
     cursor: not-allowed;
@@ -259,20 +257,35 @@ body {
 }
 
 /* Mapeo con paleta limpia sobre variables */
-.bg-pago-pendiente { background-color: #fff3cd; color: #856404; }
-.bg-pago-pagado { background-color: #d4edda; color: #155724; }
-.bg-envio-preparando { background-color: #e2e3e5; color: #383d41; }
-.bg-envio-enviado { background-color: #cce5ff; color: #004085; }
-.bg-envio-entregado { background-color: #d4edda; color: #155724; }
+.bg-pago-pendiente {
+    background-color: #fff3cd;
+    color: #856404;
+}
+.bg-pago-pagado {
+    background-color: #d4edda;
+    color: #155724;
+}
+.bg-envio-preparando {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+.bg-envio-enviado {
+    background-color: #cce5ff;
+    color: #004085;
+}
+.bg-envio-entregado {
+    background-color: #d4edda;
+    color: #155724;
+}
 
 /* Mensaje sin registros */
 .no-records-message {
-    grid-column: 1 / -1; 
-    text-align: center; 
-    padding: 40px; 
-    color: #666; 
-    background: var(--blanco); 
-    border-radius: 4px; 
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    background: var(--blanco);
+    border-radius: 4px;
     border: 1px solid var(--gris-borde);
 }
 
@@ -308,7 +321,7 @@ body {
 
 /* --- FORMULARIOS DE GESTIÓN (CREAR PRODUCTO) --- */
 .form-max-width {
-    max-width: 500px; 
+    max-width: 500px;
     margin: 40px auto;
 }
 
@@ -317,8 +330,8 @@ body {
 }
 
 .btn-back-admin {
-    text-decoration: none; 
-    color: #666; 
+    text-decoration: none;
+    color: #666;
     font-size: 0.9rem;
     font-weight: 500;
     transition: color 0.2s;
@@ -333,25 +346,25 @@ body {
     border-color: transparent;
 }
 
-.form-group { 
-    margin-bottom: 1.2rem; 
+.form-group {
+    margin-bottom: 1.2rem;
     text-align: left;
 }
 
-.admin-card label { 
-    display: block; 
-    font-size: 0.85rem; 
-    font-weight: 700; 
-    text-transform: uppercase; 
-    margin-bottom: 8px; 
-    color: #333; 
+.admin-card label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #333;
     letter-spacing: 0.5px;
 }
 
-.admin-card input { 
-    width: 100%; 
-    padding: 12px 15px; 
-    border: 1px solid #ddd; 
+.admin-card input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
     border-radius: 2px;
     font-family: 'Montserrat', sans-serif;
     box-sizing: border-box;
@@ -359,13 +372,13 @@ body {
     transition: border-color 0.2s ease;
 }
 
-.admin-card input:focus { 
-    border-color: var(--negro); 
-    outline: none; 
+.admin-card input:focus {
+    border-color: var(--negro);
+    outline: none;
 }
 
 .form-row-flex {
-    display: flex; 
+    display: flex;
     gap: 15px;
 }
 
@@ -373,16 +386,16 @@ body {
     flex: 1;
 }
 
-.btn-save { 
-    background: var(--negro); 
-    color: var(--blanco); 
-    border: 1px solid var(--negro); 
-    padding: 15px; 
-    width: 100%; 
+.btn-save {
+    background: var(--negro);
+    color: var(--blanco);
+    border: 1px solid var(--negro);
+    padding: 15px;
+    width: 100%;
     font-family: 'Montserrat', sans-serif;
-    font-weight: 700; 
+    font-weight: 700;
     font-size: 13px;
-    cursor: pointer; 
+    cursor: pointer;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     transition: all 0.3s ease;
@@ -392,16 +405,10 @@ body {
     gap: 10px;
 }
 
-.btn-save:hover { 
+.btn-save:hover {
     background: transparent;
     color: var(--negro);
 }
-
-/* 
-   Usado por: admin.html, inventario_admin.html,
-              ventas_admin.html, logistica_admin.html,
-              usuarios_admin.html
- */
 
 /* --- STATUS PILLS DE PEDIDOS Y VENTAS --- */
 .status-pill {
@@ -416,11 +423,26 @@ body {
     color: #333;
 }
 
-.status-pendiente  { background: #fff3cd; color: #856404; }
-.status-pagado     { background: #d4edda; color: #155724; }
-.status-enviado    { background: #cce5ff; color: #004085; }
-.status-entregado  { background: #d4edda; color: #155724; }
-.status-cancelado  { background: #f8d7da; color: #721c24; }
+.status-pendiente {
+    background: #fff3cd;
+    color: #856404;
+}
+.status-pagado {
+    background: #d4edda;
+    color: #155724;
+}
+.status-enviado {
+    background: #cce5ff;
+    color: #004085;
+}
+.status-entregado {
+    background: #d4edda;
+    color: #155724;
+}
+.status-cancelado {
+    background: #f8d7da;
+    color: #721c24;
+}
 
 /* --- IMAGEN MINI EN TABLA DE INVENTARIO --- */
 .product-img-mini {
@@ -450,34 +472,96 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 3px;
-    transition: background 0.2s, color 0.2s;
+    transition:
+        background 0.2s,
+        color 0.2s;
 }
 
-.btn-stock:hover { background: #000; color: #fff; }
+.btn-stock:hover {
+    background: #000;
+    color: #fff;
+}
 
 /* --- RESPONSIVE ADMIN --- */
 @media (max-width: 768px) {
-    .admin-header { flex-direction: column; gap: 10px; text-align: center; }
-    .admin-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-    .admin-nav a { margin-left: 0; }
-    .admin-title { font-size: 22px; }
-    .admin-stats-summary { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .admin-grid { grid-template-columns: 1fr; }
-    .admin-section { padding: 15px; overflow-x: auto; }
-    .admin-table { font-size: 12px; }
-    .admin-table th, .admin-table td { padding: 10px 8px; }
-    .card-logistics-header { flex-direction: column; align-items: flex-start; gap: 8px; }
-    .form-row-flex { flex-direction: column; gap: 0; }
-    .form-max-width { max-width: 100%; margin: 20px 10px; }
+    .admin-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    .admin-nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+    .admin-nav a {
+        margin-left: 0;
+    }
+    .admin-title {
+        font-size: 22px;
+    }
+    .admin-stats-summary {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+    .admin-section {
+        padding: 15px;
+        overflow-x: auto;
+    }
+    .admin-table {
+        font-size: 12px;
+    }
+    .admin-table th,
+    .admin-table td {
+        padding: 10px 8px;
+    }
+    .card-logistics-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .form-row-flex {
+        flex-direction: column;
+        gap: 0;
+    }
+    .form-max-width {
+        max-width: 100%;
+        margin: 20px 10px;
+    }
 }
 
 @media (max-width: 480px) {
-    .admin-stats-summary { grid-template-columns: 1fr; }
-    .stat-mini-card h2 { font-size: 18px; }
-    .admin-container { padding: 20px 3%; }
-    .admin-table { font-size: 11px; }
-    .admin-table th, .admin-table td { padding: 8px 5px; }
-    .status-pill, .status-badge { font-size: 9px; padding: 3px 6px; }
-    .btn-panel { font-size: 10px; padding: 10px 15px; }
-    .product-img-mini { width: 35px; height: 35px; }
+    .admin-stats-summary {
+        grid-template-columns: 1fr;
+    }
+    .stat-mini-card h2 {
+        font-size: 18px;
+    }
+    .admin-container {
+        padding: 20px 3%;
+    }
+    .admin-table {
+        font-size: 11px;
+    }
+    .admin-table th,
+    .admin-table td {
+        padding: 8px 5px;
+    }
+    .status-pill,
+    .status-badge {
+        font-size: 9px;
+        padding: 3px 6px;
+    }
+    .btn-panel {
+        font-size: 10px;
+        padding: 10px 15px;
+    }
+    .product-img-mini {
+        width: 35px;
+        height: 35px;
+    }
 }
