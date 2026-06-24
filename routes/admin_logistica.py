@@ -2,7 +2,7 @@ from flask import (
     render_template, request, redirect, session, url_for
 )
 from db import conectar, obtener_cursor
-from services.email_service import enviar_agradecimiento_entrega
+from services.email_service import enviar_agradecimiento_entrega, enviar_notificacion_despacho
 from extensions import mail
 
 
@@ -100,6 +100,22 @@ def register_routes(app):
                     else:
                         cursor.execute("UPDATE pedidos SET estado='Pendiente' WHERE Id_pedido=%s", (row['Id_pedido'],))
                 db.commit()
-
+                cursor.execute("""
+                    SELECT u.nombre, u.email, p.Id_pedido
+                    FROM envios e
+                    JOIN pedidos p ON e.Id_pedido = p.Id_pedido
+                    JOIN usuarios u ON p.Id_usuario = u.Id_usuario
+                    WHERE e.Id_envios = %s
+                """, (id_envio,))
+                datos = cursor.fetchone()
+                if datos:
+                    try:
+                        if estado_envio == 'Enviado':
+                            host_url = url_for('inicio', _external=True)
+                            enviar_notificacion_despacho(mail, datos['nombre'], datos['email'], datos['Id_pedido'], transportadora, numero_guia, host_url)
+                        elif estado_envio == 'Entregado':
+                            enviar_agradecimiento_entrega(mail, datos['nombre'], datos['email'], datos['Id_pedido'])
+                    except Exception as e:
+                        print(f"Error al notificar cambio de envio: {e}")
             db.close()
         return redirect(url_for('admin_envios'))
