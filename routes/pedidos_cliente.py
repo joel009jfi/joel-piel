@@ -2,6 +2,7 @@ from flask import render_template, request, redirect, session, url_for, flash
 from db import conectar, obtener_cursor
 from extensions import mail
 from services.email_service import enviar_cancelacion_reembolso
+from datetime import datetime, timedelta
 
 
 def register_routes(app):
@@ -25,6 +26,7 @@ def register_routes(app):
                 ORDER BY p.fecha DESC
             """, (Id_usuario,))
             pedidos = cursor.fetchall()
+            ahora = datetime.now()
             for pedido in pedidos:
                 cursor.execute("""
                     SELECT dp.cantidad, dp.precio_unitario, pr.nombre, pr.imagen_url, pr.Id_producto
@@ -33,6 +35,11 @@ def register_routes(app):
                     WHERE dp.Id_pedido = %s
                 """, (pedido['Id_pedido'],))
                 pedido['productos'] = cursor.fetchall()
+                if pedido['estado'] in ('Pendiente', 'Pagado') and pedido['fecha']:
+                    diff = ahora - pedido['fecha']
+                    pedido['puede_cancelar'] = diff.total_seconds() <= 86400
+                else:
+                    pedido['puede_cancelar'] = False
             db.close()
         return render_template("mis_pedidos.html", usuario=usuario, rol=rol, pedidos=pedidos)
 
@@ -44,20 +51,26 @@ def register_routes(app):
         db = conectar()
         if db:
             cursor = obtener_cursor(db, diccionario=True)
-            cursor.execute("SELECT estado, metodo_pago FROM pedidos WHERE Id_pedido = %s AND Id_usuario = %s", (id_pedido, Id_usuario))
+            cursor.execute("SELECT estado, metodo_pago, fecha FROM pedidos WHERE Id_pedido = %s AND Id_usuario = %s", (id_pedido, Id_usuario))
             pedido = cursor.fetchone()
-            if pedido and pedido['estado'] in ("Pendiente",):
-                cursor.execute("UPDATE pedidos SET estado = 'Cancelado' WHERE Id_pedido = %s", (id_pedido,))
-                db.commit()
-                # Si pagó en línea, enviar correo de reembolso
-                if pedido['metodo_pago'] == 'Pagado':
-                    usuario = session.get("usuario", "Cliente")
-                    cursor.execute("SELECT email FROM usuarios WHERE Id_usuario = %s", (Id_usuario,))
-                    row = cursor.fetchone()
-                    email = row['email'] if row else None
-                    if email:
-                        enviar_cancelacion_reembolso(mail, usuario, email, id_pedido)
-                flash("Pedido cancelado correctamente.", "success")
+            if pedido and pedido['estado'] in ("Pendiente", "Pagado"):
+                if pedido['fecha'] and (datetime.now() - pedido['fecha']).total_seconds() > 86400:
+                    flash("El pedido solo se puede cancelar dentro de las primeras 24 horas.", "danger")
+                else:
+                    cursor.execute("UPDATE pedidos SET estado = 'Cancelado' WHERE Id_pedido = %s", (id_pedido,))
+                    db.commit()
+                    if pedido['metodo_pago'] == 'Pagado':
+                        usuario = session.get("usuario", "Cliente")
+                        cursor.execute("SELECT email FROM usuarios WHERE Id_usuario = %s", (Id_usuario,))
+                        row = cursor.fetchone()
+                        email = row['email'] if row else None
+                        if email:
+                            enviar_cancelacion_reembolso(mail, usuario, email, id_pedido)
+                            flash("Pedido cancelado. Te enviamos un correo con los detalles del reembolso.", "success")
+                        else:
+                            flash("Pedido cancelado correctamente.", "success")
+                    else:
+                        flash("Pedido cancelado correctamente.", "success")
             else:
                 flash("Este pedido no se puede cancelar.", "danger")
             db.close()

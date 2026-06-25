@@ -114,7 +114,7 @@
                 {% endif %}
             </div>
             
-            {% if p.estado == 'Pendiente' %}
+            {% if p.puede_cancelar %}
             <button type="button" class="btn-cancelar" onclick="mostrarConfirmacion({{ p.Id_pedido }})">CANCELAR PEDIDO</button>
             {% endif %}
         </div>
