@@ -24,6 +24,8 @@ def register_routes(app):
                 db = conectar()
                 if not db:
                     return jsonify({"success": False, "error": "Error de conexión"}), 500
+                if nuevo_stock < 0:
+                    return jsonify({"success": False, "error": "El stock no puede ser negativo"}), 400
                 cursor = db.cursor()
                 cursor.execute("UPDATE productos SET stock = %s WHERE id_producto = %s", (nuevo_stock, id_producto))
                 db.commit()

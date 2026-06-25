@@ -1,3 +1,4 @@
+import re
 from flask import (
     render_template, request, redirect, session, url_for
 )
@@ -39,6 +40,8 @@ def register_routes(app):
             email_usuario = usuario_db["email"]
             departamento = request.form.get("departamento", "Por definir")
             ciudad = request.form.get("ciudad", "Por definir")
+            if not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñüÜ\s]+$', ciudad):
+                return "La ciudad solo puede contener letras.", 400
             direccion_cruda = request.form.get("direccion", "Por definir")
             telefono = request.form.get("telefono", "")
             metodo_pago = request.form.get("metodo_pago", "Contraentrega")
