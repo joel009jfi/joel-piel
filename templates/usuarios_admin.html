@@ -33,6 +33,7 @@
                     <th>Nombre</th>
                     <th>Email</th>
                     <th>Rol</th>
+                    <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -48,8 +49,20 @@
                         </span>
                     </td>
                     <td>
+                        <span class="status-pill" style="font-size:10px;{{ 'background:#d4edda;color:#155724;' if usuario.activo else 'background:#f8d7da;color:#721c24;' }}">
+                            {{ 'Activo' if usuario.activo else 'Bloqueado' }}
+                        </span>
+                    </td>
+                    <td>
                         
                         <a href="{{ url_for('editar_usuario_admin', id_usuario=usuario.Id_usuario) }}" style="background:none;border:none;color:#000;cursor:pointer;font-size:16px;margin-right:15px;text-decoration:none;" title="Editar usuario"><i class="fa-solid fa-pen"></i></a>
+                        
+                        <form action="{{ url_for('toggle_activo_usuario', id_usuario=usuario.Id_usuario) }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" style="background:none;border:none;cursor:pointer;font-size:16px;margin-right:15px;{{ 'color:#856404;' if usuario.activo else 'color:#155724;' }}" title="{{ 'Bloquear' if usuario.activo else 'Desbloquear' }} usuario">
+                                <i class="fa-solid {{ 'fa-ban' if usuario.activo else 'fa-check-circle' }}"></i>
+                            </button>
+                        </form>
                         
                         <a href="{{ url_for('eliminar_usuario_admin', id_usuario=usuario.Id_usuario) }}" style="background:none;border:none;color:#d9534f;cursor:pointer;font-size:16px;text-decoration:none;" title="Eliminar usuario" onclick="return confirm('¿Eliminar a {{ usuario.nombre }}? Esta acción no se puede deshacer.');"><i class="fa-solid fa-trash"></i></a>
                     </td>

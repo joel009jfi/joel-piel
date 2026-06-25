@@ -20,20 +20,34 @@ def register_routes(app):
         pagina = request.args.get("pagina", 1, type=int)
         por_pagina = 25
         offset = (pagina - 1) * por_pagina
-        cursor.execute("SELECT COUNT(*) as total FROM pedidos WHERE archivado = 0")
+        # Filtro por rango de fechas
+        fecha_desde = request.args.get("fecha_desde", "")
+        fecha_hasta = request.args.get("fecha_hasta", "")
+        filtro_fecha = ""
+        params = []
+        if fecha_desde:
+            filtro_fecha += " AND p.fecha >= %s"
+            params.append(fecha_desde)
+        if fecha_hasta:
+            filtro_fecha += " AND p.fecha <= %s"
+            params.append(fecha_hasta + " 23:59:59")
+
+        cursor.execute("SELECT COUNT(*) as total FROM pedidos WHERE archivado = 0" + filtro_fecha, params)
         total_pedidos = cursor.fetchone()["total"]
         total_paginas = (total_pedidos + por_pagina - 1) // por_pagina
         cursor.execute("""
             SELECT p.Id_pedido, p.Id_usuario, p.total, p.estado, p.fecha, p.metodo_pago,
                    u.nombre as cliente, u.email,
-                   e.estado_envio, e.transportadora, e.numero_guia
+                   e.estado_envio, e.transportadora, e.numero_guia,
+                   pg.estado_pago, pg.metodo_pago as pago_metodo, pg.fecha_pago
             FROM pedidos p
             LEFT JOIN usuarios u ON p.Id_usuario = u.Id_usuario
             LEFT JOIN envios e ON p.Id_pedido = e.Id_pedido
-            WHERE p.archivado = 0
+            LEFT JOIN pagos pg ON p.Id_pedido = pg.id_pedido
+            WHERE p.archivado = 0""" + filtro_fecha + """
             ORDER BY p.fecha DESC
             LIMIT %s OFFSET %s
-        """, (por_pagina, offset))
+        """, params + [por_pagina, offset])
         pedidos_db = cursor.fetchall()
         for pedido in pedidos_db:
             cursor.execute("""
@@ -100,6 +114,7 @@ def register_routes(app):
             if pedido and pedido['estado'] != 'Pagado':
                 cursor.execute("UPDATE pedidos SET estado = 'Enviado', metodo_pago = 'Pagado' WHERE Id_pedido = %s", (id_pedido,))
                 cursor.execute("UPDATE envios SET estado_envio = 'Enviado' WHERE Id_pedido = %s", (id_pedido,))
+                cursor.execute("UPDATE pagos SET estado_pago='Aprobado', fecha_pago=NOW() WHERE id_pedido=%s", (id_pedido,))
                 db.commit()
                 try:
                     enviar_notificacion_pago(mail, pedido['nombre'], pedido['email'], id_pedido)

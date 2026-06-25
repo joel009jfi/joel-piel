@@ -18,7 +18,8 @@ def register_routes(app):
         # JOIN de envios, pedidos y usuarios para vista completa
         cursor.execute("""
             SELECT e.Id_envios, e.Id_pedido, e.direccion_envio, e.estado_envio,
-                   e.numero_guia, e.transportadora, p.total, p.estado as estado_pago,
+                   e.numero_guia, e.transportadora, e.fecha_entrega_estimada, e.total as costo_flete,
+                   p.total, p.estado as estado_pago,
                    p.metodo_pago, p.fecha, u.nombre as cliente
             FROM envios e
             JOIN pedidos p ON e.Id_pedido = p.Id_pedido
@@ -27,7 +28,7 @@ def register_routes(app):
         """)
         envios = cursor.fetchall()
         db.close()
-        por_despachar = [e for e in envios if e['estado_envio'] in ('Por despachar', 'Preparando', None)]
+        por_despachar = [e for e in envios if e['estado_envio'] in ('Por despachar', 'Preparando', 'Procesado', None)]
         en_ruta = [e for e in envios if e['estado_envio'] == 'Enviado']
         entregados = [e for e in envios if e['estado_envio'] == 'Entregado']
         return render_template("logistica_admin.html", por_despachar=por_despachar, en_ruta=en_ruta, entregados=entregados)
@@ -87,20 +88,27 @@ def register_routes(app):
                 estado_envio = request.form.get("estado_envio", "Por despachar")
                 numero_guia = request.form.get("numero_guia", "")
                 transportadora = request.form.get("transportadora", "Por asignar")
+                fecha_entrega = request.form.get("fecha_entrega_estimada", "") or None
+                costo_flete = request.form.get("costo_flete", "") or None
                 cursor.execute(
-                    "UPDATE envios SET estado_envio=%s, numero_guia=%s, transportadora=%s WHERE Id_envios=%s",
-                    (estado_envio, numero_guia, transportadora, id_envio)
+                    "UPDATE envios SET estado_envio=%s, numero_guia=%s, transportadora=%s, fecha_entrega_estimada=%s, total=%s WHERE Id_envios=%s",
+                    (estado_envio, numero_guia, transportadora, fecha_entrega, costo_flete, id_envio)
                 )
                 cursor.execute("SELECT Id_pedido FROM envios WHERE Id_envios=%s", (id_envio,))
                 row = cursor.fetchone()
                 if row:
                     if estado_envio == 'Enviado':
                         cursor.execute("UPDATE pedidos SET estado='Enviado' WHERE Id_pedido=%s", (row['Id_pedido'],))
+                        cursor.execute("UPDATE pagos SET estado_pago='Aprobado' WHERE id_pedido=%s AND estado_pago='Pendiente'", (row['Id_pedido'],))
                     elif estado_envio == 'Entregado':
                         cursor.execute("UPDATE pedidos SET estado='Entregado', metodo_pago='Pagado' WHERE Id_pedido=%s", (row['Id_pedido'],))
+                        cursor.execute("UPDATE pagos SET estado_pago='Aprobado', fecha_pago=NOW() WHERE id_pedido=%s", (row['Id_pedido'],))
+                    elif estado_envio == 'Procesado':
+                        cursor.execute("UPDATE pedidos SET estado='Pagado' WHERE Id_pedido=%s", (row['Id_pedido'],))
+                        cursor.execute("UPDATE pagos SET estado_pago='Aprobado' WHERE id_pedido=%s", (row['Id_pedido'],))
                     else:
                         cursor.execute("UPDATE pedidos SET estado='Pendiente' WHERE Id_pedido=%s", (row['Id_pedido'],))
-                db.commit()
+                    db.commit()
                 cursor.execute("""
                     SELECT u.nombre, u.email, p.Id_pedido
                     FROM envios e

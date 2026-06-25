@@ -39,10 +39,26 @@ def register_routes(app):
         if not db:
             return "Error al conectar con la BD", 500
         cursor = obtener_cursor(db, diccionario=True)
-        cursor.execute("SELECT Id_usuario, nombre, email, rol FROM usuarios ORDER BY Id_usuario ASC")
+        cursor.execute("SELECT Id_usuario, nombre, email, rol, activo FROM usuarios ORDER BY Id_usuario ASC")
         usuarios = cursor.fetchall()
         db.close()
         return render_template("usuarios_admin.html", usuarios=usuarios)
+
+    @app.route("/admin/usuarios/toggle-activo/<int:id_usuario>", methods=["POST"])
+    def toggle_activo_usuario(id_usuario):
+        if session.get("rol") != "admin":
+            return redirect(url_for('inicio'))
+        db = conectar()
+        if db:
+            cursor = obtener_cursor(db)
+            cursor.execute("SELECT activo FROM usuarios WHERE Id_usuario=%s", (id_usuario,))
+            row = cursor.fetchone()
+            if row:
+                nuevo = 0 if row['activo'] else 1
+                cursor.execute("UPDATE usuarios SET activo=%s WHERE Id_usuario=%s", (nuevo, id_usuario))
+                db.commit()
+            db.close()
+        return redirect(url_for('admin_usuarios'))
 
     @app.route("/admin/usuarios/editar/<int:id_usuario>", methods=["GET", "POST"])
     def editar_usuario_admin(id_usuario):

@@ -82,6 +82,13 @@ def register_routes(app):
                         )
                 for item in items_a_procesar:
                     cursor.execute("UPDATE productos SET stock = %s WHERE id_producto = %s", (item['nuevo_stock'], item['id']))
+                # Insertar registro en pagos
+                estado_pago = 'Aprobado' if metodo_pago == 'Pagado' else 'Pendiente'
+                metodo_pago_db = 'PayPal' if metodo_pago == 'Pagado' else 'Contraentrega'
+                cursor.execute(
+                    "INSERT INTO pagos (id_pedido, metodo_pago, estado_pago, fecha_pago) VALUES (%s, %s, %s, NOW())",
+                    (id_pedido_nuevo, metodo_pago_db, estado_pago)
+                )
                 db.commit()
                 session.pop("carrito", None)
                 if session.get("Id_usuario"):

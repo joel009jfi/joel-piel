@@ -21,14 +21,18 @@ def register_routes(app):
                 # Convierte el hash a bytes si viene como string
                 hash_db = usuario["password"].encode('utf-8') if isinstance(usuario["password"], str) else usuario["password"]
                 if bcrypt.checkpw(password_ingresada.encode('utf-8'), hash_db):
-                    session["usuario"] = usuario["nombre"]
-                    session["rol"] = usuario["rol"]
-                    session["Id_usuario"] = usuario["Id_usuario"]
-                    session["email"] = usuario["email"]
-                    carrito_db = cargar_carrito_db(usuario["Id_usuario"])
-                    session["carrito"] = carrito_db
-                    return redirect(url_for('admin_panel')) if usuario["rol"] == "admin" else redirect(url_for('inicio'))
-                mensaje = "Contraseña incorrecta."
+                    if usuario.get("activo", 1) == 0:
+                        mensaje = "Tu cuenta está desactivada. Contacta al administrador."
+                    else:
+                        session["usuario"] = usuario["nombre"]
+                        session["rol"] = usuario["rol"]
+                        session["Id_usuario"] = usuario["Id_usuario"]
+                        session["email"] = usuario["email"]
+                        carrito_db = cargar_carrito_db(usuario["Id_usuario"])
+                        session["carrito"] = carrito_db
+                        return redirect(url_for('admin_panel')) if usuario["rol"] == "admin" else redirect(url_for('inicio'))
+                else:
+                    mensaje = "Contraseña incorrecta."
             else:
                 mensaje = "El correo no está registrado."
         return render_template("login.html", mensaje=mensaje)
@@ -40,7 +44,10 @@ def register_routes(app):
             nombre = request.form["nombre"]
             email = request.form["email"]
             password = request.form["password"]
-            if obtener_usuario_por_email(email):
+            confirm_password = request.form.get("confirm_password", "")
+            if password != confirm_password:
+                mensaje = "Las contraseñas no coinciden."
+            elif obtener_usuario_por_email(email):
                 mensaje = "Ese correo ya tiene una cuenta activa."
             else:
                 # Genera hash bcrypt seguro antes de guardar

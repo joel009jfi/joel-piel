@@ -66,6 +66,8 @@
                     <p><strong><i class="fas fa-map-marker-alt"></i> Destino:</strong> {{ e.direccion_envio }}</p>
                     <p><strong><i class="fas fa-truck"></i> Transportadora:</strong> {{ e.transportadora }}</p>
                     <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia if e.numero_guia else '—' }}</p>
+                    <p><strong><i class="fas fa-calendar"></i> Fecha est. entrega:</strong> {{ e.fecha_entrega_estimada.strftime('%d/%m/%Y') if e.fecha_entrega_estimada and e.fecha_entrega_estimada.strftime is defined else e.fecha_entrega_estimada or '—' }}</p>
+                    <p><strong><i class="fas fa-money-bill"></i> Costo flete:</strong> {{ ('$' ~ "{:,.0f}".format(e.costo_flete)) if e.costo_flete else '—' }}</p>
                     <p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago }}</p>
                     <p>
                         <strong>Estado Envío:</strong>
@@ -79,6 +81,7 @@
                         <select name="estado_envio" class="admin-logistics-select" required>
                             <option value="" disabled selected>Seleccione estado</option>
                             <option value="Por despachar" {{ 'selected' if e.estado_envio == 'Por despachar' }}>Por despachar</option>
+                            <option value="Procesado" {{ 'selected' if e.estado_envio == 'Procesado' }}>Procesado</option>
                             <option value="Preparando" {{ 'selected' if e.estado_envio == 'Preparando' }}>Preparando</option>
                             <option value="Enviado" {{ 'selected' if e.estado_envio == 'Enviado' }}>Enviado</option>
                             <option value="Entregado" {{ 'selected' if e.estado_envio == 'Entregado' }}>Entregado</option>
@@ -92,6 +95,10 @@
                             <option value="Envia" {{ 'selected' if e.transportadora == 'Envia' }}>Envia</option>
                             <option value="Por asignar" {{ 'selected' if e.transportadora == 'Por asignar' }}>Por asignar</option>
                         </select>
+                        <div style="display:flex;gap:8px;margin-bottom:10px;">
+                            <input type="date" name="fecha_entrega_estimada" class="admin-logistics-input" style="flex:1;margin-bottom:0;" value="{{ e.fecha_entrega_estimada.strftime('%Y-%m-%d') if e.fecha_entrega_estimada and e.fecha_entrega_estimada.strftime is defined else e.fecha_entrega_estimada or '' }}" placeholder="Fecha estimada entrega">
+                            <input type="number" name="costo_flete" class="admin-logistics-input" style="flex:1;margin-bottom:0;" value="{{ e.costo_flete or '' }}" placeholder="Costo flete" step="1000">
+                        </div>
                         <button type="submit" style="display:block;width:100%;background:#000;color:#fff;border:none;padding:12px 20px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-radius:2px;">
                             ACTUALIZAR ENVÍO
                         </button>
@@ -123,6 +130,8 @@
                     <p><strong><i class="fas fa-map-marker-alt"></i> Destino:</strong> {{ e.direccion_envio }}</p>
                     <p><strong><i class="fas fa-truck"></i> Transportadora:</strong> {{ e.transportadora }}</p>
                     <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia if e.numero_guia else '—' }}</p>
+                    <p><strong><i class="fas fa-calendar"></i> Fecha est. entrega:</strong> {{ e.fecha_entrega_estimada.strftime('%d/%m/%Y') if e.fecha_entrega_estimada and e.fecha_entrega_estimada.strftime is defined else e.fecha_entrega_estimada or '—' }}</p>
+                    <p><strong><i class="fas fa-money-bill"></i> Costo flete:</strong> {{ ('$' ~ "{:,.0f}".format(e.costo_flete)) if e.costo_flete else '—' }}</p>
                     <p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago }}</p>
                     <p>
                         <strong>Estado Envío:</strong>
@@ -136,6 +145,7 @@
                         <select name="estado_envio" class="admin-logistics-select" required>
                             <option value="" disabled selected>Seleccione estado</option>
                             <option value="Por despachar">Por despachar</option>
+                            <option value="Procesado">Procesado</option>
                             <option value="Preparando">Preparando</option>
                             <option value="Enviado" selected>Enviado</option>
                             <option value="Entregado">Entregado</option>
@@ -149,6 +159,10 @@
                             <option value="Envia" {{ 'selected' if e.transportadora == 'Envia' }}>Envia</option>
                             <option value="Por asignar" {{ 'selected' if e.transportadora == 'Por asignar' }}>Por asignar</option>
                         </select>
+                        <div style="display:flex;gap:8px;margin-bottom:10px;">
+                            <input type="date" name="fecha_entrega_estimada" class="admin-logistics-input" style="flex:1;margin-bottom:0;" value="{{ e.fecha_entrega_estimada.strftime('%Y-%m-%d') if e.fecha_entrega_estimada and e.fecha_entrega_estimada.strftime is defined else e.fecha_entrega_estimada or '' }}" placeholder="Fecha estimada entrega">
+                            <input type="number" name="costo_flete" class="admin-logistics-input" style="flex:1;margin-bottom:0;" value="{{ e.costo_flete or '' }}" placeholder="Costo flete" step="1000">
+                        </div>
                         <button type="submit" style="display:block;width:100%;background:#000;color:#fff;border:none;padding:12px 20px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-radius:2px;">
                             ACTUALIZAR ENVÍO
                         </button>
@@ -179,6 +193,8 @@
                         <p><strong><i class="fas fa-map-marker-alt"></i> Destino:</strong> {{ e.direccion_envio }}</p>
                         <p><strong><i class="fas fa-truck"></i> Transportadora:</strong> {{ e.transportadora }}</p>
                         <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia if e.numero_guia else '—' }}</p>
+                        <p><strong><i class="fas fa-calendar"></i> Fecha est. entrega:</strong> {{ e.fecha_entrega_estimada.strftime('%d/%m/%Y') if e.fecha_entrega_estimada and e.fecha_entrega_estimada.strftime is defined else e.fecha_entrega_estimada or '—' }}</p>
+                        <p><strong><i class="fas fa-money-bill"></i> Costo flete:</strong> {{ ('$' ~ "{:,.0f}".format(e.costo_flete)) if e.costo_flete else '—' }}</p>
                         <p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago }}</p>
                     </div>
                     <div style="display:flex;justify-content:space-between;align-items:center;">
