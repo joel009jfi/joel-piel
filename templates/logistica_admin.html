@@ -68,7 +68,7 @@
                     <div class="card-logistics-header">
                         <h3><i class="fas fa-box"></i> Pedido #{{ e.Id_pedido }}</h3>
                         <span class="status-badge {{ 'bg-pago-pagado' if e.metodo_pago == 'En línea' else 'bg-pago-pendiente' }}">
-                            {{ 'Pagado' if e.metodo_pago == 'En línea' else 'Pendiente' }}
+                            {{ 'Pago' if e.metodo_pago == 'En línea' else 'Pendiente' }}
                         </span>
                     </div>
                     <p><strong>Cliente:</strong> {{ e.cliente }}</p>
@@ -132,7 +132,7 @@
                     <div class="card-logistics-header">
                         <h3><i class="fas fa-box"></i> Pedido #{{ e.Id_pedido }}</h3>
                         <span class="status-badge {{ 'bg-pago-pagado' if e.metodo_pago == 'En línea' else 'bg-pago-pendiente' }}">
-                            {{ 'Pagado' if e.metodo_pago == 'En línea' else 'Pendiente' }}
+                            {{ 'Pago' if e.metodo_pago == 'En línea' else 'Pendiente' }}
                         </span>
                     </div>
                     <p><strong>Cliente:</strong> {{ e.cliente }}</p>
