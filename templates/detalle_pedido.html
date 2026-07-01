@@ -39,7 +39,7 @@
                 <div><strong>Cliente</strong><span>{{ pedido.nombre }}</span></div>
                 <div><strong>Email</strong><span>{{ pedido.email }}</span></div>
                 <div><strong>Fecha</strong><span>{{ pedido.fecha }}</span></div>
-                <div><strong>Método de pago</strong><span>{{ pedido.metodo_pago }}</span></div>
+                <div><strong>Método de pago</strong><span>{{ pedido.metodo_pago  }}</span></div>
                 <div><strong>Estado pago</strong><span>{{ pedido.estado }}</span></div>
                 <div><strong>Estado envío</strong><span>{{ pedido.estado_envio or 'Pendiente' }}</span></div>
                 <div><strong>Dirección</strong><span>{{ pedido.direccion_envio }}</span></div>
@@ -67,6 +67,19 @@
             </table>
             
             <div class="total-row">Total: ${{ "{:,.0f}".format(pedido.total) }}</div>
+
+            <div style="margin-top:25px;display:flex;gap:10px;justify-content:space-between;">
+                <a href="{{ url_for('admin_ventas') }}" style="background:none;border:1px solid #000;color:#000;padding:8px 20px;border-radius:2px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;text-decoration:none;">← Volver a ventas</a>
+                {% if pedido.estado_envio != 'Entregado' %}
+                <form action="{{ url_for('admin_cancelar_pedido', id_pedido=pedido.Id_pedido) }}" method="POST" onsubmit="return confirm('¿Cancelar pedido #{{ pedido.Id_pedido }}? Se restaurará el stock y no hay vuelta atrás.');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" style="background:#d9534f;border:1px solid #d9534f;color:#fff;padding:8px 20px;border-radius:2px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Cancelar pedido</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
         </div>
     </div>
 </body>

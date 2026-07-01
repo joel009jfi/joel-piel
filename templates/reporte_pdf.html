@@ -18,7 +18,7 @@
     <p>Generado el: {{ fecha_generado }}</p>
     
     {% for metodo, grupo in agrupados.items() %}
-    <h2>{{ 'PAGADOS' if metodo == 'Pagado' else 'CONTRAENTREGA' }}</h2>
+    <h2>{{ metodo|upper }}</h2>
     <table>
         <thead>
             <tr>

@@ -17,6 +17,18 @@
         </nav>
     </header>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div style="max-width:1200px;margin:20px auto 0;padding:0 5%;">
+        {% for category, message in messages %}
+        <div style="padding:12px 16px;border-radius:2px;margin-bottom:10px;font-size:13px;{{ 'background:#f8d7da;color:#721c24;' if category == 'danger' else 'background:#d4edda;color:#155724;' }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
     
     <div class="admin-container">
         
@@ -64,7 +76,10 @@
                             </button>
                         </form>
                         
-                        <a href="{{ url_for('eliminar_usuario_admin', id_usuario=usuario.Id_usuario) }}" style="background:none;border:none;color:#d9534f;cursor:pointer;font-size:16px;text-decoration:none;" title="Eliminar usuario" onclick="return confirm('¿Eliminar a {{ usuario.nombre }}? Esta acción no se puede deshacer.');"><i class="fa-solid fa-trash"></i></a>
+                        <form action="{{ url_for('eliminar_usuario_admin', id_usuario=usuario.Id_usuario) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Eliminar a {{ usuario.nombre }}? Esta acción no se puede deshacer.');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" style="background:none;border:none;color:#d9534f;cursor:pointer;font-size:16px;padding:0;" title="Eliminar usuario"><i class="fa-solid fa-trash"></i></button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}

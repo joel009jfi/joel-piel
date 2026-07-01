@@ -1,4 +1,4 @@
-from flask import render_template, request, session
+from flask import render_template, request, session, flash
 from models.contacto import guardar_mensaje
 from services.email_service import enviar_notificacion_contacto, enviar_confirmacion_contacto_cliente
 from extensions import mail
@@ -25,9 +25,11 @@ def register_routes(app):
                     except Exception as e:
                         print(f"Error al enviar confirmación al cliente: {e}")
                     mensaje = "¡Mensaje enviado con éxito! Te responderemos pronto."
+                    flash("¡Mensaje enviado con éxito! Te responderemos pronto.", "success")
                 except Exception as e:
                     print(f"Error al enviar contacto: {e}")
                     mensaje = "Mensaje recibido. Nos pondremos en contacto contigo pronto."
+                    flash("Mensaje recibido. Nos pondremos en contacto contigo pronto.", "success")
             else:
                 mensaje = "Por favor completa todos los campos obligatorios."
                 error = True

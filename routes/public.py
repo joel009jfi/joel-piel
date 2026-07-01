@@ -93,7 +93,7 @@ def register_routes(app):
             sql = "SELECT id_producto, nombre, precio, imagen_url, stock FROM productos WHERE 1=1"
             params = []
             if query:
-                sql += " AND LOWER(nombre) LIKE LOWER(%s)"  # Búsqueda insensible a mayúsculas
+                sql += " AND nombre COLLATE utf8mb4_unicode_ci LIKE %s"  # Búsqueda insensible a mayúsculas/tildes
                 params.append(f"%{query}%")
             if precio_min is not None:
                 sql += " AND precio >= %s"

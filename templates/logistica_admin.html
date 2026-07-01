@@ -42,6 +42,17 @@
         </nav>
     </header>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div style="max-width:1200px;margin:20px auto 0;">
+        {% for category, message in messages %}
+        <div style="padding:12px 20px;margin-bottom:10px;border-radius:4px;font-size:13px;{{ 'background:#fdf2f2;color:#721c24;border:1px solid #f5c6cb;' if category == 'danger' else 'background:#d4edda;color:#155724;border:1px solid #c3e6cb;' }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
     <div class="admin-container">
         <h1 class="admin-title">Envíos y Logística</h1>
 
@@ -56,8 +67,8 @@
                 <div class="card-logistics-content">
                     <div class="card-logistics-header">
                         <h3><i class="fas fa-box"></i> Pedido #{{ e.Id_pedido }}</h3>
-                        <span class="status-badge {{ 'bg-pago-pagado' if e.metodo_pago == 'Pagado' else 'bg-pago-pendiente' }}">
-                            Pedido: {{ 'Pagado' if e.metodo_pago == 'Pagado' else 'Pendiente' }}
+                        <span class="status-badge {{ 'bg-pago-pagado' if e.metodo_pago == 'En línea' else 'bg-pago-pendiente' }}">
+                            {{ 'Pagado' if e.metodo_pago == 'En línea' else 'Pendiente' }}
                         </span>
                     </div>
                     <p><strong>Cliente:</strong> {{ e.cliente }}</p>
@@ -68,7 +79,7 @@
                     <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia if e.numero_guia else '—' }}</p>
                     <p><strong><i class="fas fa-calendar"></i> Fecha est. entrega:</strong> {{ e.fecha_entrega_estimada.strftime('%d/%m/%Y') if e.fecha_entrega_estimada and e.fecha_entrega_estimada.strftime is defined else e.fecha_entrega_estimada or '—' }}</p>
                     <p><strong><i class="fas fa-money-bill"></i> Costo flete:</strong> {{ ('$' ~ "{:,.0f}".format(e.costo_flete)) if e.costo_flete else '—' }}</p>
-                    <p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago }}</p>
+                    <p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago  }}</p>
                     <p>
                         <strong>Estado Envío:</strong>
                         <span class="status-badge bg-envio-preparando">{{ e.estado_envio or 'Por despachar' }}</span>
@@ -120,8 +131,8 @@
                 <div class="card-logistics-content">
                     <div class="card-logistics-header">
                         <h3><i class="fas fa-box"></i> Pedido #{{ e.Id_pedido }}</h3>
-                        <span class="status-badge {{ 'bg-pago-pagado' if e.metodo_pago == 'Pagado' else 'bg-pago-pendiente' }}">
-                            Pedido: {{ 'Pagado' if e.metodo_pago == 'Pagado' else 'Pendiente' }}
+                        <span class="status-badge {{ 'bg-pago-pagado' if e.metodo_pago == 'En línea' else 'bg-pago-pendiente' }}">
+                            {{ 'Pagado' if e.metodo_pago == 'En línea' else 'Pendiente' }}
                         </span>
                     </div>
                     <p><strong>Cliente:</strong> {{ e.cliente }}</p>
@@ -132,7 +143,7 @@
                     <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia if e.numero_guia else '—' }}</p>
                     <p><strong><i class="fas fa-calendar"></i> Fecha est. entrega:</strong> {{ e.fecha_entrega_estimada.strftime('%d/%m/%Y') if e.fecha_entrega_estimada and e.fecha_entrega_estimada.strftime is defined else e.fecha_entrega_estimada or '—' }}</p>
                     <p><strong><i class="fas fa-money-bill"></i> Costo flete:</strong> {{ ('$' ~ "{:,.0f}".format(e.costo_flete)) if e.costo_flete else '—' }}</p>
-                    <p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago }}</p>
+                    <p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago  }}</p>
                     <p>
                         <strong>Estado Envío:</strong>
                         <span class="status-badge bg-envio-enviado">{{ e.estado_envio }}</span>
@@ -195,18 +206,22 @@
                         <p><strong><i class="fas fa-barcode"></i> No. Guía:</strong> {{ e.numero_guia if e.numero_guia else '—' }}</p>
                         <p><strong><i class="fas fa-calendar"></i> Fecha est. entrega:</strong> {{ e.fecha_entrega_estimada.strftime('%d/%m/%Y') if e.fecha_entrega_estimada and e.fecha_entrega_estimada.strftime is defined else e.fecha_entrega_estimada or '—' }}</p>
                         <p><strong><i class="fas fa-money-bill"></i> Costo flete:</strong> {{ ('$' ~ "{:,.0f}".format(e.costo_flete)) if e.costo_flete else '—' }}</p>
-                        <p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago }}</p>
+<p><strong><i class="fas fa-money-bill"></i> Método de Pago:</strong> {{ e.metodo_pago  }}</p>
                     </div>
                     <div style="display:flex;justify-content:space-between;align-items:center;">
                         <p class="entregado-readonly"><i class="fas fa-lock"></i> Envío completado — no editable</p>
                         <div style="display:flex;gap:8px;">
+                            {% if e.agradecido %}
+                            <span style="background:#28a745;color:#fff;padding:6px 14px;border-radius:3px;font-size:12px;font-weight:bold;">Agradecido</span>
+                            {% else %}
                             <form action="{{ url_for('agradecer_envio', id_envio=e.Id_envios) }}" method="POST" style="margin:0;">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button type="submit" style="background:none;border:1px solid #28a745;color:#28a745;padding:4px 12px;border-radius:3px;cursor:pointer;font-size:11px;">Agradecer</button>
+                                <button type="submit" style="background:#28a745;color:#fff;border:none;padding:6px 14px;border-radius:3px;cursor:pointer;font-size:12px;font-weight:bold;">Agradecer</button>
                             </form>
+                            {% endif %}
                             <form action="{{ url_for('reabrir_envio', id_envio=e.Id_envios) }}" method="POST" onsubmit="return confirm('¿Reabrir este envío? Volverá a estado \"Por despachar\".');" style="margin:0;">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button type="submit" style="background:none;border:1px solid #999;color:#666;padding:4px 12px;border-radius:3px;cursor:pointer;font-size:11px;">Reabrir</button>
+                                <button type="submit" style="background:#ffc107;color:#000;border:none;padding:6px 14px;border-radius:3px;cursor:pointer;font-size:12px;font-weight:bold;">Reabrir</button>
                             </form>
                         </div>
                     </div>

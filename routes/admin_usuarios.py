@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, session, url_for
+from flask import render_template, request, redirect, session, url_for, flash
 import bcrypt
 from db import conectar, obtener_cursor
 from models.usuario import registrar_usuario, obtener_usuario_por_email
@@ -19,6 +19,8 @@ def register_routes(app):
             rol = request.form.get("rol", "cliente")
             if not nombre or not email or not password:
                 mensaje = "Todos los campos son obligatorios."
+            elif len(password) < 8:
+                mensaje = "La contraseña debe tener al menos 8 caracteres."
             elif obtener_usuario_por_email(email):
                 mensaje = "Ese correo ya está registrado."
             else:
@@ -50,10 +52,18 @@ def register_routes(app):
             return redirect(url_for('inicio'))
         db = conectar()
         if db:
-            cursor = obtener_cursor(db)
-            cursor.execute("SELECT activo FROM usuarios WHERE Id_usuario=%s", (id_usuario,))
+            cursor = obtener_cursor(db, diccionario=True)
+            cursor.execute("SELECT rol, activo FROM usuarios WHERE Id_usuario=%s", (id_usuario,))
             row = cursor.fetchone()
             if row:
+                if id_usuario == session.get("Id_usuario"):
+                    flash("No puedes bloquear tu propia cuenta.", "danger")
+                    db.close()
+                    return redirect(url_for('admin_usuarios'))
+                if row['rol'] == 'admin':
+                    flash("No puedes bloquear una cuenta de administrador.", "danger")
+                    db.close()
+                    return redirect(url_for('admin_usuarios'))
                 nuevo = 0 if row['activo'] else 1
                 cursor.execute("UPDATE usuarios SET activo=%s WHERE Id_usuario=%s", (nuevo, id_usuario))
                 db.commit()
@@ -77,6 +87,10 @@ def register_routes(app):
             nombre = request.form.get("nombre", "").strip()
             email = request.form.get("email", "").strip()
             rol = request.form.get("rol", "cliente")
+            if id_usuario == session.get("Id_usuario") and rol != "admin":
+                flash("No puedes cambiar tu propio rol de administrador.", "danger")
+                db.close()
+                return redirect(url_for('admin_usuarios'))
             cursor.execute("UPDATE usuarios SET nombre=%s, email=%s, rol=%s WHERE Id_usuario=%s",
                            (nombre, email, rol, id_usuario))
             db.commit()
@@ -85,32 +99,30 @@ def register_routes(app):
         db.close()
         return render_template("editar_usuario.html", usuario=usuario)
 
-    @app.route("/admin/usuarios/eliminar/<int:id_usuario>")
+    @app.route("/admin/usuarios/eliminar/<int:id_usuario>", methods=["POST"])
     def eliminar_usuario_admin(id_usuario):
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))
         db = conectar()
         if db:
-            cursor = db.cursor()
+            cursor = db.cursor(dictionary=True)
+            cursor.execute("SELECT rol FROM usuarios WHERE Id_usuario = %s", (id_usuario,))
+            usuario = cursor.fetchone()
+            if not usuario:
+                db.close()
+                flash("Usuario no encontrado.", "danger")
+                return redirect(url_for('admin_usuarios'))
+            if id_usuario == session.get("Id_usuario"):
+                flash("No puedes eliminar tu propia cuenta.", "danger")
+                db.close()
+                return redirect(url_for('admin_usuarios'))
+            if usuario['rol'] == 'admin':
+                flash("No puedes eliminar una cuenta de administrador.", "danger")
+                db.close()
+                return redirect(url_for('admin_usuarios'))
             cursor.execute("DELETE FROM usuarios WHERE Id_usuario = %s", (id_usuario,))
             db.commit()
             db.close()
         return redirect(url_for('admin_usuarios'))
 
-    @app.route("/admin/usuarios/cambiar-rol/<int:id_usuario>", methods=["POST"])
-    def cambiar_rol_usuario(id_usuario):
-        """Cambia el rol de un usuario entre admin y cliente."""
-        if session.get("rol") != "admin":
-            return redirect(url_for('inicio'))
-        db = conectar()
-        if db:
-            cursor = obtener_cursor(db)
-            cursor.execute("SELECT rol FROM usuarios WHERE Id_usuario = %s", (id_usuario,))
-            usuario = cursor.fetchone()
-            if usuario:
-                # Alterna entre admin y cliente
-                nuevo_rol = "cliente" if usuario[0] == "admin" else "admin"
-                cursor.execute("UPDATE usuarios SET rol = %s WHERE Id_usuario = %s", (nuevo_rol, id_usuario))
-                db.commit()
-            db.close()
-        return redirect(url_for('admin_usuarios'))
+

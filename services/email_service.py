@@ -31,7 +31,7 @@ def enviar_confirmacion_compra(mail, usuario, email, id_pedido, metodo_pago):
             <h1 style="font-family:'Playfair Display',serif;text-align:center;">JOEL PIEL</h1>
             <p>Hola <strong>{usuario}</strong>,</p>
             <p>Tu pedido <strong>#{id_pedido}</strong> ha sido confirmado.</p>
-            <p><strong>Método de pago:</strong> {"Pago en línea" if metodo_pago == "Pagado" else "Contraentrega"}</p>
+            <p><strong>Método de pago:</strong> {metodo_pago}</p>
             <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
             <p style="font-size:12px;color:#999;">JOEL PIEL · Envíos a todo Colombia</p>
         </div>

@@ -112,10 +112,19 @@ def register_routes(app):
             archivo = request.files.get("imagen")
             if archivo and archivo.filename:
                 filename = secure_filename(archivo.filename)
-                upload_folder = current_app.root_path + "/static/img/"
-                ruta = os.path.join(upload_folder, filename)
-                archivo.save(ruta)
-                imagen_url = filename
+                upload_folder = os.path.join(current_app.root_path, "static", "img")
+                # buscar si ya existe en alguna subcarpeta de static/img/
+                ruta_existente = None
+                for dirpath, _, filenames in os.walk(upload_folder):
+                    if filename in filenames:
+                        ruta_existente = os.path.relpath(os.path.join(dirpath, filename), upload_folder)
+                        break
+                if ruta_existente:
+                    imagen_url = ruta_existente.replace("\\", "/")
+                else:
+                    ruta = os.path.join(upload_folder, filename)
+                    archivo.save(ruta)
+                    imagen_url = filename
             cursor.execute("""
                 UPDATE productos SET nombre=%s, precio=%s, stock=%s, descripcion=%s, imagen_url=%s, Id_categoria=%s
                 WHERE id_producto=%s
@@ -126,7 +135,7 @@ def register_routes(app):
         db.close()
         return render_template("editar_producto.html", producto=producto, categorias=categorias)
 
-    @app.route("/admin/productos/eliminar/<int:id_producto>")
+    @app.route("/admin/productos/eliminar/<int:id_producto>", methods=["POST"])
     def eliminar_producto(id_producto):
         if session.get("rol") != "admin":
             return redirect(url_for('inicio'))

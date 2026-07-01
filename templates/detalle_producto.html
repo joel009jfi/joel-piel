@@ -7,8 +7,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
     
     <style>
         .detalle-wrapper {
@@ -248,7 +247,11 @@
     <a href="/">Inicio</a>
     <span>›</span>
     {% if categorias and producto.Id_categoria in categorias %}
+        {% if categorias[producto.Id_categoria].lower() in ('mujer', 'hombre') %}
         <a href="/{{ categorias[producto.Id_categoria].lower() }}">{{ categorias[producto.Id_categoria] }}</a>
+        {% else %}
+        <span>{{ categorias[producto.Id_categoria] }}</span>
+        {% endif %}
     {% else %}
         <a href="/">Colección</a>
     {% endif %}
@@ -300,12 +303,18 @@
         </div>
 
         
+        {% if producto.stock > 0 %}
         <button class="btn-detalle-carrito" 
-                onclick="agregarDesdeDetalle('{{ producto.id_producto }}')"
-                {% if producto.stock == 0 %}disabled{% endif %}>
+                onclick="agregarDesdeDetalle('{{ producto.id_producto }}')">
             <i class="fas fa-shopping-bag" style="margin-right:10px;"></i>
-            {% if producto.stock > 0 %}AÑADIR AL CARRITO{% else %}AGOTADO{% endif %}
+            AÑADIR AL CARRITO
         </button>
+        {% else %}
+        <button class="btn-detalle-carrito" style="background:#ccc;cursor:not-allowed;border:none;color:#fff;" disabled>
+            <i class="fas fa-times-circle" style="margin-right:10px;"></i>
+            AGOTADO
+        </button>
+        {% endif %}
 
         
         <div class="detalle-garantia">

@@ -34,6 +34,11 @@
                 <i class="fa-regular fa-eye" id="eye-reg" onclick="togglePass('pass-reg','eye-reg')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#999;"></i>
             </div>
 
+            <div style="position:relative;">
+                <input type="password" name="confirm_password" id="confirm-pass-reg" class="auth-input" placeholder="Confirmar contraseña" required autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
+                <i class="fa-regular fa-eye" id="eye-confirm-reg" onclick="togglePass('confirm-pass-reg','eye-confirm-reg')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#999;"></i>
+            </div>
+
             <button type="submit" class="btn-auth" style="margin-top: 15px;">Registrarse y Comenzar</button>
         </form>
 

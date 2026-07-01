@@ -7,8 +7,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
     
     <style>
         .contacto-wrapper {
@@ -186,6 +185,17 @@
 </div>
 
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div style="max-width:1000px;margin:20px auto 0;padding:0 5%;">
+    {% for category, message in messages %}
+    <div style="padding:12px 20px;margin-bottom:10px;border-radius:4px;font-size:13px;{{ 'background:#d4edda;color:#155724;border:1px solid #c3e6cb;' if category == 'success' else 'background:#fdf2f2;color:#721c24;border:1px solid #f5c6cb;' }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
 <div class="contacto-wrapper">
     
     <div class="contacto-info">

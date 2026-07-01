@@ -44,7 +44,7 @@ def register_routes(app):
                 return "La ciudad solo puede contener letras.", 400
             direccion_cruda = request.form.get("direccion", "Por definir")
             telefono = request.form.get("telefono", "")
-            metodo_pago = request.form.get("metodo_pago", "Contraentrega")
+            metodo_pago = request.form.get("metodo_pago", "Contra entrega")
             transportadora = request.form.get("transportadora", "Por asignar")
             direccion_completa = f"{direccion_cruda}, {ciudad} - {departamento}. Tel: {telefono}"
             total = 0
@@ -65,7 +65,7 @@ def register_routes(app):
                     })
             try:
                 # Transacción: crea pedido, envío y descuenta stock
-                estado_inicial = "Pagado" if metodo_pago == "Pagado" else "Pendiente"
+                estado_inicial = "Pendiente"
                 cursor.execute(
                     "INSERT INTO pedidos (Id_usuario, total, estado, metodo_pago, fecha) VALUES (%s, %s, %s, %s, NOW())",
                     (id_usuario, total, estado_inicial, metodo_pago)
@@ -86,8 +86,8 @@ def register_routes(app):
                 for item in items_a_procesar:
                     cursor.execute("UPDATE productos SET stock = %s WHERE id_producto = %s", (item['nuevo_stock'], item['id']))
                 # Insertar registro en pagos
-                estado_pago = 'Aprobado' if metodo_pago == 'Pagado' else 'Pendiente'
-                metodo_pago_db = 'PayPal' if metodo_pago == 'Pagado' else 'Contraentrega'
+                estado_pago = 'Aprobado' if metodo_pago == 'En l\u00ednea' else 'En espera'
+                metodo_pago_db = 'PayPal' if metodo_pago == 'En l\u00ednea' else 'Contra entrega'
                 cursor.execute(
                     "INSERT INTO pagos (id_pedido, metodo_pago, estado_pago, fecha_pago) VALUES (%s, %s, %s, NOW())",
                     (id_pedido_nuevo, metodo_pago_db, estado_pago)

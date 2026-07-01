@@ -20,10 +20,13 @@ def register_routes(app):
                     cursor.execute("""
                         SELECT p.Id_pedido, p.total, p.estado, p.fecha,
                                e.estado_envio, e.transportadora, e.numero_guia,
+                               e.fecha_entrega_estimada,
+                               pg.estado_pago,
                                u.nombre as cliente, u.email
                         FROM pedidos p
                         JOIN usuarios u ON p.Id_usuario = u.Id_usuario
                         LEFT JOIN envios e ON p.Id_pedido = e.Id_pedido
+                        LEFT JOIN pagos pg ON p.Id_pedido = pg.id_pedido
                         WHERE (p.Id_pedido = %s OR e.numero_guia = %s) AND u.email = %s
                     """, (pedido_id, pedido_id, email))
                     resultado = cursor.fetchone()

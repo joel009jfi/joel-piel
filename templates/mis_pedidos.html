@@ -102,7 +102,7 @@
                 <div><strong>Total:</strong> ${{ "{:,.0f}".format(p.total) }}</div>
                 <div>
                     <strong>Pago:</strong>
-                    <span class="status-badge {{ 'bg-pagado' if p.metodo_pago == 'Pagado' else 'bg-pendiente' }}">{{ p.metodo_pago or 'Contraentrega' }}</span>
+                    <span class="status-badge {{ 'bg-pagado' if p.metodo_pago == 'En línea' else 'bg-pendiente' }}">{{ p.metodo_pago  }}</span>
                 </div>
                 <div>
                     <strong>Envío:</strong>
@@ -112,10 +112,14 @@
                 {% if p.transportadora and p.numero_guia %}
                 <div><strong>Guía:</strong> {{ p.transportadora }} · {{ p.numero_guia }} <i class="fa-regular fa-copy" style="cursor:pointer;color:#888;font-size:13px;" onclick="navigator.clipboard.writeText('{{ p.numero_guia }}'); this.style.color='#28a745'; setTimeout(()=>this.style.color='#888',2000);" title="Copiar guía"></i></div>
                 {% endif %}
+                {% if p.fecha_entrega_estimada %}
+                <div style="margin-top:6px;font-size:13px;color:#555;"><strong>Fecha est. entrega:</strong> {{ p.fecha_entrega_estimada.strftime('%d/%m/%Y') if p.fecha_entrega_estimada.strftime is defined else p.fecha_entrega_estimada }}</div>
+                {% endif %}
             </div>
             
             {% if p.puede_cancelar %}
             <button type="button" class="btn-cancelar" onclick="mostrarConfirmacion({{ p.Id_pedido }})">CANCELAR PEDIDO</button>
+            <span style="display:block;font-size:11px;color:#888;margin-top:6px;">Puedes cancelarlo dentro de las primeras 5h</span>
             {% endif %}
         </div>
         {% endfor %}

@@ -1,4 +1,5 @@
 from flask import render_template, session, jsonify
+from db import conectar, obtener_cursor
 from extensions import csrf
 from services.helpers import datos_carrito, sincronizar_carrito_db
 
@@ -12,10 +13,28 @@ def register_routes(app):
     @app.route("/carrito/agregar/<int:id_producto>", methods=["POST"])
     @csrf.exempt
     def agregar_al_carrito(id_producto):
+        db = conectar()
+        if not db:
+            return jsonify({"status": "error", "message": "Error de conexión"}), 500
+        cursor = obtener_cursor(db, diccionario=True)
+        cursor.execute("SELECT stock FROM productos WHERE id_producto = %s", (id_producto,))
+        prod = cursor.fetchone()
+        db.close()
+        if not prod:
+            return jsonify({"status": "error", "message": "El producto no existe"}), 404
+        if prod['stock'] < 1:
+            return jsonify({"status": "error", "message": "Producto agotado"}), 400
+
         if "carrito" not in session:
             session["carrito"] = {}
         carrito = session["carrito"]
-        id_str = str(id_producto)  # Las claves del carrito son strings
+        id_str = str(id_producto)
+        cantidad_actual = carrito.get(id_str, 0)
+        if cantidad_actual + 1 > prod['stock']:
+            return jsonify({
+                "status": "error",
+                "message": f"Solo hay {prod['stock']} unidades disponibles"
+            }), 400
         if id_str in carrito:
             carrito[id_str] += 1
         else:

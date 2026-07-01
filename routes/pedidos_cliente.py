@@ -19,7 +19,8 @@ def register_routes(app):
             cursor = obtener_cursor(db, diccionario=True)
             cursor.execute("""
                 SELECT p.Id_pedido, p.total, p.estado, p.metodo_pago, p.fecha,
-                       e.estado_envio, e.transportadora, e.numero_guia
+                       e.estado_envio, e.transportadora, e.numero_guia,
+                       e.fecha_entrega_estimada
                 FROM pedidos p
                 LEFT JOIN envios e ON p.Id_pedido = e.Id_pedido
                 WHERE p.Id_usuario = %s
@@ -35,9 +36,9 @@ def register_routes(app):
                     WHERE dp.Id_pedido = %s
                 """, (pedido['Id_pedido'],))
                 pedido['productos'] = cursor.fetchall()
-                if pedido['estado'] in ('Pendiente', 'Pagado') and pedido['fecha']:
+                if pedido['estado'] in ('Pendiente',) and pedido['fecha']:
                     diff = ahora - pedido['fecha']
-                    pedido['puede_cancelar'] = diff.total_seconds() <= 86400
+                    pedido['puede_cancelar'] = diff.total_seconds() <= 18000
                 else:
                     pedido['puede_cancelar'] = False
             db.close()
@@ -53,13 +54,20 @@ def register_routes(app):
             cursor = obtener_cursor(db, diccionario=True)
             cursor.execute("SELECT estado, metodo_pago, fecha FROM pedidos WHERE Id_pedido = %s AND Id_usuario = %s", (id_pedido, Id_usuario))
             pedido = cursor.fetchone()
-            if pedido and pedido['estado'] in ("Pendiente", "Pagado"):
-                if pedido['fecha'] and (datetime.now() - pedido['fecha']).total_seconds() > 86400:
-                    flash("El pedido solo se puede cancelar dentro de las primeras 24 horas.", "danger")
+            if pedido and pedido['estado'] in ("Pendiente",):
+                if pedido['fecha'] and (datetime.now() - pedido['fecha']).total_seconds() > 18000:
+                    flash("El pedido solo se puede cancelar dentro de las primeras 5 horas.", "danger")
                 else:
-                    cursor.execute("UPDATE pedidos SET estado = 'Cancelado' WHERE Id_pedido = %s", (id_pedido,))
+                    cursor.execute("SELECT Id_producto, cantidad FROM detalle_pedido WHERE Id_pedido = %s", (id_pedido,))
+                    productos_devueltos = cursor.fetchall()
+                    for prod in productos_devueltos:
+                        cursor.execute("UPDATE productos SET stock = stock + %s WHERE id_producto = %s", (prod['cantidad'], prod['Id_producto']))
+                    cursor.execute("DELETE FROM envios WHERE Id_pedido = %s", (id_pedido,))
+                    cursor.execute("DELETE FROM pagos WHERE id_pedido = %s", (id_pedido,))
+                    cursor.execute("DELETE FROM detalle_pedido WHERE Id_pedido = %s", (id_pedido,))
+                    cursor.execute("DELETE FROM pedidos WHERE Id_pedido = %s", (id_pedido,))
                     db.commit()
-                    if pedido['metodo_pago'] == 'Pagado':
+                    if pedido['metodo_pago'] == 'En l\u00ednea':
                         usuario = session.get("usuario", "Cliente")
                         cursor.execute("SELECT email FROM usuarios WHERE Id_usuario = %s", (Id_usuario,))
                         row = cursor.fetchone()

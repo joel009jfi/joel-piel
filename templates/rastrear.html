@@ -100,7 +100,7 @@
         <div class="row"><strong>Total</strong><span>${{ "{:,.0f}".format(resultado.total) }}</span></div>
         <div class="row">
             <strong>Estado del pago</strong>
-            <span class="status-badge {{ 'bg-pagado' if resultado.estado == 'Pagado' else 'bg-pendiente' }}">{{ resultado.estado }}</span>
+            <span class="status-badge {{ 'bg-pagado' if resultado.estado_pago == 'Aprobado' else 'bg-pendiente' }}">{{ 'Pago aprobado' if resultado.estado_pago == 'Aprobado' else 'Pago pendiente' }}</span>
         </div>
         <div class="row">
             <strong>Estado del envío</strong>
@@ -110,6 +110,9 @@
         {% if resultado.transportadora and resultado.numero_guia %}
         <div class="row"><strong>Transportadora</strong><span>{{ resultado.transportadora }}</span></div>
         <div class="row"><strong>Guía</strong><span>{{ resultado.numero_guia }}</span></div>
+        {% endif %}
+        {% if resultado.fecha_entrega_estimada %}
+        <div class="row"><strong>Fecha estimada de entrega</strong><span>{{ resultado.fecha_entrega_estimada.strftime('%d/%m/%Y') if resultado.fecha_entrega_estimada.strftime is defined else resultado.fecha_entrega_estimada }}</span></div>
         {% endif %}
     </div>
     {% endif %}

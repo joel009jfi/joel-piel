@@ -138,8 +138,8 @@
                         <td style="font-size:12px;color:#888;">{{ pedido.email }}</td>
                         <td>$ {{ "{:,.0f}".format(pedido.total) }}</td>
                         <td>
-                            <span class="status-pill status-{{ pedido.estado|lower }}">
-                                {{ pedido.estado }}
+                            <span class="status-pill status-{{ 'pendiente' if pedido.estado|lower in ('por despachar','pendiente') else pedido.estado|lower }}">
+                                {{ 'Pendiente' if pedido.estado|lower in ('por despachar','pendiente') else pedido.estado }}
                             </span>
                         </td>
                     </tr>

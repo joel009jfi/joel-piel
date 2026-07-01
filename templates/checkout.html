@@ -7,8 +7,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
 </head>
 <body>
@@ -49,7 +48,7 @@
             
             <div class="form-group">
                 <label for="ciudad">Ciudad / Municipio *</label>
-                <input type="text" name="ciudad" id="ciudad" class="form-control" placeholder="Ej: Medellín" required>
+                <input type="text" name="ciudad" id="ciudad" class="form-control" placeholder="Ej: Medellín" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñüÜ\s]+" title="Solo letras" required>
             </div>
 
             
@@ -79,16 +78,16 @@
                 <label>Método de pago</label>
                 <div style="display:flex;flex-direction:column;gap:10px;margin-top:5px;">
                     <label style="display:flex;align-items:center;gap:12px;padding:12px 15px;border:1px solid #ddd;cursor:pointer;font-size:14px;font-family:Montserrat,sans-serif;transition:border-color 0.2s;border-radius:2px;" onmouseover="this.style.borderColor='#000'" onmouseout="this.style.borderColor='#ddd'">
-                        <input type="radio" name="metodo_pago" value="Pagado" onchange="actualizarResumen()" style="width:16px;height:16px;accent-color:#000;">
+                        <input type="radio" name="metodo_pago" value="En línea" onchange="actualizarResumen()" style="width:16px;height:16px;accent-color:#000;">
                         <div>
                             <strong>Pago en línea</strong><br>
                             <span style="font-size:12px;color:#666;">Pagas los productos en línea. El envío lo pagas a la transportadora al recibir.</span>
                         </div>
                     </label>
                     <label style="display:flex;align-items:center;gap:12px;padding:12px 15px;border:1px solid #ddd;cursor:pointer;font-size:14px;font-family:Montserrat,sans-serif;transition:border-color 0.2s;border-radius:2px;" onmouseover="this.style.borderColor='#000'" onmouseout="this.style.borderColor='#ddd'">
-                        <input type="radio" name="metodo_pago" value="Contraentrega" checked onchange="actualizarResumen()" style="width:16px;height:16px;accent-color:#000;">
+                        <input type="radio" name="metodo_pago" value="Contra entrega" checked onchange="actualizarResumen()" style="width:16px;height:16px;accent-color:#000;">
                         <div>
-                            <strong>Contraentrega</strong><br>
+                            <strong>Contra entrega</strong><br>
                             <span style="font-size:12px;color:#666;">Pagas todo a la transportadora al recibir (productos + envío)</span>
                         </div>
                     </label>
@@ -139,7 +138,7 @@
 <script>
 function actualizarResumen() {
     var total = {{ total }};
-    var completo = document.querySelector('input[name="metodo_pago"]:checked').value === 'Pagado';
+    var completo = document.querySelector('input[name="metodo_pago"]:checked').value === 'En línea';
     document.getElementById('total-ahora').textContent = completo ? '$' + total.toLocaleString('es-CO') : '$0';
 }
 document.addEventListener("DOMContentLoaded", function() {

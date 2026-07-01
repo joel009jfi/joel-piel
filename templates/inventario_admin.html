@@ -113,11 +113,12 @@
                                 <a href="{{ url_for('editar_producto', id_producto=p.id_producto) }}" class="btn-editar">
                                     <i class="fa-solid fa-pen"></i> Editar
                                 </a>
-                                <a href="{{ url_for('eliminar_producto', id_producto=p.id_producto) }}" 
-                                   class="btn-eliminar" 
-                                   onclick="return confirm('¿Estás seguro de eliminar {{ p.nombre }}? Esta acción no se puede deshacer.');">
-                                   <i class="fa-solid fa-trash"></i> Eliminar
-                                </a>
+                                <form action="{{ url_for('eliminar_producto', id_producto=p.id_producto) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de eliminar {{ p.nombre }}? Esta acción no se puede deshacer.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn-eliminar" style="border:none;cursor:pointer;">
+                                        <i class="fa-solid fa-trash"></i> Eliminar
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>

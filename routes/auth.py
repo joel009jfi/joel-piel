@@ -45,7 +45,9 @@ def register_routes(app):
             email = request.form["email"]
             password = request.form["password"]
             confirm_password = request.form.get("confirm_password", "")
-            if password != confirm_password:
+            if len(password) < 8:
+                mensaje = "La contraseña debe tener al menos 8 caracteres."
+            elif password != confirm_password:
                 mensaje = "Las contraseñas no coinciden."
             elif obtener_usuario_por_email(email):
                 mensaje = "Ese correo ya tiene una cuenta activa."

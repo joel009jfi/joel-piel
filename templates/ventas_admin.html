@@ -53,8 +53,8 @@
         {% for metodo, grupo in agrupados.items() %}
         <div class="pay-section">
             <div class="pay-title">
-                {% if metodo == 'Pagado' %}<i class="fa-solid fa-check-circle" style="color:#5cb85c;"></i>{% else %}<i class="fa-solid fa-clock" style="color:#f0ad4e;"></i>{% endif %}
-                {{ 'Pagados' if metodo == 'Pagado' else 'Contraentrega' }}
+                {% if metodo == 'En línea' %}<i class="fa-solid fa-check-circle" style="color:#5cb85c;"></i>{% else %}<i class="fa-solid fa-clock" style="color:#f0ad4e;"></i>{% endif %}
+                {{ metodo }}
                 <span class="pay-count">{{ grupo|length }} pedido(s)</span>
             </div>
 
@@ -68,7 +68,6 @@
                         <th>Pago</th>
                         <th>Estado Pago</th>
                         <th>Envío</th>
-                        <th>Estado</th>
                         <th>Acción</th>
                     </tr>
                 </thead>
@@ -81,7 +80,7 @@
                         </td>
                         <td>{{ pedido.cliente }}</td>
                         <td>${{ "{:,.0f}".format(pedido.total) }}</td>
-                        <td><span class="status-pill" style="background:#eee;font-size:10px;">{{ pedido.metodo_pago or 'Contraentrega' }}</span></td>
+                        <td><span class="status-pill" style="background:#eee;font-size:10px;">{{ pedido.metodo_pago  }}</span></td>
                         <td>
                             <span class="status-pill" style="font-size:10px;{{ 'background:#d4edda;color:#155724;' if pedido.estado_pago == 'Aprobado' else 'background:#fff3cd;color:#856404;' }}">
                                 {{ pedido.estado_pago or '—' }}
@@ -96,13 +95,8 @@
                             {% endif %}
                         </td>
                         <td>
-                            <span class="status-pill status-{{ pedido.estado|lower }}">
-                                {{ pedido.estado|upper }}
-                            </span>
-                        </td>
-                        <td>
-                            <div style="display:flex;gap:6px;align-items:center;">
-                                {% if pedido.estado != 'Pagado' and pedido.metodo_pago == 'Contraentrega' %}
+                            <div style="display:flex;gap:6px;align-items-center;">
+                                {% if pedido.metodo_pago == 'Contra entrega' and pedido.estado_pago != 'Aprobado' %}
                                 <form action="{{ url_for('confirmar_pago', id_pedido=pedido.Id_pedido) }}" method="POST" style="display:inline;">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit" style="background:none;border:none;color:#5cb85c;cursor:pointer;font-size:14px;" title="Confirmar pago"><i class="fa-solid fa-check"></i></button>
@@ -110,6 +104,12 @@
                                 {% endif %}
                                 <a href="{{ url_for('descargar_pdf_pedido', id_pedido=pedido.Id_pedido) }}" style="background:none;border:none;color:#d9534f;cursor:pointer;font-size:14px;text-decoration:none;" title="Descargar PDF"><i class="fa-solid fa-file-pdf"></i></a>
                                 <a href="{{ url_for('admin_envios') }}" style="background:none;border:none;color:#888;cursor:pointer;font-size:14px;text-decoration:none;" title="Ir a logística"><i class="fa-solid fa-truck"></i></a>
+                                {% if pedido.estado_envio != 'Entregado' %}
+                                <form action="{{ url_for('admin_cancelar_pedido', id_pedido=pedido.Id_pedido) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Cancelar pedido #{{ pedido.Id_pedido }}? Se restaurará el stock y no hay vuelta atrás.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" style="background:none;border:none;color:#d9534f;cursor:pointer;font-size:14px;" title="Cancelar pedido"><i class="fa-solid fa-ban"></i></button>
+                                </form>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
