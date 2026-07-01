@@ -47,7 +47,7 @@ def register_routes(app):
         cursor.execute("""
             SELECT COUNT(*) as pd FROM envios e
             JOIN pedidos p ON e.Id_pedido = p.Id_pedido
-            WHERE (e.estado_envio IN ('Por despachar', 'Preparando') OR e.estado_envio IS NULL)
+            WHERE (e.estado_envio IN ('Por despachar', 'Preparando', 'Procesado') OR e.estado_envio IS NULL)
             AND (p.archivado = 0 OR p.archivado IS NULL)
         """)
         res_pd = cursor.fetchone()
