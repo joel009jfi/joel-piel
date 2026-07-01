@@ -65,7 +65,7 @@ def register_routes(app):
                             enviar_bienvenida(mail, nombre, email, url_for('inicio', _external=True))
                         except Exception as e:
                             print(f"Error al enviar correo de bienvenida: {e}")
-                    return redirect(url_for('inicio'))
+                    return render_template("registro.html", exito=True)
                 mensaje = "Hubo un error al guardar tus datos."
         return render_template("registro.html", mensaje=mensaje)
 
