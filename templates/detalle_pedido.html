@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pedido #{{ pedido.Id_pedido }} | JOEL PIEL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .detalle-wrapper { max-width: 700px; margin: 40px auto; padding: 0 5%; }
+        .detalle-card { background: #fff; border: 1px solid #eee; padding: 30px; border-radius: 4px; }
+        .detalle-card h1 { font-size: 22px; margin-bottom: 20px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; font-size: 14px; }
+        .info-grid strong { display: block; color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        .info-grid span { color: #000; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
+        th { background: #f8f8f8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .total-row { font-weight: 700; font-size: 16px; text-align: right; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    
+    <header class="admin-header">
+        <a href="{{ url_for('admin_panel') }}" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin_panel') }}">Volver al Panel</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Salir</a>
+        </nav>
+    </header>
+
+    
+    <div class="detalle-wrapper">
+        <div class="detalle-card">
+            <h1><i class="fa-solid fa-receipt"></i> Pedido #{{ pedido.Id_pedido }}</h1>
+
+            
+            <div class="info-grid">
+                <div><strong>Cliente</strong><span>{{ pedido.nombre }}</span></div>
+                <div><strong>Email</strong><span>{{ pedido.email }}</span></div>
+                <div><strong>Fecha</strong><span>{{ pedido.fecha }}</span></div>
+                <div><strong>Método de pago</strong><span>{{ pedido.metodo_pago  }}</span></div>
+                <div><strong>Estado pago</strong><span>{{ pedido.estado }}</span></div>
+                <div><strong>Estado envío</strong><span>{{ pedido.estado_envio or 'Pendiente' }}</span></div>
+                <div><strong>Dirección</strong><span>{{ pedido.direccion_envio }}</span></div>
+                <div><strong>Transportadora</strong><span>{{ pedido.transportadora or 'Por asignar' }}</span></div>
+                <div><strong>Guía</strong><span>{{ pedido.numero_guia or 'Pendiente' }}</span></div>
+                <div><strong>Logística</strong><span><a href="{{ url_for('admin_envios') }}" style="color:#000;">Ir a envíos <i class="fa-solid fa-arrow-right"></i></a></span></div>
+            </div>
+
+            
+            <h3 style="margin-top:25px;font-size:14px;text-transform:uppercase;letter-spacing:1px;">Productos</h3>
+            <table>
+                <thead>
+                    <tr><th>Producto</th><th>Cantidad</th><th>Precio Unit.</th><th>Subtotal</th></tr>
+                </thead>
+                <tbody>
+                    {% for item in pedido.productos %}
+                    <tr>
+                        <td>{{ item.nombre }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        <td>${{ "{:,.0f}".format(item.precio_unitario) }}</td>
+                        <td>${{ "{:,.0f}".format(item.cantidad * item.precio_unitario) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div class="total-row">Total: ${{ "{:,.0f}".format(pedido.total) }}</div>
+
+            <div style="margin-top:25px;display:flex;gap:10px;justify-content:space-between;">
+                <a href="{{ url_for('admin_ventas') }}" style="background:none;border:1px solid #000;color:#000;padding:8px 20px;border-radius:2px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;text-decoration:none;">← Volver a ventas</a>
+                {% if pedido.estado_envio != 'Entregado' %}
+                <form action="{{ url_for('admin_cancelar_pedido', id_pedido=pedido.Id_pedido) }}" method="POST" onsubmit="return confirm('¿Cancelar pedido #{{ pedido.Id_pedido }}? Se restaurará el stock y no hay vuelta atrás.');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" style="background:#d9534f;border:1px solid #d9534f;color:#fff;padding:8px 20px;border-radius:2px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Cancelar pedido</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+        </div>
+    </div>
+</body>
+</html>

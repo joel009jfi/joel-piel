@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Inventario | JOEL PIEL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .btn-eliminar {
+            background-color: #f8f9fa;
+            color: #d9534f;
+            border: 1px solid #d9534f;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-eliminar:hover { background-color: #d9534f; color: white; }
+
+        .btn-editar {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-editar:hover { background-color: #333; color: white; }
+
+        .cat-section { margin-bottom: 40px; }
+        .cat-title { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #000; }
+        .cat-count { font-size: 12px; color: #888; font-weight: 400; text-transform: none; letter-spacing: 0; }
+    </style>
+</head>
+<body>
+    
+    <header class="admin-header">
+        <a href="{{ url_for('admin_panel') }}" class="admin-logo">JOEL PIEL <span style="font-size: 12px; font-weight: 300;">ADMIN</span></a>
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin_panel') }}">Volver al Panel</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Salir</a>
+        </nav>
+    </header>
+
+    
+    <div class="admin-container">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1 class="admin-title" style="margin: 0;">Gestión de Inventario</h1>
+            <a href="{{ url_for('crear_producto') }}" class="btn-panel" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-plus"></i> NUEVO BOLSO
+            </a>
+        </div>
+
+        {% for id_cat, grupo in agrupados.items() %}
+        <div class="cat-section">
+            <div class="cat-title">
+                {{ grupo.nombre }}
+                <span class="cat-count">{{ grupo.productos|length }} producto(s)</span>
+            </div>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in grupo.productos %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                {% if p.imagen_url and p.imagen_url.startswith('/static/') %}
+                                <img src="{{ p.imagen_url }}" class="product-img-mini" onerror="this.src='https://via.placeholder.com/50x50?text=Piel'">
+                                {% elif p.imagen_url %}
+                                <img src="{{ url_for('static', filename='img/' + p.imagen_url) }}" class="product-img-mini" onerror="this.src='https://via.placeholder.com/50x50?text=Piel'">
+                                {% else %}
+                                <img src="https://via.placeholder.com/50x50?text=Piel" class="product-img-mini">
+                                {% endif %}
+                                <strong>{{ p.nombre }}</strong>
+                            </div>
+                        </td>
+                        <td>${{ "{:,.0f}".format(p.precio) }}</td>
+                        <td>
+                            
+                            <div class="stock-control">
+                                <button class="btn-stock" onclick="cambiarStock({{ p.id_producto }}, -1)">-</button>
+                                <span id="stock-{{ p.id_producto }}" style="font-weight: 700; width: 30px; text-align: center;">{{ p.stock }}</span>
+                                <button class="btn-stock" onclick="cambiarStock({{ p.id_producto }}, 1)">+</button>
+                            </div>
+                        </td>
+                        <td>
+                            <span id="pill-{{ p.id_producto }}" class="status-pill {{ 'status-cancelado' if p.stock == 0 else 'status-advertencia' if p.stock < 5 else 'status-enviado' }}">
+                                {{ 'Sin Stock' if p.stock == 0 else 'Bajo Stock' if p.stock < 5 else 'Disponible' }}
+                            </span>
+                        </td>
+                        <td>
+                            
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <a href="{{ url_for('editar_producto', id_producto=p.id_producto) }}" class="btn-editar">
+                                    <i class="fa-solid fa-pen"></i> Editar
+                                </a>
+                                <form action="{{ url_for('eliminar_producto', id_producto=p.id_producto) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de eliminar {{ p.nombre }}? Esta acción no se puede deshacer.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn-eliminar" style="border:none;cursor:pointer;">
+                                        <i class="fa-solid fa-trash"></i> Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 20px; color: #999; font-size: 13px;">
+                            No hay productos en esta categoría.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+
+    
+    <script>
+        function cambiarStock(id, cambio) {
+            const stockElement = document.getElementById(`stock-${id}`);
+            const pillElement = document.getElementById(`pill-${id}`);
+            let nuevoStock = parseInt(stockElement.innerText) + cambio;
+
+            if (nuevoStock < 0) {
+                alert('El stock no puede ser negativo');
+                return;
+            }
+
+            fetch('{{ url_for('admin_productos') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ id: id, stock: nuevoStock })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    stockElement.innerText = nuevoStock;
+                    if (nuevoStock === 0) {
+                        pillElement.innerText = 'Sin Stock';
+                        pillElement.className = 'status-pill status-cancelado';
+                    } else if (nuevoStock < 5) {
+                        pillElement.innerText = 'Bajo Stock';
+                        pillElement.className = 'status-pill status-advertencia';
+                    } else {
+                        pillElement.innerText = 'Disponible';
+                        pillElement.className = 'status-pill status-enviado';
+                    }
+                } else {
+                    alert('Error: ' + (data.error || 'No se pudo actualizar el stock'));
+                }
+            })
+            .catch(err => console.error('Error al actualizar:', err));
+        }
+    </script>
+</body>
+</html>

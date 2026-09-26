@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Contraseña | JOEL PIEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body class="auth-body">
+    <div class="auth-container">
+        {% if not valido %}
+            <h2 style="font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 30px;">Enlace inválido o expirado</h2>
+            <p style="font-size: 14px; color: #666; text-align: center;">El enlace para restablecer tu contraseña ya no es válido. Solicita uno nuevo.</p>
+            <p style="margin-top: 25px; text-align: center;">
+                <a href="{{ url_for('olvide_contrasena') }}" style="color: #000; font-weight: 600;">Solicitar nuevo enlace</a>
+            </p>
+        {% elif exito %}
+            <h2 style="font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 30px;">Contraseña actualizada</h2>
+            <p style="font-size: 14px; color: #666; text-align: center;">Tu contraseña se ha cambiado correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.</p>
+            <p style="margin-top: 25px; text-align: center;">
+                <a href="{{ url_for('login') }}" style="color: #000; font-weight: 600;">Iniciar sesión</a>
+            </p>
+        {% else %}
+            <h2 style="font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 30px;">Nueva Contraseña</h2>
+
+            {% if mensaje %}
+            <div class="alerta" style="border-left: 4px solid #d9534f; background-color: #fdf0ef; color: #843534; padding: 12px; margin-bottom: 20px; text-align: left; font-size: 13px;">
+                {{ mensaje }}
+            </div>
+            {% endif %}
+
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div style="position:relative;">
+                    <input type="password" name="password" id="pass-reset" class="auth-input" placeholder="Nueva contraseña segura" required>
+                    <i class="fa-regular fa-eye" id="eye-reset" onclick="togglePass('pass-reset','eye-reset')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#999;"></i>
+                </div>
+                <button type="submit" class="btn-auth" style="margin-top: 15px;">Cambiar contraseña</button>
+            </form>
+        {% endif %}
+
+        <p style="margin-top: 20px; text-align: center;">
+            <a href="{{ url_for('inicio') }}" style="font-size: 12px; color: #999; text-decoration: none; letter-spacing: 1px;"><i class="fa-solid fa-arrow-left"></i> Volver al inicio</a>
+        </p>
+    </div>
+
+<script>
+function togglePass(inputId, eyeId) {
+    var input = document.getElementById(inputId);
+    var eye = document.getElementById(eyeId);
+    if (input.type === 'password') {
+        input.type = 'text';
+        eye.className = 'fa-regular fa-eye-slash';
+    } else {
+        input.type = 'password';
+        eye.className = 'fa-regular fa-eye';
+    }
+}
+</script>
+</body>
+</html>

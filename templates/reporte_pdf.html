@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1 { text-align: center; text-transform: uppercase; }
+        h2 { font-size: 16px; margin-top: 30px; padding-bottom: 5px; border-bottom: 2px solid #000; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #000; color: white; }
+        .total-box { margin-top: 30px; font-weight: bold; font-size: 20px; text-align: right; }
+    </style>
+</head>
+<body>
+    
+    <h1>{{ titulo if titulo else 'Reporte de Ventas' }} - JOEL PIEL</h1>
+    <p>Generado el: {{ fecha_generado }}</p>
+    
+    {% for metodo, grupo in agrupados.items() %}
+    <h2>{{ metodo|upper }}</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID Pedido</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in grupo %}
+            <tr>
+                <td>#{{ v.Id_pedido }}</td>
+                <td>{{ v.cliente }}</td>
+                <td>{{ v.fecha }}</td>
+                <td>{{ v.estado }}</td>
+                <td>$ {{ v.total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+    
+    <div class="total-box">Total General: $ {{ "{:,.0f}".format(gran_total) }}</div>
+</body>
+</html>

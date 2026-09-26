@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Pedidos | JOEL PIEL</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    
+    <style>
+        .pedidos-wrapper { max-width: 800px; margin: 50px auto 80px; padding: 0 5%; }
+        .pedidos-wrapper h2 { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 30px; }
+        .pedido-card { border: 1px solid #eee; padding: 20px; margin-bottom: 15px; border-radius: 4px; transition: all 0.4s ease; }
+        .pedido-card.cancelando { transform: translateX(-30px); opacity: 0; }
+        .pedido-card.cancelado { background: #fdf2f2; border-color: #f5c6cb; }
+        .pedido-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .pedido-header h3 { margin: 0; font-size: 16px; font-weight: 700; }
+        .pedido-header .fecha { color: #888; font-size: 13px; }
+        .pedido-detalle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; color: #555; }
+        .pedido-detalle strong { color: #333; }
+        .status-badge { display: inline-block; padding: 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px; border-radius: 2px; }
+        .bg-pendiente { background: #fff3cd; color: #856404; }
+        .bg-pagado { background: #d4edda; color: #155724; }
+        .bg-enviado { background: #d4edda; color: #155724; }
+        .bg-entregado { background: #cce5ff; color: #004085; }
+        .bg-cancelado { background: #f8d7da; color: #721c24; }
+        .btn-cancelar { background:none; border:1px solid #d9534f; color:#d9534f; padding:6px 14px; cursor:pointer; font-size:11px; font-weight:700; border-radius:2px; transition:all 0.3s ease; }
+        .btn-cancelar:hover { background:#d9534f; color:#fff; }
+        .modal-confirm-overlay { display:none; position:fixed; z-index:999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; animation:fadeIn 0.25s ease; }
+        .modal-confirm-box { background:#fff; padding:35px; max-width:380px; width:90%; border-radius:6px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.15); animation:slideUp 0.3s ease; }
+        .modal-confirm-box h3 { margin:0 0 8px; font-size:18px; font-family:'Playfair Display',serif; }
+        .modal-confirm-box p { color:#888; font-size:13px; margin-bottom:20px; }
+        .modal-confirm-box .btn-confirmar { background:#d9534f; color:#fff; border:none; padding:10px 28px; font-size:12px; font-weight:700; letter-spacing:1px; cursor:pointer; border-radius:2px; transition:all 0.2s; margin-right:10px; }
+        .modal-confirm-box .btn-confirmar:hover { background:#c9302c; }
+        .modal-confirm-box .btn-cancelar-modal { background:none; border:1px solid #ccc; color:#888; padding:10px 20px; font-size:12px; cursor:pointer; border-radius:2px; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        @keyframes slideUp { from { transform:translateY(30px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+        @keyframes slideOut { from { transform:translateX(0); opacity:1; } to { transform:translateX(-40px); opacity:0; } }
+    </style>
+</head>
+<body>
+
+<div class="navbar-fixed">
+    <div class="top-bar">ENVÍOS A TODO COLOMBIA | EXCLUSIVIDAD EN DISEÑOS</div>
+    <header class="header">
+        <div class="logo" onclick="window.location.href='/'" style="cursor:pointer;">JOEL PIEL</div>
+        <div class="header-right">
+            
+            <form action="/buscar" method="GET" class="buscador-form">
+                <input type="text" name="q" placeholder="Buscar bolsos..." class="buscador">
+                <button type="submit" class="buscar-btn"><i class="fas fa-search"></i></button>
+            </form>
+            <div class="icons">
+                <span class="user-welcome">Hola, {{ usuario }}</span>
+                {% if rol == "admin" %}
+                    <a href="/admin" title="Panel Admin"><i class="fas fa-tools"></i></a>
+                {% endif %}
+                <a href="/logout" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></a>
+                <a href="javascript:void(0);" onclick="toggleCarrito()" title="Carrito" class="carrito-link" style="position:relative;text-decoration:none;">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="carrito-count">{{ cantidad_total_carrito }}</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    
+    <nav class="menu">
+        <a href="/">INICIO</a>
+        <a href="/mujer">MUJER</a>
+        <a href="/hombre">HOMBRE</a>
+        <a href="/lo-nuevo">LO NUEVO</a>
+        <a href="/rastrear">RASTREAR</a>
+        <a href="/mis-pedidos" style="border-bottom: 2px solid #000;">MIS PEDIDOS</a>
+    </nav>
+</div>
+
+
+<div class="pedidos-wrapper">
+    <h2>Mis Pedidos</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}" style="padding:12px 18px;margin-bottom:20px;border-radius:4px;font-size:14px;font-weight:500;{{ 'background:#d4edda;color:#155724;border:1px solid #c3e6cb' if category == 'success' else 'background:#f8d7da;color:#721c24;border:1px solid #f5c6cb' }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if pedidos %}
+        
+        {% for p in pedidos %}
+        <div class="pedido-card">
+            <div class="pedido-header">
+                <h3>Pedido #{{ p.Id_pedido }}</h3>
+                <span class="fecha">{% if p.fecha.strftime is defined %}{{ p.fecha.strftime('%d/%m/%Y') }}{% else %}{{ p.fecha }}{% endif %}</span>
+            </div>
+            <div class="pedido-detalle">
+                <div><strong>Total:</strong> ${{ "{:,.0f}".format(p.total) }}</div>
+                <div>
+                    <strong>Pago:</strong>
+                    <span class="status-badge {{ 'bg-pagado' if p.metodo_pago == 'En línea' else 'bg-pendiente' }}">{{ p.metodo_pago  }}</span>
+                </div>
+                <div>
+                    <strong>Envío:</strong>
+                    <span class="status-badge {{ 'bg-entregado' if p.estado_envio == 'Entregado' else 'bg-enviado' if p.estado_envio == 'Enviado' else 'bg-pendiente' }}">{{ p.estado_envio or 'Pendiente' }}</span>
+                </div>
+                
+                {% if p.transportadora and p.numero_guia %}
+                <div><strong>Guía:</strong> {{ p.transportadora }} · {{ p.numero_guia }} <i class="fa-regular fa-copy" style="cursor:pointer;color:#888;font-size:13px;" onclick="navigator.clipboard.writeText('{{ p.numero_guia }}'); this.style.color='#28a745'; setTimeout(()=>this.style.color='#888',2000);" title="Copiar guía"></i></div>
+                {% endif %}
+                {% if p.fecha_entrega_estimada %}
+                <div style="margin-top:6px;font-size:13px;color:#555;"><strong>Fecha est. entrega:</strong> {{ p.fecha_entrega_estimada.strftime('%d/%m/%Y') if p.fecha_entrega_estimada.strftime is defined else p.fecha_entrega_estimada }}</div>
+                {% endif %}
+            </div>
+            
+            {% if p.puede_cancelar %}
+            <button type="button" class="btn-cancelar" onclick="mostrarConfirmacion({{ p.Id_pedido }})">CANCELAR PEDIDO</button>
+            <span style="display:block;font-size:11px;color:#888;margin-top:6px;">Puedes cancelarlo dentro de las primeras 5h</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        
+        <div style="text-align:center;padding:60px 20px;border:1px solid #eee;border-radius:4px;">
+            <i class="fa-solid fa-box-open" style="font-size:3rem;color:#ccc;margin-bottom:20px;"></i>
+            <p style="color:#888;font-size:16px;">Aún no has realizado ningún pedido.</p>
+            <a href="/" class="btn-cart-checkout" style="display:inline-block;width:auto;margin-top:20px;background:#000;color:#fff!important;">VER COLECCIÓN</a>
+        </div>
+    {% endif %}
+</div>
+
+
+<footer class="footer">
+    <p>&copy; 2026 JOEL PIEL. Hecho con orgullo en Colombia.</p>
+    <a href="/contacto" class="footer-link"><i class="fa-regular fa-envelope"></i> Contacto</a>
+</footer>
+
+{% include 'carrito_sidebar.html' %}
+
+
+<div id="modal-confirm" class="modal-confirm-overlay">
+    <div class="modal-confirm-box">
+        <h3>¿Cancelar pedido?</h3>
+        <p>Esta acción no se puede deshacer.</p>
+        <form id="form-cancelar" method="POST" action="">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-confirmar">SÍ, CANCELAR</button>
+            <button type="button" class="btn-cancelar-modal" onclick="cerrarConfirmacion()">VOLVER</button>
+        </form>
+    </div>
+</div>
+
+
+<script>
+function mostrarConfirmacion(id) {
+    document.getElementById('form-cancelar').action = '/cancelar-pedido/' + id;
+    document.getElementById('modal-confirm').style.display = 'flex';
+}
+function cerrarConfirmacion() {
+    document.getElementById('modal-confirm').style.display = 'none';
+}
+document.getElementById('modal-confirm').addEventListener('click', function(e) {
+    if (e.target === this) cerrarConfirmacion();
+});
+document.getElementById('form-cancelar').addEventListener('submit', function(e) {
+    var btn = this.querySelector('.btn-confirmar');
+    btn.disabled = true;
+    btn.textContent = 'Cancelando...';
+});
+</script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

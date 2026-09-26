@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta | JOEL PIEL</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body class="auth-body">
+
+    
+    <div class="auth-container">
+        
+        {% if exito %}
+
+        <div style="text-align:center;padding:40px 20px;">
+            <i class="fa-solid fa-check-circle" style="font-size:60px;color:#5cb85c;margin-bottom:20px;"></i>
+            <h2 style="font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 15px;">Registro exitoso</h2>
+            <p style="color:#666;margin-bottom:30px;font-size:14px;">Tu cuenta ha sido creada correctamente.</p>
+            <button type="button" class="btn-auth" onclick="window.location.href='{{ url_for('inicio') }}'" style="width:auto;padding:12px 40px;">Ir al inicio</button>
+        </div>
+
+        {% else %}
+
+        <h2 style="font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 30px;">Crear Cuenta</h2>
+
+        
+        {% if mensaje %}
+        <div class="alerta" style="border-left: 4px solid #b19470; background-color: #faf6f0; color: #5c4d3c; padding: 12px; margin-bottom: 20px; text-align: left; font-size: 13px;">
+            {{ mensaje }}
+        </div>
+        {% endif %}
+
+        <form method="POST" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text" name="nombre" class="auth-input" placeholder="Nombre completo" required autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
+            
+            <input type="email" name="email" class="auth-input" placeholder="Correo electrónico" required autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
+            
+            <div style="position:relative;">
+                <input type="password" name="password" id="pass-reg" class="auth-input" placeholder="Contraseña segura" required autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
+                <i class="fa-regular fa-eye" id="eye-reg" onclick="togglePass('pass-reg','eye-reg')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#999;"></i>
+            </div>
+
+            <div style="position:relative;">
+                <input type="password" name="confirm_password" id="confirm-pass-reg" class="auth-input" placeholder="Confirmar contraseña" required autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
+                <i class="fa-regular fa-eye" id="eye-confirm-reg" onclick="togglePass('confirm-pass-reg','eye-confirm-reg')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#999;"></i>
+            </div>
+
+            <button type="submit" class="btn-auth" style="margin-top: 15px;">Registrarse y Comenzar</button>
+        </form>
+
+        
+        <p class="auth-switch" style="margin-top: 30px; font-size: 13px; color: #666;">
+            ¿Ya tienes un perfil creado? <br>
+            <a href="{{ url_for('login') }}" style="color: #000; font-weight: 600; text-decoration: underline; display: inline-block; margin-top: 5px;">Inicia sesión</a>
+        </p>
+
+        <p style="margin-top: 20px; text-align: center;">
+            <a href="{{ url_for('inicio') }}" style="font-size: 12px; color: #999; text-decoration: none; letter-spacing: 1px;"><i class="fa-solid fa-arrow-left"></i> Volver al inicio</a>
+        </p>
+        {% endif %}
+    </div>
+
+<script>
+function togglePass(inputId, eyeId) {
+    var input = document.getElementById(inputId);
+    var eye = document.getElementById(eyeId);
+    if (input.type === 'password') {
+        input.type = 'text';
+        eye.className = 'fa-regular fa-eye-slash';
+    } else {
+        input.type = 'password';
+        eye.className = 'fa-regular fa-eye';
+    }
+}
+</script>
+</body>
+</html>
